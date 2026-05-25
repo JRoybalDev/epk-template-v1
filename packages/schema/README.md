@@ -44,7 +44,7 @@ See:
 Validate the example from the repo root:
 
 ```bash
-bun run import:epk examples/demo-epk.example.json
+bun run validate:epk examples/demo-epk.example.json
 ```
 
 That command is a dry run by default and does not write to the database.

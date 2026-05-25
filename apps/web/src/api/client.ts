@@ -40,6 +40,29 @@ const getErrorMessage = (payload: unknown, fallback: string) => {
     'error' in payload &&
     typeof payload.error === 'string'
   ) {
+    if (
+      'issues' in payload &&
+      Array.isArray(payload.issues) &&
+      payload.issues.length > 0
+    ) {
+      return payload.issues
+        .map((issue) => {
+          if (!issue || typeof issue !== 'object') return null
+          const path =
+            'path' in issue && typeof issue.path === 'string' && issue.path.length > 0
+              ? `${issue.path}: `
+              : ''
+          const message =
+            'message' in issue && typeof issue.message === 'string'
+              ? issue.message
+              : 'Invalid value'
+
+          return `${path}${message}`
+        })
+        .filter(Boolean)
+        .join('\n')
+    }
+
     return payload.error
   }
 

@@ -2,7 +2,7 @@ import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { serveStatic } from 'hono/bun'
 import { getEPK, saveEPK, saveAsset } from './db/epk'
-import { EPKSchema } from '../../packages/schema'
+import { validateEPK } from '../../packages/schema'
 import { join } from 'path'
 import { mkdirSync, writeFileSync } from 'fs'
 import { Buffer } from 'buffer'
@@ -13,9 +13,18 @@ app.use('/uploads/*', serveStatic({ root: './' }))
 
 const singleEPKSlug = process.env.EPK_SLUG ?? 'site'
 const adminApiKey = process.env.ADMIN_API_KEY
+const isProduction = process.env.NODE_ENV === 'production'
+const unsafeDefaultKeys = new Set([
+  'change-me-to-a-long-random-secret',
+  'dev-admin-key-change-me',
+])
 const assetTypes = ['photos', 'branding', 'assets'] as const
 const isAssetType = (value: string): value is (typeof assetTypes)[number] =>
   assetTypes.includes(value as (typeof assetTypes)[number])
+
+if (isProduction && (!adminApiKey || unsafeDefaultKeys.has(adminApiKey))) {
+  throw new Error('Set a strong ADMIN_API_KEY before running in production.')
+}
 
 const requireAdminKey = (c: Parameters<Parameters<typeof app.use>[1]>[0]) => {
   if (!adminApiKey) {
@@ -41,8 +50,16 @@ app.post('/api/epk', async (c) => {
   if (unauthorized) return unauthorized
 
   const body = await c.req.json()
-  const parsed = EPKSchema.safeParse(body)
-  if (!parsed.success) return c.json({ error: parsed.error }, 400)
+  const parsed = validateEPK(body)
+  if (!parsed.success) {
+    return c.json(
+      {
+        error: 'EPK validation failed',
+        issues: parsed.issues,
+      },
+      400,
+    )
+  }
   await saveEPK(singleEPKSlug, { ...parsed.data, slug: singleEPKSlug })
   return c.json({ ok: true })
 })

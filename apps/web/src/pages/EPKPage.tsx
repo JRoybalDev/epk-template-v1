@@ -2,6 +2,7 @@ import type { CSSProperties } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
 import { SiteFooter } from '../components/epk/SiteFooter'
 import { useEPK } from '../hooks/useEPK'
+import { useEPKMeta } from '../hooks/useEPKMeta'
 import './EPKPage.css'
 
 const navLabels = {
@@ -27,6 +28,7 @@ const navPaths = {
 
 export function EPKPage() {
   const epkQuery = useEPK()
+  useEPKMeta(epkQuery.data)
 
   if (epkQuery.isLoading) {
     return (
@@ -49,9 +51,13 @@ export function EPKPage() {
 
   if (!epk) {
     return (
-      <main className="epk-status site-shell">
-        <h1>No EPK content yet</h1>
-        <p>Import or save an EPK JSON file to start rendering the public site.</p>
+      <main className="epk-status epk-status--setup site-shell">
+        <section>
+          <p className="epk-status__eyebrow">Setup needed</p>
+          <h1>No EPK content yet</h1>
+          <p>Import a validated EPK JSON file, then refresh this page to render the public site.</p>
+          <code>bun run import:epk examples/demo-epk.example.json --admin-key "$ADMIN_API_KEY" --confirm</code>
+        </section>
       </main>
     )
   }

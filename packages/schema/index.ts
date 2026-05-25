@@ -16,6 +16,16 @@ export const BrandingSchema = z.object({
     faviconPath: z.string().optional(),
 })
 
+// ─── Metadata / Social Sharing ───────────────────────────
+export const MetadataSchema = z.object({
+    title: z.string().optional(),
+    description: z.string().optional(),
+    socialImage: z.string().optional(),
+    faviconPath: z.string().optional(),
+    themeColor: z.string().optional(),
+    siteUrl: z.string().optional(),
+})
+
 // ─── Home ─────────────────────────────────────────────────
 // Observed: centered album art card, title + subtitle below,
 // then full tour date list embedded directly on /home
@@ -241,6 +251,7 @@ export const EPKSchema = z.object({
     slug: z.string(),
     artistName: z.string(),
     pageTitle: z.string().optional(), // Browser <title> override
+    metadata: MetadataSchema.optional(),
 
     branding: BrandingSchema,
     nav: z.array(z.enum(['home', 'music', 'shop', 'tour', 'vip', 'about', 'newsletter', 'contact'])),
@@ -258,12 +269,41 @@ export const EPKSchema = z.object({
     contact: ContactSchema,
 })
 
+export type ValidationIssue = {
+    path: string
+    message: string
+}
+
+export const formatValidationIssues = (error: z.ZodError): ValidationIssue[] =>
+    error.issues.map((issue) => ({
+        path: issue.path.join('.'),
+        message: issue.message,
+    }))
+
+export const validateEPK = (data: unknown) => {
+    const parsed = EPKSchema.safeParse(data)
+
+    if (parsed.success) {
+        return {
+            success: true as const,
+            data: parsed.data,
+            issues: [],
+        }
+    }
+
+    return {
+        success: false as const,
+        data: null,
+        issues: formatValidationIssues(parsed.error),
+    }
+}
+
 export type EPK = z.infer<typeof EPKSchema>
 export type Release = z.infer<typeof ReleaseSchema>
 export type TourDate = z.infer<typeof TourDateSchema>
 export type Video = z.infer<typeof VideoSchema>
+export type ShopItem = z.infer<typeof ShopItemSchema>
 
-// export type ShopItem = z.infer<typeof ShopItemSchema>
 // export type Award = z.infer<typeof AwardSchema>
 // export type PressQuote = z.infer<typeof PressQuoteSchema>
 // export type Branding = z.infer<typeof BrandingSchema>

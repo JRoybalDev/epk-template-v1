@@ -77,10 +77,23 @@
   padding: var(--space-5);
 }
 
-.epk-card img {
+.epk-card img,
+.epk-card .epk-image-fallback {
   aspect-ratio: 4 / 3;
   width: 100%;
   object-fit: cover;
+}
+
+.epk-image-fallback {
+  display: grid;
+  place-items: center;
+  background:
+    linear-gradient(135deg, rgb(0 0 0 / 0.06), rgb(255 255 255 / 0)),
+    var(--color-surface-muted);
+  color: var(--color-text-muted);
+  font-size: 0.82rem;
+  font-weight: 900;
+  text-transform: uppercase;
 }
 
 .epk-muted {
@@ -101,7 +114,8 @@
   overflow: hidden;
 }
 
-.home-hero__art img {
+.home-hero__art img,
+.home-hero__art .epk-image-fallback {
   aspect-ratio: 1;
   width: 100%;
   object-fit: cover;

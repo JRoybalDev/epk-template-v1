@@ -90,6 +90,23 @@ Dashboard draft store:
 src/hooks/useEPKStore.ts
 ```
 
+The dashboard loads the shared EPK query into a Zustand draft. Editors modify the draft locally, and `Save EPK` sends the whole draft to `POST /api/epk` with `X-Admin-Key`.
+
+## Editors
+
+The dashboard includes initial editors for:
+
+```txt
+Branding
+Home
+Navigation
+About
+Footer
+Assets
+```
+
+Music, videos, tour, VIP, shop, and newsletter use JSON editors for now so the full schema remains editable before bespoke form UIs are added.
+
 ## Build
 
 ```bash

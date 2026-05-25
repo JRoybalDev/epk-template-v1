@@ -1,4 +1,5 @@
 import { useEPKOutlet } from '../../hooks/useEPKOutlet'
+import { FallbackImage } from './FallbackImage'
 import './EPKSections.css'
 
 export function ShopGrid() {
@@ -16,7 +17,11 @@ export function ShopGrid() {
         <div className="epk-grid music-grid">
           {shop?.featuredItems?.map((item) => (
             <article className="epk-card" key={item.id}>
-              {item.image && <img src={item.image} alt="" />}
+              <FallbackImage
+                alt=""
+                fallbackLabel="Shop image"
+                src={item.image}
+              />
               <div className="epk-card__body">
                 <h2>{item.name}</h2>
                 <p className="epk-muted">{item.currency} {item.price}</p>

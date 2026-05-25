@@ -12,6 +12,7 @@ import { VIPPage } from './components/epk/VIPPage'
 import { VideoGrid } from './components/epk/VideoGrid'
 import { DashboardPage } from './pages/DashboardPage'
 import { EPKPage } from './pages/EPKPage'
+import { NotFoundPage } from './pages/NotFoundPage'
 
 const qc = new QueryClient();
 
@@ -32,6 +33,7 @@ function App() {
           </Route>
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/dashboard/:section" element={<DashboardPage />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </BrowserRouter>
     </QueryClientProvider>

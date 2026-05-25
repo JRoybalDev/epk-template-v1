@@ -5,7 +5,8 @@
   "private": true,
   "scripts": {
     "dev": "$HOME/.bun/bin/bun run scripts/dev.ts",
-    "import:epk": "$HOME/.bun/bin/bun run scripts/import-epk.ts"
+    "import:epk": "$HOME/.bun/bin/bun run scripts/import-epk.ts",
+    "validate:epk": "$HOME/.bun/bin/bun run scripts/import-epk.ts"
   },
   "devDependencies": {
     "@types/bun": "latest"

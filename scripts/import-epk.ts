@@ -1,6 +1,6 @@
 import { readFileSync } from 'fs'
 import { resolve } from 'path'
-import { EPKSchema } from '../packages/schema'
+import { validateEPK } from '../packages/schema'
 
 type ImportArgs = {
   adminKey?: string
@@ -105,7 +105,16 @@ try {
   }
 
   const { absolutePath, data } = readJsonFile(args.filePath)
-  const epk = EPKSchema.parse(data)
+  const validation = validateEPK(data)
+  if (!validation.success) {
+    const issues = validation.issues
+      .map((issue) => `${issue.path || 'root'}: ${issue.message}`)
+      .join('\n')
+
+    throw new Error(`EPK validation failed:\n${issues}`)
+  }
+
+  const epk = validation.data
 
   console.log(`Validated EPK JSON: ${absolutePath}`)
   console.log(`Artist: ${epk.artistName}`)

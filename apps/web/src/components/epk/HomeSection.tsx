@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useEPKOutlet } from '../../hooks/useEPKOutlet'
+import { FallbackImage } from './FallbackImage'
 import './EPKSections.css'
 
 export function HomeSection() {
@@ -19,11 +20,13 @@ export function HomeSection() {
             <Link className="epk-button epk-button--ghost" to="/music">Music</Link>
           </div>
         </div>
-        {release.coverImage && (
-          <div className="home-hero__art">
-            <img src={release.coverImage} alt={`${release.title} cover`} />
-          </div>
-        )}
+        <div className="home-hero__art">
+          <FallbackImage
+            alt={`${release.title} cover`}
+            fallbackLabel="Release art"
+            src={release.coverImage}
+          />
+        </div>
       </div>
       {epk.home.showTourDatesOnHome && tourPreview.length > 0 && (
         <div className="site-container epk-section">

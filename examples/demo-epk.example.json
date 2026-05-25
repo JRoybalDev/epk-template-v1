@@ -2,14 +2,22 @@
   "slug": "site",
   "artistName": "Demo Artist",
   "pageTitle": "Demo Artist | Official Site",
+  "metadata": {
+    "title": "Demo Artist | Official EPK",
+    "description": "Demo Artist blends alt-soul, left-field pop, and cinematic R&B from Los Angeles.",
+    "socialImage": "/uploads/site/assets/social-share.jpg",
+    "faviconPath": "/uploads/site/branding/favicon.ico",
+    "themeColor": "#3B1A1A",
+    "siteUrl": "https://example.com"
+  },
   "branding": {
     "accentColor": "#3B1A1A",
-    "backgroundTexture": "/uploads/demo-artist/branding/linen-texture.jpg",
-    "logoImage": "/uploads/demo-artist/branding/logo.png",
+    "backgroundTexture": "/uploads/site/branding/linen-texture.jpg",
+    "logoImage": "/uploads/site/branding/logo.png",
     "logoText": "Demo Artist",
     "fontStyle": "script",
-    "cornerMotif": "/uploads/demo-artist/branding/corner-motif.svg",
-    "faviconPath": "/uploads/demo-artist/branding/favicon.ico"
+    "cornerMotif": "/uploads/site/branding/corner-motif.svg",
+    "faviconPath": "/uploads/site/branding/favicon.ico"
   },
   "nav": [
     "home",
@@ -24,7 +32,7 @@
     "featuredRelease": {
       "title": "Midnight Signal",
       "subtitle": "new single out now",
-      "coverImage": "/uploads/demo-artist/assets/midnight-signal-cover.jpg",
+      "coverImage": "/uploads/site/assets/midnight-signal-cover.jpg",
       "smartLinkUrl": "https://example.com/listen",
       "directStreamUrl": "https://open.spotify.com"
     },
@@ -43,7 +51,7 @@
         "title": "Midnight Signal",
         "type": "single",
         "releaseDate": "2026-05-01",
-        "heroImage": "/uploads/demo-artist/assets/midnight-signal-hero.jpg",
+        "heroImage": "/uploads/site/assets/midnight-signal-hero.jpg",
         "smartLinkUrl": "https://example.com/listen/midnight-signal",
         "streamingLinks": {
           "spotify": "https://open.spotify.com",
@@ -58,7 +66,7 @@
         "title": "City Lights EP",
         "type": "ep",
         "releaseDate": "2025-10-17",
-        "heroImage": "/uploads/demo-artist/assets/city-lights-hero.jpg",
+        "heroImage": "/uploads/site/assets/city-lights-hero.jpg",
         "smartLinkUrl": "https://example.com/listen/city-lights",
         "isFeatured": false,
         "displayOrder": 2
@@ -140,7 +148,7 @@
         "name": "Midnight Signal Tee",
         "price": "35.00",
         "currency": "USD",
-        "image": "/uploads/demo-artist/assets/tee.jpg",
+        "image": "/uploads/site/assets/tee.jpg",
         "purchaseUrl": "https://example.com/store/midnight-signal-tee",
         "category": "apparel",
         "isFeatured": true
@@ -150,7 +158,7 @@
         "name": "City Lights Vinyl",
         "price": "28.00",
         "currency": "USD",
-        "image": "/uploads/demo-artist/assets/vinyl.jpg",
+        "image": "/uploads/site/assets/vinyl.jpg",
         "purchaseUrl": "https://example.com/store/city-lights-vinyl",
         "category": "music",
         "isFeatured": true
@@ -195,13 +203,13 @@
     "pressPhotos": [
       {
         "id": "photo-001",
-        "path": "/uploads/demo-artist/photos/press-landscape.jpg",
+        "path": "/uploads/site/photos/press-landscape.jpg",
         "orientation": "landscape",
         "creditLine": "Photo by Example Photographer"
       },
       {
         "id": "photo-002",
-        "path": "/uploads/demo-artist/photos/press-portrait.jpg",
+        "path": "/uploads/site/photos/press-portrait.jpg",
         "orientation": "portrait",
         "creditLine": "Photo by Example Photographer"
       }
@@ -213,7 +221,7 @@
   "newsletter": {
     "headline": "Stay in the loop",
     "subheadline": "Get new music, tour dates, and merch drops first.",
-    "backgroundImage": "/uploads/demo-artist/assets/newsletter-bg.jpg",
+    "backgroundImage": "/uploads/site/assets/newsletter-bg.jpg",
     "embedCode": "<form><!-- provider embed goes here --></form>",
     "externalSignupUrl": "https://example.com/newsletter",
     "provider": "mailchimp"

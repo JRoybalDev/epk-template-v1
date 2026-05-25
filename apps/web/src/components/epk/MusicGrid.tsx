@@ -1,4 +1,5 @@
 import { useEPKOutlet } from '../../hooks/useEPKOutlet'
+import { FallbackImage } from './FallbackImage'
 import './EPKSections.css'
 
 export function MusicGrid() {
@@ -17,7 +18,11 @@ export function MusicGrid() {
         <div className="epk-grid music-grid">
           {releases.map((release) => (
             <article className="epk-card" key={release.id}>
-              {release.heroImage && <img src={release.heroImage} alt="" />}
+              <FallbackImage
+                alt=""
+                fallbackLabel="Release image"
+                src={release.heroImage}
+              />
               <div className="epk-card__body">
                 <p className="epk-muted">{release.type} · {release.releaseDate}</p>
                 <h2>{release.title}</h2>

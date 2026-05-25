@@ -89,3 +89,9 @@ photos
 branding
 assets
 ```
+
+## Production Notes
+
+The local server writes uploads to `apps/server/uploads` and serves them from `/uploads/*`. That is useful for local development, but production deployments should use durable object storage such as S3, R2, Vercel Blob, or Cloudinary.
+
+Do not use the example `ADMIN_API_KEY` in production. The server refuses production startup when the key is missing or set to a known local default.
