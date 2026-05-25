@@ -1,0 +1,16 @@
+{
+  "name": "epk-template-v1",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "$HOME/.bun/bin/bun run scripts/dev.ts",
+    "import:epk": "$HOME/.bun/bin/bun run scripts/import-epk.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}

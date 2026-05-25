@@ -1,0 +1,251 @@
+{
+  "slug": "site",
+  "artistName": "Demo Artist",
+  "pageTitle": "Demo Artist | Official Site",
+  "branding": {
+    "accentColor": "#3B1A1A",
+    "backgroundTexture": "/uploads/demo-artist/branding/linen-texture.jpg",
+    "logoImage": "/uploads/demo-artist/branding/logo.png",
+    "logoText": "Demo Artist",
+    "fontStyle": "script",
+    "cornerMotif": "/uploads/demo-artist/branding/corner-motif.svg",
+    "faviconPath": "/uploads/demo-artist/branding/favicon.ico"
+  },
+  "nav": [
+    "home",
+    "music",
+    "tour",
+    "vip",
+    "shop",
+    "about",
+    "newsletter"
+  ],
+  "home": {
+    "featuredRelease": {
+      "title": "Midnight Signal",
+      "subtitle": "new single out now",
+      "coverImage": "/uploads/demo-artist/assets/midnight-signal-cover.jpg",
+      "smartLinkUrl": "https://example.com/listen",
+      "directStreamUrl": "https://open.spotify.com"
+    },
+    "showTourDatesOnHome": true,
+    "featuredVideoUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    "announcement": {
+      "text": "North American tour dates are on sale now.",
+      "linkUrl": "https://example.com/tour",
+      "linkLabel": "Get tickets"
+    }
+  },
+  "music": {
+    "releases": [
+      {
+        "id": "release-001",
+        "title": "Midnight Signal",
+        "type": "single",
+        "releaseDate": "2026-05-01",
+        "heroImage": "/uploads/demo-artist/assets/midnight-signal-hero.jpg",
+        "smartLinkUrl": "https://example.com/listen/midnight-signal",
+        "streamingLinks": {
+          "spotify": "https://open.spotify.com",
+          "appleMusic": "https://music.apple.com",
+          "youtube": "https://youtube.com"
+        },
+        "isFeatured": true,
+        "displayOrder": 1
+      },
+      {
+        "id": "release-002",
+        "title": "City Lights EP",
+        "type": "ep",
+        "releaseDate": "2025-10-17",
+        "heroImage": "/uploads/demo-artist/assets/city-lights-hero.jpg",
+        "smartLinkUrl": "https://example.com/listen/city-lights",
+        "isFeatured": false,
+        "displayOrder": 2
+      }
+    ],
+    "gridColumns": "2"
+  },
+  "videos": [
+    {
+      "id": "video-001",
+      "title": "Demo Artist - Midnight Signal",
+      "youtubeVideoId": "dQw4w9WgXcQ",
+      "channelName": "DemoArtistVEVO",
+      "type": "music_video",
+      "publishedDate": "2026-05-02",
+      "isFeatured": true,
+      "displayOrder": 1
+    },
+    {
+      "id": "video-002",
+      "title": "Demo Artist - Live from Los Angeles",
+      "youtubeVideoId": "ysz5S6PUM-U",
+      "channelName": "Demo Artist",
+      "type": "live",
+      "publishedDate": "2025-12-12",
+      "isFeatured": false,
+      "displayOrder": 2
+    }
+  ],
+  "tour": {
+    "tourName": "The Midnight Signal Tour",
+    "dates": [
+      {
+        "id": "show-001",
+        "date": "2026-08-15",
+        "venue": "The Echo",
+        "city": "Los Angeles",
+        "region": "CA",
+        "country": "USA",
+        "ticketUrl": "https://example.com/tickets/la",
+        "vipUrl": "https://example.com/vip/la",
+        "isSoldOut": false,
+        "supportingActs": [
+          "Opening Artist"
+        ],
+        "isAnnounced": true
+      },
+      {
+        "id": "show-002",
+        "date": "2026-08-22",
+        "venue": "Bowery Ballroom",
+        "city": "New York",
+        "region": "NY",
+        "country": "USA",
+        "ticketUrl": "https://example.com/tickets/nyc",
+        "isSoldOut": true,
+        "isAnnounced": true
+      }
+    ],
+    "notifyCta": {
+      "text": "Get notified when new dates are announced near you.",
+      "buttonLabel": "Follow Demo Artist",
+      "buttonUrl": "https://example.com/follow"
+    },
+    "seatedWidgetUrl": "https://example.com/widgets/tour"
+  },
+  "vip": {
+    "externalStoreUrl": "https://example.com/vip",
+    "headline": "VIP Upgrades",
+    "description": "Meet and greet upgrades are available for select shows.",
+    "redirectOnly": false
+  },
+  "shop": {
+    "externalStoreUrl": "https://example.com/store",
+    "headline": "Featured Merch",
+    "featuredItems": [
+      {
+        "id": "merch-001",
+        "name": "Midnight Signal Tee",
+        "price": "35.00",
+        "currency": "USD",
+        "image": "/uploads/demo-artist/assets/tee.jpg",
+        "purchaseUrl": "https://example.com/store/midnight-signal-tee",
+        "category": "apparel",
+        "isFeatured": true
+      },
+      {
+        "id": "merch-002",
+        "name": "City Lights Vinyl",
+        "price": "28.00",
+        "currency": "USD",
+        "image": "/uploads/demo-artist/assets/vinyl.jpg",
+        "purchaseUrl": "https://example.com/store/city-lights-vinyl",
+        "category": "music",
+        "isFeatured": true
+      }
+    ],
+    "redirectOnly": false
+  },
+  "about": {
+    "shortBio": "Demo Artist blends alt-soul, left-field pop, and cinematic R&B from Los Angeles.",
+    "longBio": "Demo Artist is a Los Angeles-based performer and songwriter building immersive worlds around intimate songs. Their work pairs rich vocal arrangements with textural production, creating a live show built for clubs, festivals, and theater rooms alike.",
+    "genres": [
+      "Alt-Soul",
+      "R&B",
+      "Indie Pop"
+    ],
+    "similarArtists": [
+      "Artist Reference One",
+      "Artist Reference Two"
+    ],
+    "accolades": [
+      "Featured on national editorial playlists",
+      "Sold out first headline show in Los Angeles"
+    ],
+    "awards": [
+      {
+        "name": "Independent Music Award",
+        "category": "Best New Artist",
+        "year": 2026,
+        "won": false
+      }
+    ],
+    "pressQuotes": [
+      {
+        "id": "quote-001",
+        "quote": "A striking new voice with a magnetic live presence.",
+        "publication": "Example Magazine",
+        "author": "Jordan Example",
+        "url": "https://example.com/press/demo-artist",
+        "date": "2026-04-10"
+      }
+    ],
+    "pressPhotos": [
+      {
+        "id": "photo-001",
+        "path": "/uploads/demo-artist/photos/press-landscape.jpg",
+        "orientation": "landscape",
+        "creditLine": "Photo by Example Photographer"
+      },
+      {
+        "id": "photo-002",
+        "path": "/uploads/demo-artist/photos/press-portrait.jpg",
+        "orientation": "portrait",
+        "creditLine": "Photo by Example Photographer"
+      }
+    ],
+    "downloadableAssetsUrl": "https://example.com/press-kit.zip",
+    "techRiderUrl": "https://example.com/tech-rider.pdf",
+    "bookUrl": "https://example.com/book-demo-artist"
+  },
+  "newsletter": {
+    "headline": "Stay in the loop",
+    "subheadline": "Get new music, tour dates, and merch drops first.",
+    "backgroundImage": "/uploads/demo-artist/assets/newsletter-bg.jpg",
+    "embedCode": "<form><!-- provider embed goes here --></form>",
+    "externalSignupUrl": "https://example.com/newsletter",
+    "provider": "mailchimp"
+  },
+  "footer": {
+    "socials": {
+      "facebook": "https://facebook.com/demoartist",
+      "instagram": "https://instagram.com/demoartist",
+      "youtube": "https://youtube.com/@demoartist",
+      "tiktok": "https://tiktok.com/@demoartist",
+      "spotify": "https://open.spotify.com",
+      "appleMusic": "https://music.apple.com",
+      "website": "https://example.com"
+    },
+    "copyrightName": "Demo Artist",
+    "legalLinks": [
+      {
+        "label": "Privacy Policy",
+        "url": "https://example.com/privacy"
+      },
+      {
+        "label": "Terms",
+        "url": "https://example.com/terms"
+      }
+    ],
+    "poweredByLabel": "Powered by JRoybalDev",
+    "poweredByUrl": "https://example.com"
+  },
+  "contact": {
+    "bookingEmail": "booking@example.com",
+    "pressEmail": "press@example.com",
+    "managementEmail": "management@example.com",
+    "syncEmail": "sync@example.com"
+  }
+}
