@@ -104,8 +104,8 @@ Use [examples/demo-epk.example.json](examples/demo-epk.example.json) as the expe
 Detailed content references:
 
 ```txt
-packages/schema/README.md   Schema field reference for packages/schema/index.ts
-examples/README.md          Practical guide for examples/demo-epk.example.json
+packages/schema/README.md   EPK schema and demo JSON reference
+examples/README.md          Pointer to the shared reference
 ```
 
 Validate only:

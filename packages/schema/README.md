@@ -10,6 +10,38 @@ packages/schema/index.ts
 
 The schema is written with Zod. Use `EPKSchema` or `validateEPK(data)` whenever JSON needs to be checked before saving or importing.
 
+## Example Payload
+
+Main example:
+
+```txt
+examples/demo-epk.example.json
+```
+
+The example is intentionally complete. It shows every major section that can be included in the single-artist EPK.
+
+Validate it without writing anything:
+
+```bash
+bun run validate:epk examples/demo-epk.example.json
+```
+
+Import it into a running local API:
+
+```bash
+bun run import:epk examples/demo-epk.example.json \
+  --admin-key "$ADMIN_API_KEY" \
+  --confirm
+```
+
+Use it as a template for a real artist:
+
+```bash
+cp examples/demo-epk.example.json examples/artist-epk.json
+```
+
+Then replace demo text, URLs, emails, and media paths.
+
 ## Root Shape
 
 ```json
@@ -58,6 +90,8 @@ vip
 shop
 newsletter
 ```
+
+`slug` should stay `site` for this single-EPK template. The API stores one EPK record and forces the internal slug to the configured `EPK_SLUG`.
 
 ## Section Reference
 
@@ -416,6 +450,48 @@ Stores non-public or contact-link emails used by the EPK.
 `bookingEmail` is required. Other email fields are optional.
 
 ## Validation
+
+## Media Path Examples
+
+Local uploaded files are served from:
+
+```txt
+/uploads/site/assets/<file>
+/uploads/site/photos/<file>
+/uploads/site/branding/<file>
+```
+
+Common examples:
+
+```txt
+/uploads/site/assets/social-share.jpg
+/uploads/site/assets/release-cover.jpg
+/uploads/site/photos/press-landscape.jpg
+/uploads/site/branding/logo.png
+/uploads/site/branding/favicon.ico
+```
+
+## Validation Notes
+
+The schema requires valid URLs for URL fields and valid emails for email fields.
+
+These are valid examples:
+
+```json
+{
+  "smartLinkUrl": "https://example.com/listen",
+  "bookingEmail": "booking@example.com"
+}
+```
+
+These are not valid:
+
+```json
+{
+  "smartLinkUrl": "example.com/listen",
+  "bookingEmail": "booking"
+}
+```
 
 From the repo root:
 
