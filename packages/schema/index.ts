@@ -1,4 +1,4 @@
-import {z} from 'zod'
+import { z } from 'zod'
 
 const UrlString = z.url();
 const EmailString = z.email();
@@ -39,7 +39,7 @@ export const HomeSchema = z.object({
     }),
     showTourDatesOnHome: z.boolean().default(true), // mirrors /tour section on home
     // Optional secondary featured content (video, announcement, etc.)
-    featuredVideoUrl: UrlString.optional(), 
+    featuredVideoUrl: UrlString.optional(),
     announcement: z.object({
         text: z.string(),
         linkUrl: UrlString.optional(),
@@ -101,8 +101,8 @@ export const VideoSchema = z.object({
 export const TourDateSchema = z.object({
     id: z.string(),
     date: z.string(), // ISO date
-    venue: z.string(), 
-    city: z.string(), 
+    venue: z.string(),
+    city: z.string(),
     region: z.string(),
     country: z.string(),
     ticketUrl: UrlString.optional(),

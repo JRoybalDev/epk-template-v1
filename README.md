@@ -101,6 +101,13 @@ ADMIN_API_KEY=change-me-to-a-long-random-secret
 
 Use [examples/demo-epk.example.json](examples/demo-epk.example.json) as the expected shape.
 
+Detailed content references:
+
+```txt
+packages/schema/README.md   Schema field reference for packages/schema/index.ts
+examples/README.md          Practical guide for examples/demo-epk.example.json
+```
+
 Validate only:
 
 ```bash

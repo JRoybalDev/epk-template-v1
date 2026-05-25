@@ -1,50 +1,436 @@
-# EPK Schema
+# EPK Schema Reference
 
-Shared Zod schema and TypeScript types for the EPK JSON payload.
+This package documents and exports the shared EPK JSON schema used by the API, import utility, and dashboard.
 
 Main file:
 
 ```txt
-index.ts
+packages/schema/index.ts
 ```
 
-Exports:
+The schema is written with Zod. Use `EPKSchema` or `validateEPK(data)` whenever JSON needs to be checked before saving or importing.
 
-```ts
-EPKSchema
-BrandingSchema
-HomeSchema
-MusicSchema
-ReleaseSchema
-VideoSchema
-TourSchema
-TourDateSchema
-VIPSchema
-ShopSchema
-AboutSchema
-NewsletterSchema
-FooterSchema
-ContactSchema
+## Root Shape
+
+```json
+{
+  "slug": "site",
+  "artistName": "Demo Artist",
+  "pageTitle": "Demo Artist | Official Site",
+  "metadata": {},
+  "branding": {},
+  "nav": ["home", "music", "tour"],
+  "home": {},
+  "music": {},
+  "videos": [],
+  "tour": {},
+  "vip": {},
+  "shop": {},
+  "about": {},
+  "newsletter": {},
+  "footer": {},
+  "contact": {}
+}
 ```
 
-Primary type:
-
-```ts
-type EPK
-```
-
-## Example Payload
-
-See:
+Required root fields:
 
 ```txt
-../../examples/demo-epk.example.json
+slug
+artistName
+branding
+nav
+home
+music
+videos
+tour
+about
+footer
+contact
 ```
 
-Validate the example from the repo root:
+Optional root fields:
+
+```txt
+pageTitle
+metadata
+vip
+shop
+newsletter
+```
+
+## Section Reference
+
+### Metadata
+
+Controls browser and social sharing metadata.
+
+```json
+{
+  "title": "Demo Artist | Official EPK",
+  "description": "Short share description for search and social previews.",
+  "socialImage": "/uploads/site/assets/social-share.jpg",
+  "faviconPath": "/uploads/site/branding/favicon.ico",
+  "themeColor": "#3B1A1A",
+  "siteUrl": "https://example.com"
+}
+```
+
+### Branding
+
+Controls global visual identity.
+
+```json
+{
+  "accentColor": "#3B1A1A",
+  "backgroundTexture": "/uploads/site/branding/linen-texture.jpg",
+  "logoImage": "/uploads/site/branding/logo.png",
+  "logoText": "Demo Artist",
+  "fontStyle": "script",
+  "cornerMotif": "/uploads/site/branding/corner-motif.svg",
+  "faviconPath": "/uploads/site/branding/favicon.ico"
+}
+```
+
+`fontStyle` must be one of:
+
+```txt
+serif
+sans
+script
+```
+
+### Navigation
+
+Controls which public sections appear in the nav.
+
+```json
+["home", "music", "tour", "vip", "shop", "about", "newsletter", "contact"]
+```
+
+Allowed values:
+
+```txt
+home
+music
+shop
+tour
+vip
+about
+newsletter
+contact
+```
+
+### Home
+
+Controls the home hero and optional announcement.
+
+```json
+{
+  "featuredRelease": {
+    "title": "Midnight Signal",
+    "subtitle": "new single out now",
+    "coverImage": "/uploads/site/assets/midnight-signal-cover.jpg",
+    "smartLinkUrl": "https://example.com/listen",
+    "directStreamUrl": "https://open.spotify.com"
+  },
+  "showTourDatesOnHome": true,
+  "featuredVideoUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+  "announcement": {
+    "text": "North American tour dates are on sale now.",
+    "linkUrl": "https://example.com/tour",
+    "linkLabel": "Get tickets"
+  }
+}
+```
+
+### Music
+
+Controls release cards.
+
+```json
+{
+  "releases": [
+    {
+      "id": "release-001",
+      "title": "Midnight Signal",
+      "type": "single",
+      "releaseDate": "2026-05-01",
+      "heroImage": "/uploads/site/assets/midnight-signal-hero.jpg",
+      "smartLinkUrl": "https://example.com/listen/midnight-signal",
+      "streamingLinks": {
+        "spotify": "https://open.spotify.com",
+        "appleMusic": "https://music.apple.com",
+        "youtube": "https://youtube.com"
+      },
+      "isFeatured": true,
+      "displayOrder": 1
+    }
+  ],
+  "gridColumns": "2"
+}
+```
+
+Release `type` must be one of:
+
+```txt
+album
+single
+ep
+mix
+compilation
+deluxe
+collab
+```
+
+`gridColumns` must be `"1"`, `"2"`, `"3"`, or `"4"`.
+
+### Videos
+
+Controls embedded YouTube videos.
+
+```json
+[
+  {
+    "id": "video-001",
+    "title": "Demo Artist - Midnight Signal",
+    "youtubeVideoId": "dQw4w9WgXcQ",
+    "channelName": "DemoArtistVEVO",
+    "type": "music_video",
+    "publishedDate": "2026-05-02",
+    "isFeatured": true,
+    "displayOrder": 1
+  }
+]
+```
+
+Video `type` must be one of:
+
+```txt
+music_video
+live
+video
+scheduled
+other
+```
+
+### Tour
+
+Controls public tour rows and optional widget configuration.
+
+```json
+{
+  "tourName": "The Midnight Signal Tour",
+  "dates": [
+    {
+      "id": "show-001",
+      "date": "2026-08-15",
+      "venue": "The Echo",
+      "city": "Los Angeles",
+      "region": "CA",
+      "country": "USA",
+      "ticketUrl": "https://example.com/tickets/la",
+      "vipUrl": "https://example.com/vip/la",
+      "isSoldOut": false,
+      "supportingActs": ["Opening Artist"],
+      "isAnnounced": true
+    }
+  ],
+  "notifyCta": {
+    "text": "Get notified when new dates are announced near you.",
+    "buttonLabel": "Follow Demo Artist",
+    "buttonUrl": "https://example.com/follow"
+  },
+  "seatedWidgetUrl": "https://example.com/widgets/tour"
+}
+```
+
+### VIP
+
+Controls the VIP page or external VIP store link.
+
+```json
+{
+  "externalStoreUrl": "https://example.com/vip",
+  "headline": "VIP Upgrades",
+  "description": "Meet and greet upgrades are available for select shows.",
+  "redirectOnly": false
+}
+```
+
+### Shop
+
+Controls the shop page, external store link, and featured merch.
+
+```json
+{
+  "externalStoreUrl": "https://example.com/store",
+  "headline": "Featured Merch",
+  "featuredItems": [
+    {
+      "id": "merch-001",
+      "name": "Midnight Signal Tee",
+      "price": "35.00",
+      "currency": "USD",
+      "image": "/uploads/site/assets/tee.jpg",
+      "purchaseUrl": "https://example.com/store/midnight-signal-tee",
+      "category": "apparel",
+      "isFeatured": true
+    }
+  ],
+  "redirectOnly": false
+}
+```
+
+### About
+
+Controls bio, genres, press, awards, photos, and press-kit links.
+
+```json
+{
+  "shortBio": "One or two sentence artist bio.",
+  "longBio": "Long-form artist biography.",
+  "genres": ["Alt-Soul", "R&B", "Indie Pop"],
+  "similarArtists": ["Artist Reference One"],
+  "accolades": ["Featured on national editorial playlists"],
+  "awards": [
+    {
+      "name": "Independent Music Award",
+      "category": "Best New Artist",
+      "year": 2026,
+      "won": false
+    }
+  ],
+  "pressQuotes": [
+    {
+      "id": "quote-001",
+      "quote": "A striking new voice.",
+      "publication": "Example Magazine",
+      "author": "Jordan Example",
+      "url": "https://example.com/press",
+      "date": "2026-04-10"
+    }
+  ],
+  "pressPhotos": [
+    {
+      "id": "photo-001",
+      "path": "/uploads/site/photos/press-landscape.jpg",
+      "orientation": "landscape",
+      "creditLine": "Photo by Example Photographer"
+    }
+  ],
+  "downloadableAssetsUrl": "https://example.com/press-kit.zip",
+  "techRiderUrl": "https://example.com/tech-rider.pdf",
+  "bookUrl": "https://example.com/book"
+}
+```
+
+Press photo `orientation` must be one of:
+
+```txt
+portrait
+landscape
+square
+```
+
+### Newsletter
+
+Controls newsletter copy and provider configuration.
+
+```json
+{
+  "headline": "Stay in the loop",
+  "subheadline": "Get new music, tour dates, and merch drops first.",
+  "backgroundImage": "/uploads/site/assets/newsletter-bg.jpg",
+  "embedCode": "<form><!-- provider embed goes here --></form>",
+  "externalSignupUrl": "https://example.com/newsletter",
+  "provider": "mailchimp"
+}
+```
+
+Provider must be one of:
+
+```txt
+mailchimp
+klaviyo
+beehiiv
+convertkit
+other
+```
+
+### Footer
+
+Controls social links, legal links, and footer attribution.
+
+```json
+{
+  "socials": {
+    "facebook": "https://facebook.com/demoartist",
+    "instagram": "https://instagram.com/demoartist",
+    "youtube": "https://youtube.com/@demoartist",
+    "tiktok": "https://tiktok.com/@demoartist",
+    "spotify": "https://open.spotify.com",
+    "appleMusic": "https://music.apple.com",
+    "website": "https://example.com"
+  },
+  "copyrightName": "Demo Artist",
+  "legalLinks": [
+    {
+      "label": "Privacy Policy",
+      "url": "https://example.com/privacy"
+    }
+  ],
+  "poweredByLabel": "Powered by JRoybalDev",
+  "poweredByUrl": "https://example.com"
+}
+```
+
+Supported social keys:
+
+```txt
+facebook
+instagram
+youtube
+tiktok
+spotify
+appleMusic
+bandcamp
+twitter
+website
+soundcloud
+```
+
+### Contact
+
+Stores non-public or contact-link emails used by the EPK.
+
+```json
+{
+  "bookingEmail": "booking@example.com",
+  "pressEmail": "press@example.com",
+  "managementEmail": "management@example.com",
+  "syncEmail": "sync@example.com"
+}
+```
+
+`bookingEmail` is required. Other email fields are optional.
+
+## Validation
+
+From the repo root:
 
 ```bash
 bun run validate:epk examples/demo-epk.example.json
 ```
 
-That command is a dry run by default and does not write to the database.
+Programmatic usage:
+
+```ts
+import { validateEPK } from './packages/schema'
+
+const result = validateEPK(data)
+
+if (!result.success) {
+  console.log(result.issues)
+}
+```
