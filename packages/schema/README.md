@@ -1,15 +1,50 @@
-# schema
+# EPK Schema
 
-To install dependencies:
+Shared Zod schema and TypeScript types for the EPK JSON payload.
 
-```bash
-bun install
+Main file:
+
+```txt
+index.ts
 ```
 
-To run:
+Exports:
 
-```bash
-bun run index.ts
+```ts
+EPKSchema
+BrandingSchema
+HomeSchema
+MusicSchema
+ReleaseSchema
+VideoSchema
+TourSchema
+TourDateSchema
+VIPSchema
+ShopSchema
+AboutSchema
+NewsletterSchema
+FooterSchema
+ContactSchema
 ```
 
-This project was created using `bun init` in bun v1.3.11. [Bun](https://bun.com) is a fast all-in-one JavaScript runtime.
+Primary type:
+
+```ts
+type EPK
+```
+
+## Example Payload
+
+See:
+
+```txt
+../../examples/demo-epk.example.json
+```
+
+Validate the example from the repo root:
+
+```bash
+bun run import:epk examples/demo-epk.example.json
+```
+
+That command is a dry run by default and does not write to the database.
