@@ -104,6 +104,7 @@ Use [examples/demo-epk.example.json](examples/demo-epk.example.json) as the expe
 Detailed content references:
 
 ```txt
+docs/client-marketing-content-kit.md   Plain-language client and marketing intake guide
 packages/schema/README.md   EPK schema and demo JSON reference
 examples/README.md          Pointer to the shared reference
 ```
@@ -356,6 +357,8 @@ Do not deploy with the example admin key. In production, `ADMIN_API_KEY` must be
 Before launch, follow [docs/production-checklist.md](docs/production-checklist.md).
 
 When replacing demo content for a real artist, follow [docs/template-cleanup.md](docs/template-cleanup.md).
+
+For client-facing intake, content planning, optional fields, and a plain-language explanation of how EPK data is handled, use [docs/client-marketing-content-kit.md](docs/client-marketing-content-kit.md).
 
 ## Verify
 

@@ -103,10 +103,6 @@ export function DashboardPage() {
     return () => window.removeEventListener('beforeunload', warnBeforeUnload)
   }, [isDirty])
 
-  useEffect(() => {
-    setValidationIssues((issues) => (issues.length > 0 ? [] : issues))
-  }, [draft])
-
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const trimmedKey = adminKey.trim()
@@ -140,6 +136,21 @@ export function DashboardPage() {
     }
   }
 
+  const updateDraftField: typeof updateField = (...args) => {
+    setValidationIssues([])
+    updateField(...args)
+  }
+
+  const replaceDashboardDraft: typeof replaceDraft = (...args) => {
+    setValidationIssues([])
+    replaceDraft(...args)
+  }
+
+  const resetDashboardDraft: typeof resetDraft = (...args) => {
+    setValidationIssues([])
+    resetDraft(...args)
+  }
+
   const saveDraft = () => {
     if (!draft) return
 
@@ -162,7 +173,7 @@ export function DashboardPage() {
   const renderEditor = (sectionId: DashboardSectionId) => {
     if (!draft) return null
 
-    const editorProps = { draft, updateField }
+    const editorProps = { draft, updateField: updateDraftField }
 
     switch (sectionId) {
       case 'branding':
@@ -193,8 +204,8 @@ export function DashboardPage() {
         return (
           <JsonToolsEditor
             draft={draft}
-            replaceDraft={replaceDraft}
-            updateField={updateField}
+            replaceDraft={replaceDashboardDraft}
+            updateField={updateDraftField}
           />
         )
       case 'assets':
@@ -282,7 +293,7 @@ export function DashboardPage() {
               className="dashboard-action"
               disabled={!isDirty || saveMutation.isPending}
               type="button"
-              onClick={resetDraft}
+              onClick={resetDashboardDraft}
             >
               Reset
             </button>

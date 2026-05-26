@@ -1,6 +1,13 @@
 const bun = process.execPath
 
-const commands = [
+type DevCommand = {
+  name: string
+  cwd: string
+  cmd: string[]
+  env: Record<string, string>
+}
+
+const commands: DevCommand[] = [
   {
     name: 'server',
     cwd: 'apps/server',
@@ -19,7 +26,7 @@ const commands = [
     cmd: [bun, 'run', 'dev', '--host', '0.0.0.0'],
     env: {},
   },
-] as const
+]
 
 const children: Bun.Subprocess[] = []
 

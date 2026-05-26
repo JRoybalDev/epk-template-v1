@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import type { DashboardEditorProps } from './types'
 import './DashboardEditors.css'
 
@@ -24,12 +24,18 @@ export function JsonEditor<Key extends keyof DashboardEditorProps['draft']>({
     () => JSON.stringify(draft[field], null, 2),
     [draft, field],
   )
-  const [value, setValue] = useState(formattedValue)
+  const [jsonState, setJsonState] = useState(() => ({
+    source: formattedValue,
+    value: formattedValue,
+  }))
   const [error, setError] = useState('')
 
-  useEffect(() => {
-    setValue(formattedValue)
-  }, [formattedValue])
+  if (jsonState.source !== formattedValue) {
+    setJsonState({ source: formattedValue, value: formattedValue })
+  }
+
+  const value =
+    jsonState.source === formattedValue ? jsonState.value : formattedValue
 
   const applyJson = () => {
     try {
@@ -51,7 +57,9 @@ export function JsonEditor<Key extends keyof DashboardEditorProps['draft']>({
         <textarea
           id={`${String(field)}-json`}
           value={value}
-          onChange={(event) => setValue(event.target.value)}
+          onChange={(event) =>
+            setJsonState({ source: formattedValue, value: event.target.value })
+          }
         />
       </div>
       {error && <p className="editor-error">{error}</p>}

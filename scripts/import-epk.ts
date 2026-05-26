@@ -31,6 +31,7 @@ const readArgs = (): ImportArgs => {
 
   for (let index = 0; index < args.length; index += 1) {
     const arg = args[index]
+    if (!arg) continue
 
     if (arg === '--help' || arg === '-h') {
       console.log(usage)
