@@ -4,6 +4,15 @@ const UrlString = z.url();
 const EmailString = z.email();
 const PublicSectionKey = z.enum(['home', 'music', 'videos', 'shop', 'tour', 'vip', 'about', 'newsletter', 'contact'])
 const HomeEmbedSectionKey = z.enum(['music', 'videos', 'shop', 'tour', 'vip', 'about', 'newsletter', 'contact'])
+const FontAssignmentSchema = z.object({
+    family: z.string().optional(),
+    weight: z.string().optional(),
+    style: z.enum(['normal', 'italic', 'oblique']).optional(),
+    size: z.string().optional(),
+    lineHeight: z.string().optional(),
+    letterSpacing: z.string().optional(),
+    textTransform: z.enum(['none', 'uppercase', 'lowercase', 'capitalize']).optional(),
+})
 
 // ─── Global Branding ──────────────────────────────────────
 // Observed: linen texture bg, script font logo, dark burgundy
@@ -16,6 +25,43 @@ export const BrandingSchema = z.object({
     fontStyle: z.enum(['serif', 'sans', 'script']).default('sans'), // decorative SVG/image for corners
     cornerMotif: z.string().optional(),
     faviconPath: z.string().optional(),
+    theme: z.object({
+        bg: z.string().optional(),
+        bgAlt: z.string().optional(),
+        surface: z.string().optional(),
+        surfaceStrong: z.string().optional(),
+        text: z.string().optional(),
+        muted: z.string().optional(),
+        accent: z.string().optional(),
+        accentStrong: z.string().optional(),
+        accentSoft: z.string().optional(),
+        border: z.string().optional(),
+        cardBorder: z.string().optional(),
+        foam: z.string().optional(),
+    }).optional(),
+    fonts: z.object({
+        googleFonts: z.array(z.object({
+            family: z.string(),
+            weights: z.string().optional(),
+            styles: z.string().optional(),
+        })).optional(),
+        uploadedFonts: z.array(z.object({
+            family: z.string(),
+            source: z.string(),
+            weight: z.string().optional(),
+            style: z.enum(['normal', 'italic', 'oblique']).optional(),
+        })).optional(),
+        assignments: z.object({
+            body: FontAssignmentSchema.optional(),
+            h1: FontAssignmentSchema.optional(),
+            h2: FontAssignmentSchema.optional(),
+            h3: FontAssignmentSchema.optional(),
+            p: FontAssignmentSchema.optional(),
+            a: FontAssignmentSchema.optional(),
+            button: FontAssignmentSchema.optional(),
+            nav: FontAssignmentSchema.optional(),
+        }).optional(),
+    }).optional(),
 })
 
 // ─── Metadata / Social Sharing ───────────────────────────

@@ -10,6 +10,7 @@ import { AboutEditor } from '../components/dashboard/AboutEditor'
 import { AssetUploader } from '../components/dashboard/AssetUploader'
 import { BrandingEditor } from '../components/dashboard/BrandingEditor'
 import { ContactEditor } from '../components/dashboard/ContactEditor'
+import { FontsEditor } from '../components/dashboard/FontsEditor'
 import { FooterEditor } from '../components/dashboard/FooterEditor'
 import { HomeEditor } from '../components/dashboard/HomeEditor'
 import { JsonToolsEditor } from '../components/dashboard/JsonToolsEditor'
@@ -41,6 +42,7 @@ type DashboardSectionId =
   | 'nav'
   | 'layout'
   | 'branding'
+  | 'fonts'
   | 'metadata'
   | 'home'
   | 'music'
@@ -54,7 +56,7 @@ type DashboardSectionId =
   | 'json'
   | 'assets'
   | 'footer'
-type DashboardNavGroupId = 'setup' | 'content' | 'commerce' | 'profile' | 'tools'
+type DashboardNavGroupId = 'setup' | 'content' | 'commerce' | 'tools'
 type DashboardSection = {
   id: DashboardSectionId
   label: string
@@ -73,6 +75,7 @@ const dashboardNavGroups: DashboardNavGroup[] = [
       { id: 'nav', label: 'Navigation' },
       { id: 'layout', label: 'Layout' },
       { id: 'branding', label: 'Branding' },
+      { id: 'fonts', label: 'Fonts & Text Styling' },
       { id: 'metadata', label: 'Metadata' },
     ],
   },
@@ -84,24 +87,18 @@ const dashboardNavGroups: DashboardNavGroup[] = [
       { id: 'music', label: 'Music' },
       { id: 'videos', label: 'Videos' },
       { id: 'tour', label: 'Tour' },
+      { id: 'about', label: 'About' },
+      { id: 'contact', label: 'Contact' },
+      { id: 'footer', label: 'Footer' },
     ],
   },
   {
     id: 'commerce',
-    label: 'Offers',
+    label: 'Extras',
     sections: [
       { id: 'vip', label: 'VIP' },
       { id: 'shop', label: 'Shop' },
       { id: 'newsletter', label: 'Newsletter' },
-    ],
-  },
-  {
-    id: 'profile',
-    label: 'Profile',
-    sections: [
-      { id: 'about', label: 'About' },
-      { id: 'contact', label: 'Contact' },
-      { id: 'footer', label: 'Footer' },
     ],
   },
   {
@@ -461,6 +458,8 @@ export function DashboardPage() {
     switch (sectionId) {
       case 'branding':
         return <BrandingEditor {...editorProps} />
+      case 'fonts':
+        return <FontsEditor {...editorProps} />
       case 'metadata':
         return <MetadataEditor {...editorProps} />
       case 'nav':

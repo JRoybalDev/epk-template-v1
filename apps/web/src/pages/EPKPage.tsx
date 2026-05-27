@@ -2,6 +2,7 @@ import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { SiteFooter } from '../components/epk/SiteFooter'
 import { useEPK } from '../hooks/useEPK'
 import { useEPKMeta } from '../hooks/useEPKMeta'
+import { getEPKBrandingStyle } from '../utils/brandingTheme'
 import type { EPK } from '../../../../packages/schema'
 
 const navLabels = {
@@ -79,6 +80,7 @@ export function EPKPage() {
   }
 
   const epk = epkQuery.data
+  const brandingStyle = epk ? getEPKBrandingStyle(epk.branding) : null
 
   if (!epk) {
     return (
@@ -94,7 +96,8 @@ export function EPKPage() {
   }
 
   return (
-    <main data-template="epk-public-shell">
+    <main data-template="epk-public-shell" style={brandingStyle?.variables}>
+      {brandingStyle?.css && <style>{brandingStyle.css}</style>}
       <header data-section="site-header">
         <div data-field="branding">
           <NavLink to="/" aria-label={`${epk.artistName} home`}>

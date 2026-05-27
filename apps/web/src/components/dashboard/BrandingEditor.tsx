@@ -1,8 +1,46 @@
+import type { EPK } from '../../../../../packages/schema'
 import type { DashboardEditorProps } from './types'
 import { optionalString } from './types'
 import './DashboardEditors.css'
 
+type Branding = EPK['branding']
+type BrandingTheme = NonNullable<Branding['theme']>
+
+const themeFields: Array<{
+  key: keyof BrandingTheme
+  label: string
+  fallback: string
+}> = [
+  { key: 'bg', label: 'Page background', fallback: '#f7ede2' },
+  { key: 'bgAlt', label: 'Alternate background', fallback: '#e7d4bb' },
+  { key: 'surface', label: 'Surface', fallback: '#fffcf7' },
+  { key: 'surfaceStrong', label: 'Strong surface', fallback: '#fffcf7' },
+  { key: 'text', label: 'Text', fallback: '#27211b' },
+  { key: 'muted', label: 'Muted text', fallback: '#7f5a3b' },
+  { key: 'accent', label: 'Accent', fallback: '#8c6844' },
+  { key: 'accentStrong', label: 'Strong accent', fallback: '#c4976e' },
+  { key: 'accentSoft', label: 'Soft accent', fallback: '#d8b48a' },
+  { key: 'border', label: 'Border', fallback: '#d8c6b6' },
+  { key: 'cardBorder', label: 'Card border', fallback: '#d8c6b6' },
+  { key: 'foam', label: 'Contrast text', fallback: '#fffcf7' },
+]
+
 export function BrandingEditor({ draft, updateField }: DashboardEditorProps) {
+  const branding = draft.branding
+  const theme = branding.theme ?? {}
+
+  const updateBranding = (value: Branding) => updateField('branding', value)
+
+  const updateTheme = (key: keyof BrandingTheme, value: string) => {
+    updateBranding({
+      ...branding,
+      theme: {
+        ...theme,
+        [key]: optionalString(value),
+      },
+    })
+  }
+
   return (
     <div className="editor-form">
       <div className="editor-grid">
@@ -29,7 +67,7 @@ export function BrandingEditor({ draft, updateField }: DashboardEditorProps) {
           />
         </div>
         <div className="editor-field">
-          <label htmlFor="font-style">Font style</label>
+          <label htmlFor="font-style">Default font style</label>
           <select
             id="font-style"
             value={draft.branding.fontStyle}
@@ -111,6 +149,28 @@ export function BrandingEditor({ draft, updateField }: DashboardEditorProps) {
           />
         </div>
       </div>
+      <section className="editor-item" aria-labelledby="theme-title">
+        <div className="editor-item__header">
+          <h3 id="theme-title">Public EPK color theme</h3>
+        </div>
+        <p className="editor-note">
+          These colors apply only to the public EPK. The dashboard keeps its own
+          light/dark mode.
+        </p>
+        <div className="editor-grid">
+          {themeFields.map((field) => (
+            <div className="editor-field" key={field.key}>
+              <label htmlFor={`theme-${field.key}`}>{field.label}</label>
+              <input
+                id={`theme-${field.key}`}
+                type="color"
+                value={theme[field.key] ?? field.fallback}
+                onChange={(event) => updateTheme(field.key, event.target.value)}
+              />
+            </div>
+          ))}
+        </div>
+      </section>
     </div>
   )
 }
