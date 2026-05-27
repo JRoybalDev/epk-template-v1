@@ -163,7 +163,7 @@ Main dashboard workflow:
 1. Enter the admin key.
 2. Edit EPK sections.
 3. Upload assets if needed and copy returned paths.
-4. Review the public EPK with "View public EPK".
+4. Review the public EPK with "View EPK".
 5. Save changes with "Save EPK".
 6. Export a JSON backup from the JSON section.
 ```

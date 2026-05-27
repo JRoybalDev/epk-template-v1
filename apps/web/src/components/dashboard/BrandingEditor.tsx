@@ -15,14 +15,6 @@ export function BrandingEditor({ draft, updateField }: DashboardEditorProps) {
           />
         </div>
         <div className="editor-field">
-          <label htmlFor="page-title">Page title</label>
-          <input
-            id="page-title"
-            value={draft.pageTitle ?? ''}
-            onChange={(event) => updateField('pageTitle', optionalString(event.target.value))}
-          />
-        </div>
-        <div className="editor-field">
           <label htmlFor="accent-color">Accent color</label>
           <input
             id="accent-color"

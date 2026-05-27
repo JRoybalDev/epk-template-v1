@@ -2,19 +2,6 @@ import type { DashboardEditorProps } from './types'
 import { optionalString } from './types'
 import './DashboardEditors.css'
 
-const homeSectionOptions = [
-  { id: 'music', label: 'Music' },
-  { id: 'videos', label: 'Videos' },
-  { id: 'tour', label: 'Tour' },
-  { id: 'vip', label: 'VIP' },
-  { id: 'shop', label: 'Shop' },
-  { id: 'about', label: 'About' },
-  { id: 'newsletter', label: 'Newsletter' },
-  { id: 'contact', label: 'Contact' },
-] as const
-
-type HomeSectionOption = (typeof homeSectionOptions)[number]['id']
-
 const getYouTubeVideoId = (value?: string) => {
   if (!value) return ''
 
@@ -31,7 +18,6 @@ const getYouTubeVideoId = (value?: string) => {
 
 export function HomeEditor({ draft, updateField }: DashboardEditorProps) {
   const release = draft.home.featuredRelease
-  const sectionsOnHome = draft.home.sectionsOnHome ?? []
   const featuredVideo = draft.home.featuredVideo ?? {
     url: draft.home.featuredVideoUrl ?? '',
     title: undefined,
@@ -68,22 +54,6 @@ export function HomeEditor({ draft, updateField }: DashboardEditorProps) {
     updateField('home', {
       ...draft.home,
       announcement: shouldKeep ? value : undefined,
-    })
-  }
-
-  const updateSectionsOnHome = (
-    section: HomeSectionOption,
-    isEnabled: boolean,
-  ) => {
-    const nextSections = isEnabled
-      ? [...new Set([...sectionsOnHome, section])]
-      : sectionsOnHome.filter((item) => item !== section)
-
-    updateField('home', {
-      ...draft.home,
-      sectionsOnHome: nextSections,
-      showTourDatesOnHome:
-        section === 'tour' ? isEnabled : draft.home.showTourDatesOnHome,
     })
   }
 
@@ -290,33 +260,6 @@ export function HomeEditor({ draft, updateField }: DashboardEditorProps) {
               : ''}
           </p>
         )}
-      </section>
-      <section className="editor-item" aria-labelledby="home-sections-title">
-        <div className="editor-item__header">
-          <h3 id="home-sections-title">Sections on home</h3>
-        </div>
-        <p className="editor-note">
-          Choose which page sections should also render on the home page.
-        </p>
-        <div className="editor-check-list">
-          {homeSectionOptions.map((option) => (
-            <label className="editor-check" key={option.id}>
-              <input
-                checked={
-                  option.id === 'tour'
-                    ? draft.home.showTourDatesOnHome ||
-                      sectionsOnHome.includes(option.id)
-                    : sectionsOnHome.includes(option.id)
-                }
-                type="checkbox"
-                onChange={(event) =>
-                  updateSectionsOnHome(option.id, event.target.checked)
-                }
-              />
-              <span>{option.label}</span>
-            </label>
-          ))}
-        </div>
       </section>
       <section className="editor-item" aria-labelledby="home-announcement-title">
         <div className="editor-item__header">

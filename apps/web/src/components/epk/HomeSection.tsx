@@ -80,7 +80,14 @@ function HomeContactSection() {
 export function HomeSection() {
   const { epk } = useEPKOutlet()
   const release = epk.home.featuredRelease
-  const sectionsOnHome = new Set<HomeSectionKey>(epk.home.sectionsOnHome ?? [])
+  const hasMusicContent = epk.music.releases.length > 0
+  const canLinkToMusic = epk.nav.includes('music') && hasMusicContent
+  const sectionsOnHome = [
+    ...new Set<HomeSectionKey>([
+      ...(epk.home.sectionsOnHome ?? []),
+      ...(epk.home.showTourDatesOnHome ? ['tour' as HomeSectionKey] : []),
+    ]),
+  ]
   const featuredVideoUrl = epk.home.featuredVideo?.url ?? epk.home.featuredVideoUrl
   const featuredVideoId =
     epk.home.featuredVideo?.youtubeVideoId ?? getYouTubeVideoId(featuredVideoUrl)
@@ -96,25 +103,22 @@ export function HomeSection() {
       epk.home.featuredVideo?.publishedDate || matchingFeaturedVideo?.publishedDate,
   }
 
-  if (epk.home.showTourDatesOnHome) {
-    sectionsOnHome.add('tour')
-  }
-
   return (
     <section data-section="home">
       <div data-field="featuredRelease">
         <header>
-          <p>{epk.artistName}</p>
           <h1>{release.title}</h1>
           <p>{release.subtitle}</p>
           {release.smartLinkUrl && <a href={release.smartLinkUrl}>Listen now</a>}
-          <Link to="/music">Music</Link>
+          {canLinkToMusic && <Link to="/music">Music</Link>}
         </header>
-        <FallbackImage
-          alt={`${release.title} cover`}
-          fallbackLabel="Release art"
-          src={release.coverImage}
-        />
+        {release.coverImage && (
+          <FallbackImage
+            alt={`${release.title} cover`}
+            fallbackLabel="Release art"
+            src={release.coverImage}
+          />
+        )}
       </div>
       {epk.home.announcement && (
         <section data-section="home-announcement">
@@ -138,7 +142,7 @@ export function HomeSection() {
           )}
         </section>
       )}
-      {[...sectionsOnHome].map((section) => (
+      {sectionsOnHome.map((section) => (
         <div data-home-section={section} key={section}>
           {renderHomeSection(section)}
         </div>

@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import type { FormEvent, MouseEvent } from 'react'
+import type { FormEvent, MouseEvent as ReactMouseEvent } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { AnimatePresence, LayoutGroup, motion, useReducedMotion } from 'framer-motion'
-import type { Transition } from 'framer-motion'
+import type { PanInfo, Transition } from 'framer-motion'
 import { Link, NavLink, useParams } from 'react-router-dom'
-import { FiChevronDown, FiMoon, FiSun } from 'react-icons/fi'
+import { FiChevronDown, FiMenu, FiMoon, FiSun, FiX } from 'react-icons/fi'
 import { validateEPK } from '../../../../packages/schema'
 import { AboutEditor } from '../components/dashboard/AboutEditor'
 import { AssetUploader } from '../components/dashboard/AssetUploader'
@@ -13,6 +13,7 @@ import { ContactEditor } from '../components/dashboard/ContactEditor'
 import { FooterEditor } from '../components/dashboard/FooterEditor'
 import { HomeEditor } from '../components/dashboard/HomeEditor'
 import { JsonToolsEditor } from '../components/dashboard/JsonToolsEditor'
+import { LayoutEditor } from '../components/dashboard/LayoutEditor'
 import { MetadataEditor } from '../components/dashboard/MetadataEditor'
 import { MusicEditor } from '../components/dashboard/MusicEditor'
 import { NavEditor } from '../components/dashboard/NavEditor'
@@ -22,7 +23,13 @@ import { TourEditor } from '../components/dashboard/TourEditor'
 import { VIPEditor } from '../components/dashboard/VIPEditor'
 import { VideoEditor } from '../components/dashboard/VideoEditor'
 import { saveEPK } from '../api/client'
-import { invalidateEPK, setCachedEPK, useEPK } from '../hooks/useEPK'
+import {
+  broadcastEPKUpdate,
+  epkQueryKey,
+  invalidateEPK,
+  setCachedEPK,
+  useEPK,
+} from '../hooks/useEPK'
 import { useEPKStore } from '../hooks/useEPKStore'
 import { downloadEPKJson } from '../utils/exportEPK'
 import './DashboardPage.css'
@@ -32,6 +39,7 @@ const dashboardThemeStorageKey = 'epk-dashboard-theme'
 type DashboardTheme = 'light' | 'dark'
 type DashboardSectionId =
   | 'nav'
+  | 'layout'
   | 'branding'
   | 'metadata'
   | 'home'
@@ -63,6 +71,7 @@ const dashboardNavGroups: DashboardNavGroup[] = [
     label: 'Site setup',
     sections: [
       { id: 'nav', label: 'Navigation' },
+      { id: 'layout', label: 'Layout' },
       { id: 'branding', label: 'Branding' },
       { id: 'metadata', label: 'Metadata' },
     ],
@@ -126,6 +135,7 @@ export function DashboardPage() {
   const [adminKey, setAdminKey] = useState('')
   const [saveMessage, setSaveMessage] = useState('')
   const [validationIssues, setValidationIssues] = useState<string[]>([])
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false)
   const [dashboardTheme, setDashboardTheme] = useState<DashboardTheme>(() =>
     window.localStorage.getItem(dashboardThemeStorageKey) === 'dark'
       ? 'dark'
@@ -209,6 +219,14 @@ export function DashboardPage() {
     document.title = `${dashboardArtistName} | Dashboard`
   }, [dashboardArtistName])
 
+  useEffect(() => {
+    document.body.style.overflow = isMobileNavOpen ? 'hidden' : ''
+
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [isMobileNavOpen])
+
   const saveMutation = useMutation({
     mutationFn: async () => {
       if (!draft) throw new Error('No draft EPK is loaded.')
@@ -219,6 +237,8 @@ export function DashboardPage() {
       markSaved(draft)
       setCachedEPK(queryClient, draft)
       await invalidateEPK(queryClient)
+      await queryClient.refetchQueries({ queryKey: epkQueryKey, type: 'active' })
+      broadcastEPKUpdate()
       setSaveMessage('Saved EPK changes.')
     },
   })
@@ -271,12 +291,32 @@ export function DashboardPage() {
     setAdminKey('')
   }
 
-  const guardUnsavedChanges = (event: MouseEvent<HTMLAnchorElement>) => {
+  const guardUnsavedChanges = (event: ReactMouseEvent<HTMLAnchorElement>) => {
     if (
       isDirty &&
       !window.confirm('You have unsaved dashboard changes. Leave this page anyway?')
     ) {
       event.preventDefault()
+    }
+  }
+
+  const handleDashboardNavClick = (
+    event: ReactMouseEvent<HTMLAnchorElement>,
+    shouldCloseMobileNav = false,
+  ) => {
+    guardUnsavedChanges(event)
+
+    if (!event.defaultPrevented && shouldCloseMobileNav) {
+      setIsMobileNavOpen(false)
+    }
+  }
+
+  const closeMobileNavAfterDrag = (
+    _: globalThis.MouseEvent | TouchEvent | PointerEvent,
+    info: PanInfo,
+  ) => {
+    if (info.offset.y > 96 || info.velocity.y > 700) {
+      setIsMobileNavOpen(false)
     }
   }
 
@@ -314,6 +354,105 @@ export function DashboardPage() {
     saveMutation.mutate()
   }
 
+  const renderDashboardNav = (shouldCloseMobileNav = false, idPrefix = 'desktop') => (
+    <nav className="dashboard-nav" aria-label="Dashboard sections">
+      <LayoutGroup>
+        {dashboardNavGroups.map((group) => {
+          const isOpen = openNavGroup === group.id
+          const isActiveGroup = group.id === activeNavGroup.id
+
+          return (
+            <motion.section
+              className={[
+                'dashboard-nav__group',
+                'collapse',
+                isOpen ? 'collapse-open' : 'collapse-close',
+                isActiveGroup ? 'dashboard-nav__group--active' : '',
+              ].filter(Boolean).join(' ')}
+              key={group.id}
+              layout="position"
+              transition={navLayoutTransition}
+            >
+              <button
+                aria-controls={`dashboard-nav-${idPrefix}-${group.id}`}
+                aria-expanded={isOpen}
+                className="dashboard-nav__group-trigger collapse-title"
+                type="button"
+                onClick={() =>
+                  setOpenNavGroup((current) =>
+                    current === group.id ? null : group.id,
+                  )
+                }
+              >
+                <span>{group.label}</span>
+                <motion.span
+                  animate={{ rotate: isOpen ? 180 : 0 }}
+                  aria-hidden="true"
+                  className="dashboard-nav__group-icon"
+                  transition={navLayoutTransition}
+                >
+                  <FiChevronDown />
+                </motion.span>
+              </button>
+              <AnimatePresence initial={false} mode="popLayout">
+                {isOpen && (
+                  <motion.div
+                    animate={{ height: 'auto', opacity: 1, y: 0 }}
+                    className="dashboard-nav__group-content collapse-content"
+                    exit={{ height: 0, opacity: 0, y: -4 }}
+                    id={`dashboard-nav-${idPrefix}-${group.id}`}
+                    initial={{ height: 0, opacity: 0, y: -4 }}
+                    transition={navPanelTransition}
+                  >
+                    <motion.div
+                      animate="open"
+                      className="dashboard-nav__group-content-inner"
+                      initial="closed"
+                      variants={{
+                        closed: {},
+                        open: {
+                          transition: navItemsTransition,
+                        },
+                      }}
+                    >
+                      {group.sections.map((item) => (
+                        <motion.div
+                          key={item.id}
+                          variants={{
+                            closed: { opacity: 0, x: -4 },
+                            open: {
+                              opacity: 1,
+                              transition: navItemTransition,
+                              x: 0,
+                            },
+                          }}
+                        >
+                          <NavLink
+                            className={({ isActive }) =>
+                              isActive || (!section && item.id === activeSection.id)
+                                ? 'dashboard-nav__link dashboard-nav__link--active'
+                                : 'dashboard-nav__link'
+                            }
+                            onClick={(event) =>
+                              handleDashboardNavClick(event, shouldCloseMobileNav)
+                            }
+                            to={`/dashboard/${item.id}`}
+                          >
+                            {item.label}
+                          </NavLink>
+                        </motion.div>
+                      ))}
+                    </motion.div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.section>
+          )
+        })}
+      </LayoutGroup>
+    </nav>
+  )
+
   const renderEditor = (sectionId: DashboardSectionId) => {
     if (!draft) return null
 
@@ -326,6 +465,8 @@ export function DashboardPage() {
         return <MetadataEditor {...editorProps} />
       case 'nav':
         return <NavEditor {...editorProps} />
+      case 'layout':
+        return <LayoutEditor {...editorProps} />
       case 'home':
         return <HomeEditor {...editorProps} />
       case 'music':
@@ -390,109 +531,86 @@ export function DashboardPage() {
 
   return (
     <main className={`dashboard-shell ${dashboardThemeClass} site-shell`}>
-      <aside className="dashboard-sidebar" aria-label="Dashboard sections">
+      <div className="dashboard-mobile-bar">
         <div>
           <p className="dashboard-sidebar__eyebrow">{dashboardArtistName}</p>
           <h1>Dashboard</h1>
         </div>
-        <nav className="dashboard-nav" aria-label="Dashboard sections">
-          <LayoutGroup>
-            {dashboardNavGroups.map((group) => {
-              const isOpen = openNavGroup === group.id
-              const isActiveGroup = group.id === activeNavGroup.id
-
-              return (
-                <motion.section
-                  className={[
-                    'dashboard-nav__group',
-                    'collapse',
-                    isOpen ? 'collapse-open' : 'collapse-close',
-                    isActiveGroup ? 'dashboard-nav__group--active' : '',
-                  ].filter(Boolean).join(' ')}
-                  key={group.id}
-                  layout="position"
-                  transition={navLayoutTransition}
-                >
-                  <button
-                    aria-controls={`dashboard-nav-${group.id}`}
-                    aria-expanded={isOpen}
-                    className="dashboard-nav__group-trigger collapse-title"
-                    type="button"
-                    onClick={() =>
-                      setOpenNavGroup((current) =>
-                        current === group.id ? null : group.id,
-                      )
-                    }
-                  >
-                    <span>{group.label}</span>
-                    <motion.span
-                      animate={{ rotate: isOpen ? 180 : 0 }}
-                      aria-hidden="true"
-                      className="dashboard-nav__group-icon"
-                      transition={navLayoutTransition}
-                    >
-                      <FiChevronDown />
-                    </motion.span>
-                  </button>
-                  <AnimatePresence initial={false} mode="popLayout">
-                    {isOpen && (
-                      <motion.div
-                        animate={{ height: 'auto', opacity: 1, y: 0 }}
-                        className="dashboard-nav__group-content collapse-content"
-                        exit={{ height: 0, opacity: 0, y: -4 }}
-                        id={`dashboard-nav-${group.id}`}
-                        initial={{ height: 0, opacity: 0, y: -4 }}
-                        transition={navPanelTransition}
-                      >
-                        <motion.div
-                          animate="open"
-                          className="dashboard-nav__group-content-inner"
-                          initial="closed"
-                          variants={{
-                            closed: {},
-                            open: {
-                              transition: navItemsTransition,
-                            },
-                          }}
-                        >
-                          {group.sections.map((item) => (
-                            <motion.div
-                              key={item.id}
-                              variants={{
-                                closed: { opacity: 0, x: -4 },
-                                open: {
-                                  opacity: 1,
-                                  transition: navItemTransition,
-                                  x: 0,
-                                },
-                              }}
-                            >
-                              <NavLink
-                                className={({ isActive }) =>
-                                  isActive || (!section && item.id === activeSection.id)
-                                    ? 'dashboard-nav__link dashboard-nav__link--active'
-                                    : 'dashboard-nav__link'
-                                }
-                                onClick={guardUnsavedChanges}
-                                to={`/dashboard/${item.id}`}
-                              >
-                                {item.label}
-                              </NavLink>
-                            </motion.div>
-                          ))}
-                        </motion.div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </motion.section>
-              )
-            })}
-          </LayoutGroup>
-        </nav>
+        <button
+          className="dashboard-mobile-nav-button"
+          type="button"
+          onClick={() => setIsMobileNavOpen(true)}
+        >
+          <FiMenu aria-hidden="true" />
+          <span>Menu</span>
+        </button>
+      </div>
+      <aside className="dashboard-sidebar dashboard-sidebar--desktop" aria-label="Dashboard sections">
+        <div>
+          <p className="dashboard-sidebar__eyebrow">{dashboardArtistName}</p>
+          <h1>Dashboard</h1>
+        </div>
+        {renderDashboardNav(false, 'desktop')}
         <button className="dashboard-sidebar__clear" type="button" onClick={clearKey}>
           Sign out
         </button>
       </aside>
+      <AnimatePresence>
+        {isMobileNavOpen && (
+          <motion.div
+            animate={{ opacity: 1 }}
+            className="dashboard-mobile-nav"
+            exit={{ opacity: 0 }}
+            initial={{ opacity: 0 }}
+            transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.18 }}
+          >
+            <button
+              aria-label="Close dashboard menu"
+              className="dashboard-mobile-nav__backdrop"
+              type="button"
+              onClick={() => setIsMobileNavOpen(false)}
+            />
+            <motion.aside
+              aria-label="Dashboard sections"
+              aria-modal="true"
+              className="dashboard-mobile-nav__sheet"
+              animate={{ y: 0 }}
+              drag={prefersReducedMotion ? false : 'y'}
+              dragConstraints={{ top: 0, bottom: 0 }}
+              dragElastic={{ top: 0, bottom: 0.24 }}
+              exit={{ y: '100%' }}
+              initial={{ y: '100%' }}
+              onDragEnd={closeMobileNavAfterDrag}
+              role="dialog"
+              transition={
+                prefersReducedMotion
+                  ? { duration: 0 }
+                  : { duration: 0.34, ease: navEase }
+              }
+            >
+              <div className="dashboard-mobile-nav__handle" aria-hidden="true" />
+              <div className="dashboard-mobile-nav__header">
+                <div>
+                  <p className="dashboard-sidebar__eyebrow">{dashboardArtistName}</p>
+                  <h2>Dashboard</h2>
+                </div>
+                <button
+                  aria-label="Close dashboard menu"
+                  className="dashboard-mobile-nav__close"
+                  type="button"
+                  onClick={() => setIsMobileNavOpen(false)}
+                >
+                  <FiX aria-hidden="true" />
+                </button>
+              </div>
+              {renderDashboardNav(true, 'mobile')}
+              <button className="dashboard-sidebar__clear" type="button" onClick={clearKey}>
+                Sign out
+              </button>
+            </motion.aside>
+          </motion.div>
+        )}
+      </AnimatePresence>
       <section className="dashboard-workspace" aria-labelledby="dashboard-section-title">
         <div className="dashboard-workspace__header">
           <div>
@@ -512,7 +630,7 @@ export function DashboardPage() {
                 target="_blank"
                 to="/"
               >
-                View public EPK
+                View EPK
               </Link>
               <button
                 className="dashboard-action"

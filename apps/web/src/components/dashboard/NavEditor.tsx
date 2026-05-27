@@ -15,14 +15,11 @@ const navOptions = [
 
 export function NavEditor({ draft, updateField }: DashboardEditorProps) {
   const updateNav = (item: (typeof navOptions)[number], isEnabled: boolean) => {
-    const selected = isEnabled
+    const nextNav = isEnabled
       ? [...new Set([...draft.nav, item])]
       : draft.nav.filter((navItem) => navItem !== item)
 
-    updateField(
-      'nav',
-      navOptions.filter((navItem) => selected.includes(navItem)),
-    )
+    updateField('nav', nextNav)
   }
 
   return (

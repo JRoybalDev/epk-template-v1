@@ -112,7 +112,8 @@ const assertAdminKey = (adminKey: string) => {
   }
 }
 
-export const getEPK = async () => parseFetchedEPK(await requestJson<unknown>(getEPKUrl()))
+export const getEPK = async () =>
+  parseFetchedEPK(await requestJson<unknown>(getEPKUrl(), { cache: 'no-store' }))
 
 export const saveEPK = (data: EPK, adminKey: string) => {
   assertAdminKey(adminKey)
