@@ -51,7 +51,7 @@ Then replace demo text, URLs, emails, and media paths.
   "pageTitle": "Demo Artist | Official Site",
   "metadata": {},
   "branding": {},
-  "nav": ["home", "music", "tour"],
+  "nav": ["home", "music", "videos", "tour"],
   "home": {},
   "music": {},
   "videos": [],
@@ -139,7 +139,7 @@ script
 Controls which public sections appear in the nav.
 
 ```json
-["home", "music", "tour", "vip", "shop", "about", "newsletter", "contact"]
+["home", "music", "videos", "tour", "vip", "shop", "about", "newsletter", "contact"]
 ```
 
 Allowed values:
@@ -147,6 +147,7 @@ Allowed values:
 ```txt
 home
 music
+videos
 shop
 tour
 vip
@@ -169,6 +170,14 @@ Controls the home hero and optional announcement.
     "directStreamUrl": "https://open.spotify.com"
   },
   "showTourDatesOnHome": true,
+  "sectionsOnHome": ["music", "videos", "tour"],
+  "featuredVideo": {
+    "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    "youtubeVideoId": "dQw4w9WgXcQ",
+    "title": "Demo Artist - Midnight Signal",
+    "channelName": "DemoArtistVEVO",
+    "publishedDate": "2026-05-02"
+  },
   "featuredVideoUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
   "announcement": {
     "text": "North American tour dates are on sale now.",

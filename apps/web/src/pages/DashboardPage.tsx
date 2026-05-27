@@ -1,7 +1,10 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { FormEvent, MouseEvent } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { AnimatePresence, LayoutGroup, motion, useReducedMotion } from 'framer-motion'
+import type { Transition } from 'framer-motion'
 import { Link, NavLink, useParams } from 'react-router-dom'
+import { FiChevronDown, FiMoon, FiSun } from 'react-icons/fi'
 import { validateEPK } from '../../../../packages/schema'
 import { AboutEditor } from '../components/dashboard/AboutEditor'
 import { AssetUploader } from '../components/dashboard/AssetUploader'
@@ -21,34 +24,95 @@ import { VideoEditor } from '../components/dashboard/VideoEditor'
 import { saveEPK } from '../api/client'
 import { invalidateEPK, setCachedEPK, useEPK } from '../hooks/useEPK'
 import { useEPKStore } from '../hooks/useEPKStore'
+import { downloadEPKJson } from '../utils/exportEPK'
 import './DashboardPage.css'
 
 const adminKeyStorageKey = 'epk-admin-key'
+const dashboardThemeStorageKey = 'epk-dashboard-theme'
+type DashboardTheme = 'light' | 'dark'
+type DashboardSectionId =
+  | 'nav'
+  | 'branding'
+  | 'metadata'
+  | 'home'
+  | 'music'
+  | 'videos'
+  | 'tour'
+  | 'vip'
+  | 'shop'
+  | 'about'
+  | 'newsletter'
+  | 'contact'
+  | 'json'
+  | 'assets'
+  | 'footer'
+type DashboardNavGroupId = 'setup' | 'content' | 'commerce' | 'profile' | 'tools'
+type DashboardSection = {
+  id: DashboardSectionId
+  label: string
+}
+type DashboardNavGroup = {
+  id: DashboardNavGroupId
+  label: string
+  sections: DashboardSection[]
+}
 
-const dashboardSections = [
-  { id: 'nav', label: 'Navigation' },
-  { id: 'branding', label: 'Branding' },
-  { id: 'metadata', label: 'Metadata' },
-  { id: 'home', label: 'Home' },
-  { id: 'music', label: 'Music' },
-  { id: 'videos', label: 'Videos' },
-  { id: 'tour', label: 'Tour' },
-  { id: 'vip', label: 'VIP' },
-  { id: 'shop', label: 'Shop' },
-  { id: 'about', label: 'About' },
-  { id: 'newsletter', label: 'Newsletter' },
-  { id: 'contact', label: 'Contact' },
-  { id: 'json', label: 'JSON' },
-  { id: 'assets', label: 'Assets' },
-  { id: 'footer', label: 'Footer' },
+const dashboardNavGroups: DashboardNavGroup[] = [
+  {
+    id: 'setup',
+    label: 'Site setup',
+    sections: [
+      { id: 'nav', label: 'Navigation' },
+      { id: 'branding', label: 'Branding' },
+      { id: 'metadata', label: 'Metadata' },
+    ],
+  },
+  {
+    id: 'content',
+    label: 'Core content',
+    sections: [
+      { id: 'home', label: 'Home' },
+      { id: 'music', label: 'Music' },
+      { id: 'videos', label: 'Videos' },
+      { id: 'tour', label: 'Tour' },
+    ],
+  },
+  {
+    id: 'commerce',
+    label: 'Offers',
+    sections: [
+      { id: 'vip', label: 'VIP' },
+      { id: 'shop', label: 'Shop' },
+      { id: 'newsletter', label: 'Newsletter' },
+    ],
+  },
+  {
+    id: 'profile',
+    label: 'Profile',
+    sections: [
+      { id: 'about', label: 'About' },
+      { id: 'contact', label: 'Contact' },
+      { id: 'footer', label: 'Footer' },
+    ],
+  },
+  {
+    id: 'tools',
+    label: 'Tools',
+    sections: [
+      { id: 'json', label: 'JSON' },
+      { id: 'assets', label: 'Assets' },
+    ],
+  },
 ]
 
-type DashboardSectionId = (typeof dashboardSections)[number]['id']
+const dashboardSections = dashboardNavGroups.flatMap((group) => group.sections)
+const navEase = [0.22, 1, 0.36, 1] as const
 
 export function DashboardPage() {
   const { section } = useParams()
   const queryClient = useQueryClient()
   const epkQuery = useEPK({ retry: false })
+  const loadedDraftAtRef = useRef(0)
   const draft = useEPKStore((state) => state.draft)
   const isDirty = useEPKStore((state) => state.isDirty)
   const loadDraft = useEPKStore((state) => state.loadDraft)
@@ -62,6 +126,38 @@ export function DashboardPage() {
   const [adminKey, setAdminKey] = useState('')
   const [saveMessage, setSaveMessage] = useState('')
   const [validationIssues, setValidationIssues] = useState<string[]>([])
+  const [dashboardTheme, setDashboardTheme] = useState<DashboardTheme>(() =>
+    window.localStorage.getItem(dashboardThemeStorageKey) === 'dark'
+      ? 'dark'
+      : 'light',
+  )
+  const dashboardThemeClass = `dashboard-theme-${dashboardTheme}`
+  const prefersReducedMotion = useReducedMotion()
+  const dashboardArtistName =
+    draft?.artistName || epkQuery.data?.artistName || 'Artist'
+
+  const updateDashboardTheme = (theme: DashboardTheme) => {
+    window.localStorage.setItem(dashboardThemeStorageKey, theme)
+    setDashboardTheme(theme)
+  }
+
+  const themeToggle = (
+    <label className="dashboard-theme-toggle">
+      <FiSun aria-hidden="true" className="dashboard-theme-toggle__icon" />
+      <input
+        aria-label="Dashboard dark mode"
+        checked={dashboardTheme === 'dark'}
+        type="checkbox"
+        onChange={(event) =>
+          updateDashboardTheme(event.target.checked ? 'dark' : 'light')
+        }
+      />
+      <span className="dashboard-theme-toggle__track" aria-hidden="true">
+        <span className="dashboard-theme-toggle__thumb" />
+      </span>
+      <FiMoon aria-hidden="true" className="dashboard-theme-toggle__icon" />
+    </label>
+  )
 
   const activeSection = useMemo(
     () =>
@@ -69,6 +165,49 @@ export function DashboardPage() {
       dashboardSections[0],
     [section],
   )
+  const activeNavGroup = useMemo(
+    () =>
+      dashboardNavGroups.find((group) =>
+        group.sections.some((item) => item.id === activeSection.id),
+      ) ?? dashboardNavGroups[0],
+    [activeSection.id],
+  )
+  const [openNavGroup, setOpenNavGroup] = useState<DashboardNavGroupId | null>(
+    activeNavGroup.id,
+  )
+  const navLayoutTransition: Transition = prefersReducedMotion
+    ? { duration: 0 }
+    : {
+        duration: 0.28,
+        ease: navEase,
+      }
+  const navPanelTransition: Transition = prefersReducedMotion
+    ? { duration: 0 }
+    : {
+        height: { duration: 0.32, ease: navEase },
+        opacity: { duration: 0.18, ease: 'easeOut' },
+        y: { duration: 0.24, ease: navEase },
+      }
+  const navItemsTransition: Transition = prefersReducedMotion
+    ? { duration: 0 }
+    : {
+        delayChildren: 0.04,
+        staggerChildren: 0.035,
+      }
+  const navItemTransition: Transition = prefersReducedMotion
+    ? { duration: 0 }
+    : {
+        duration: 0.18,
+        ease: navEase,
+      }
+
+  useEffect(() => {
+    setOpenNavGroup(activeNavGroup.id)
+  }, [activeNavGroup.id])
+
+  useEffect(() => {
+    document.title = `${dashboardArtistName} | Dashboard`
+  }, [dashboardArtistName])
 
   const saveMutation = useMutation({
     mutationFn: async () => {
@@ -85,10 +224,15 @@ export function DashboardPage() {
   })
 
   useEffect(() => {
-    if (epkQuery.data && !draft && !isDirty) {
+    if (
+      epkQuery.data &&
+      !isDirty &&
+      loadedDraftAtRef.current !== epkQuery.dataUpdatedAt
+    ) {
       loadDraft(epkQuery.data)
+      loadedDraftAtRef.current = epkQuery.dataUpdatedAt
     }
-  }, [draft, epkQuery.data, isDirty, loadDraft])
+  }, [epkQuery.data, epkQuery.dataUpdatedAt, isDirty, loadDraft])
 
   useEffect(() => {
     if (!isDirty) return
@@ -219,7 +363,8 @@ export function DashboardPage() {
 
   if (!storedKey) {
     return (
-      <main className="dashboard-gate site-shell">
+      <main className={`dashboard-gate ${dashboardThemeClass} site-shell`}>
+        <div className="dashboard-gate__theme">{themeToggle}</div>
         <section className="dashboard-gate__panel" aria-labelledby="dashboard-gate-title">
           <div className="dashboard-gate__mark" aria-hidden="true">
             JR
@@ -244,27 +389,105 @@ export function DashboardPage() {
   }
 
   return (
-    <main className="dashboard-shell site-shell">
+    <main className={`dashboard-shell ${dashboardThemeClass} site-shell`}>
       <aside className="dashboard-sidebar" aria-label="Dashboard sections">
         <div>
-          <p className="dashboard-sidebar__eyebrow">Artist EPK</p>
+          <p className="dashboard-sidebar__eyebrow">{dashboardArtistName}</p>
           <h1>Dashboard</h1>
         </div>
-        <nav className="dashboard-nav">
-          {dashboardSections.map((item) => (
-            <NavLink
-              className={({ isActive }) =>
-                isActive || (!section && item.id === activeSection.id)
-                  ? 'dashboard-nav__link dashboard-nav__link--active'
-                  : 'dashboard-nav__link'
-              }
-              key={item.id}
-              onClick={guardUnsavedChanges}
-              to={`/dashboard/${item.id}`}
-            >
-              {item.label}
-            </NavLink>
-          ))}
+        <nav className="dashboard-nav" aria-label="Dashboard sections">
+          <LayoutGroup>
+            {dashboardNavGroups.map((group) => {
+              const isOpen = openNavGroup === group.id
+              const isActiveGroup = group.id === activeNavGroup.id
+
+              return (
+                <motion.section
+                  className={[
+                    'dashboard-nav__group',
+                    'collapse',
+                    isOpen ? 'collapse-open' : 'collapse-close',
+                    isActiveGroup ? 'dashboard-nav__group--active' : '',
+                  ].filter(Boolean).join(' ')}
+                  key={group.id}
+                  layout="position"
+                  transition={navLayoutTransition}
+                >
+                  <button
+                    aria-controls={`dashboard-nav-${group.id}`}
+                    aria-expanded={isOpen}
+                    className="dashboard-nav__group-trigger collapse-title"
+                    type="button"
+                    onClick={() =>
+                      setOpenNavGroup((current) =>
+                        current === group.id ? null : group.id,
+                      )
+                    }
+                  >
+                    <span>{group.label}</span>
+                    <motion.span
+                      animate={{ rotate: isOpen ? 180 : 0 }}
+                      aria-hidden="true"
+                      className="dashboard-nav__group-icon"
+                      transition={navLayoutTransition}
+                    >
+                      <FiChevronDown />
+                    </motion.span>
+                  </button>
+                  <AnimatePresence initial={false} mode="popLayout">
+                    {isOpen && (
+                      <motion.div
+                        animate={{ height: 'auto', opacity: 1, y: 0 }}
+                        className="dashboard-nav__group-content collapse-content"
+                        exit={{ height: 0, opacity: 0, y: -4 }}
+                        id={`dashboard-nav-${group.id}`}
+                        initial={{ height: 0, opacity: 0, y: -4 }}
+                        transition={navPanelTransition}
+                      >
+                        <motion.div
+                          animate="open"
+                          className="dashboard-nav__group-content-inner"
+                          initial="closed"
+                          variants={{
+                            closed: {},
+                            open: {
+                              transition: navItemsTransition,
+                            },
+                          }}
+                        >
+                          {group.sections.map((item) => (
+                            <motion.div
+                              key={item.id}
+                              variants={{
+                                closed: { opacity: 0, x: -4 },
+                                open: {
+                                  opacity: 1,
+                                  transition: navItemTransition,
+                                  x: 0,
+                                },
+                              }}
+                            >
+                              <NavLink
+                                className={({ isActive }) =>
+                                  isActive || (!section && item.id === activeSection.id)
+                                    ? 'dashboard-nav__link dashboard-nav__link--active'
+                                    : 'dashboard-nav__link'
+                                }
+                                onClick={guardUnsavedChanges}
+                                to={`/dashboard/${item.id}`}
+                              >
+                                {item.label}
+                              </NavLink>
+                            </motion.div>
+                          ))}
+                        </motion.div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </motion.section>
+              )
+            })}
+          </LayoutGroup>
         </nav>
         <button className="dashboard-sidebar__clear" type="button" onClick={clearKey}>
           Sign out
@@ -279,32 +502,45 @@ export function DashboardPage() {
               {isDirty && <span className="dashboard-dirty-badge">Unsaved</span>}
             </div>
           </div>
-          <div className="dashboard-workspace__actions">
-            <Link
-              className="dashboard-action dashboard-action--link"
-              onClick={guardUnsavedChanges}
-              rel="noreferrer"
-              target="_blank"
-              to="/"
-            >
-              View public EPK
-            </Link>
-            <button
-              className="dashboard-action"
-              disabled={!isDirty || saveMutation.isPending}
-              type="button"
-              onClick={resetDashboardDraft}
-            >
-              Reset
-            </button>
-            <button
-              className="dashboard-action dashboard-action--primary"
-              disabled={!draft || !isDirty || saveMutation.isPending}
-              type="button"
-              onClick={saveDraft}
-            >
-              {saveMutation.isPending ? 'Saving...' : 'Save EPK'}
-            </button>
+          <div className="dashboard-workspace__action-stack">
+            {themeToggle}
+            <div className="dashboard-workspace__actions">
+              <Link
+                className="dashboard-action dashboard-action--link"
+                onClick={guardUnsavedChanges}
+                rel="noreferrer"
+                target="_blank"
+                to="/"
+              >
+                View public EPK
+              </Link>
+              <button
+                className="dashboard-action"
+                disabled={!draft}
+                type="button"
+                onClick={() => {
+                  if (draft) downloadEPKJson(draft)
+                }}
+              >
+                Export EPK
+              </button>
+              <button
+                className="dashboard-action"
+                disabled={!isDirty || saveMutation.isPending}
+                type="button"
+                onClick={resetDashboardDraft}
+              >
+                Reset
+              </button>
+              <button
+                className="dashboard-action dashboard-action--primary"
+                disabled={!draft || !isDirty || saveMutation.isPending}
+                type="button"
+                onClick={saveDraft}
+              >
+                {saveMutation.isPending ? 'Saving...' : 'Save EPK'}
+              </button>
+            </div>
           </div>
         </div>
         <div className="dashboard-workspace__panel">

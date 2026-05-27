@@ -26,11 +26,11 @@ const upsertFavicon = (href: string) => {
   element.href = href
 }
 
-export const useEPKMeta = (epk?: EPK) => {
+export const useEPKMeta = (epk?: EPK, pageLabel = 'Home') => {
   useEffect(() => {
     if (!epk) return
 
-    const title = epk.metadata?.title || epk.pageTitle || `${epk.artistName} | EPK`
+    const title = `${epk.artistName} | ${pageLabel}`
     const description =
       epk.metadata?.description ||
       epk.about.shortBio ||
@@ -66,11 +66,24 @@ export const useEPKMeta = (epk?: EPK) => {
       name: 'twitter:card',
       content: socialImage ? 'summary_large_image' : 'summary',
     })
+    upsertMeta('meta[name="twitter:title"]', {
+      name: 'twitter:title',
+      content: title,
+    })
+    upsertMeta('meta[name="twitter:description"]', {
+      name: 'twitter:description',
+      content: description,
+    })
 
     if (epk.metadata?.siteUrl) {
+      const canonicalUrl = new URL(
+        window.location.pathname,
+        epk.metadata.siteUrl,
+      ).toString()
+
       upsertMeta('meta[property="og:url"]', {
         property: 'og:url',
-        content: epk.metadata.siteUrl,
+        content: canonicalUrl,
       })
     }
 
@@ -91,5 +104,5 @@ export const useEPKMeta = (epk?: EPK) => {
     if (faviconPath) {
       upsertFavicon(faviconPath)
     }
-  }, [epk])
+  }, [epk, pageLabel])
 }

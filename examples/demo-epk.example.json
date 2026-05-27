@@ -22,6 +22,7 @@
   "nav": [
     "home",
     "music",
+    "videos",
     "tour",
     "vip",
     "shop",
@@ -37,6 +38,15 @@
       "directStreamUrl": "https://open.spotify.com"
     },
     "showTourDatesOnHome": true,
+    "sectionsOnHome": [
+      "music",
+      "videos",
+      "tour"
+    ],
+    "featuredVideo": {
+      "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+      "youtubeVideoId": "dQw4w9WgXcQ"
+    },
     "featuredVideoUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
     "announcement": {
       "text": "North American tour dates are on sale now.",

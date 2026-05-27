@@ -2,6 +2,8 @@ import { z } from 'zod'
 
 const UrlString = z.url();
 const EmailString = z.email();
+const PublicSectionKey = z.enum(['home', 'music', 'videos', 'shop', 'tour', 'vip', 'about', 'newsletter', 'contact'])
+const HomeEmbedSectionKey = z.enum(['music', 'videos', 'shop', 'tour', 'vip', 'about', 'newsletter', 'contact'])
 
 // ─── Global Branding ──────────────────────────────────────
 // Observed: linen texture bg, script font logo, dark burgundy
@@ -38,7 +40,15 @@ export const HomeSchema = z.object({
         directStreamUrl: UrlString.optional(), // fallback direct stream link
     }),
     showTourDatesOnHome: z.boolean().default(true), // mirrors /tour section on home
+    sectionsOnHome: z.array(HomeEmbedSectionKey).default([]), // full sections to also render on home
     // Optional secondary featured content (video, announcement, etc.)
+    featuredVideo: z.object({
+        url: UrlString,
+        title: z.string().optional(),
+        youtubeVideoId: z.string().optional(),
+        channelName: z.string().optional(),
+        publishedDate: z.string().optional(),
+    }).optional(),
     featuredVideoUrl: UrlString.optional(),
     announcement: z.object({
         text: z.string(),
@@ -254,7 +264,7 @@ export const EPKSchema = z.object({
     metadata: MetadataSchema.optional(),
 
     branding: BrandingSchema,
-    nav: z.array(z.enum(['home', 'music', 'shop', 'tour', 'vip', 'about', 'newsletter', 'contact'])),
+    nav: z.array(PublicSectionKey),
 
     home: HomeSchema,
     music: MusicSchema,

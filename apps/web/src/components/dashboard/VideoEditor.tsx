@@ -44,6 +44,16 @@ export function VideoEditor({ draft, updateField }: DashboardEditorProps) {
               </button>
             </div>
             <div className="editor-grid">
+              <div className="editor-field editor-field--wide">
+                <label htmlFor={`${video.id}-id`}>ID</label>
+                <input
+                  id={`${video.id}-id`}
+                  value={video.id}
+                  onChange={(event) =>
+                    updateVideo(video.id, { ...video, id: event.target.value })
+                  }
+                />
+              </div>
               <div className="editor-field">
                 <label htmlFor={`${video.id}-title`}>Title</label>
                 <input

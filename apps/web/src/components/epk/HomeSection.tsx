@@ -1,50 +1,148 @@
 import { Link } from 'react-router-dom'
 import { useEPKOutlet } from '../../hooks/useEPKOutlet'
+import { AboutSection } from './AboutSection'
 import { FallbackImage } from './FallbackImage'
-import './EPKSections.css'
+import { MusicGrid } from './MusicGrid'
+import { NewsletterSection } from './NewsletterSection'
+import { ShopGrid } from './ShopGrid'
+import { TourList } from './TourList'
+import { VIPPage } from './VIPPage'
+import { VideoGrid } from './VideoGrid'
+
+type HomeSectionKey =
+  | 'music'
+  | 'videos'
+  | 'shop'
+  | 'tour'
+  | 'vip'
+  | 'about'
+  | 'newsletter'
+  | 'contact'
+
+const getYouTubeVideoId = (value?: string) => {
+  if (!value) return ''
+
+  try {
+    const url = new URL(value)
+    if (url.hostname.includes('youtu.be')) return url.pathname.replace(/^\//, '')
+    if (url.searchParams.get('v')) return url.searchParams.get('v') ?? ''
+    const embedMatch = url.pathname.match(/\/embed\/([^/?]+)/)
+    return embedMatch?.[1] ?? ''
+  } catch {
+    return value
+  }
+}
+
+const renderHomeSection = (section: HomeSectionKey) => {
+  switch (section) {
+    case 'music':
+      return <MusicGrid />
+    case 'videos':
+      return <VideoGrid />
+    case 'shop':
+      return <ShopGrid />
+    case 'tour':
+      return <TourList />
+    case 'vip':
+      return <VIPPage />
+    case 'about':
+      return <AboutSection />
+    case 'newsletter':
+      return <NewsletterSection />
+    case 'contact':
+      return <HomeContactSection />
+    default:
+      return null
+  }
+}
+
+function HomeContactSection() {
+  const { epk } = useEPKOutlet()
+
+  return (
+    <section data-section="contact">
+      <header>
+        <p>Contact</p>
+        <h1>Contact</h1>
+      </header>
+      <div data-list="contacts">
+        <a href={`mailto:${epk.contact.bookingEmail}`}>Booking</a>
+        {epk.contact.pressEmail && <a href={`mailto:${epk.contact.pressEmail}`}>Press</a>}
+        {epk.contact.managementEmail && (
+          <a href={`mailto:${epk.contact.managementEmail}`}>Management</a>
+        )}
+        {epk.contact.syncEmail && <a href={`mailto:${epk.contact.syncEmail}`}>Sync</a>}
+      </div>
+    </section>
+  )
+}
 
 export function HomeSection() {
   const { epk } = useEPKOutlet()
   const release = epk.home.featuredRelease
-  const tourPreview = epk.tour.dates.slice(0, 3)
+  const sectionsOnHome = new Set<HomeSectionKey>(epk.home.sectionsOnHome ?? [])
+  const featuredVideoUrl = epk.home.featuredVideo?.url ?? epk.home.featuredVideoUrl
+  const featuredVideoId =
+    epk.home.featuredVideo?.youtubeVideoId ?? getYouTubeVideoId(featuredVideoUrl)
+  const matchingFeaturedVideo = epk.videos.find(
+    (video) => video.youtubeVideoId === featuredVideoId,
+  )
+  const featuredVideo = {
+    url: featuredVideoUrl,
+    title: epk.home.featuredVideo?.title || matchingFeaturedVideo?.title,
+    channelName:
+      epk.home.featuredVideo?.channelName || matchingFeaturedVideo?.channelName,
+    publishedDate:
+      epk.home.featuredVideo?.publishedDate || matchingFeaturedVideo?.publishedDate,
+  }
+
+  if (epk.home.showTourDatesOnHome) {
+    sectionsOnHome.add('tour')
+  }
 
   return (
-    <section className="epk-section">
-      <div className="home-hero site-container">
-        <div className="epk-section__header">
-          <p className="epk-section__eyebrow">{epk.artistName}</p>
+    <section data-section="home">
+      <div data-field="featuredRelease">
+        <header>
+          <p>{epk.artistName}</p>
           <h1>{release.title}</h1>
-          <p className="epk-section__lede">{release.subtitle}</p>
-          <div className="epk-button-row">
-            {release.smartLinkUrl && <a className="epk-button" href={release.smartLinkUrl}>Listen now</a>}
-            <Link className="epk-button epk-button--ghost" to="/music">Music</Link>
-          </div>
-        </div>
-        <div className="home-hero__art">
-          <FallbackImage
-            alt={`${release.title} cover`}
-            fallbackLabel="Release art"
-            src={release.coverImage}
-          />
-        </div>
+          <p>{release.subtitle}</p>
+          {release.smartLinkUrl && <a href={release.smartLinkUrl}>Listen now</a>}
+          <Link to="/music">Music</Link>
+        </header>
+        <FallbackImage
+          alt={`${release.title} cover`}
+          fallbackLabel="Release art"
+          src={release.coverImage}
+        />
       </div>
-      {epk.home.showTourDatesOnHome && tourPreview.length > 0 && (
-        <div className="site-container epk-section">
-          <div className="epk-section__header">
-            <p className="epk-section__eyebrow">Upcoming</p>
-            <h2>Tour dates</h2>
-          </div>
-          <div className="tour-list">
-            {tourPreview.map((date) => (
-              <div className="tour-row" key={date.id}>
-                <p className="tour-row__date">{date.date}</p>
-                <p>{date.venue} · {date.city}, {date.region}</p>
-                <Link className="epk-button epk-button--ghost" to="/tour">Details</Link>
-              </div>
-            ))}
-          </div>
-        </div>
+      {epk.home.announcement && (
+        <section data-section="home-announcement">
+          <p>{epk.home.announcement.text}</p>
+          {epk.home.announcement.linkUrl && (
+            <a href={epk.home.announcement.linkUrl}>
+              {epk.home.announcement.linkLabel || 'Learn more'}
+            </a>
+          )}
+        </section>
       )}
+      {featuredVideo.url && (
+        <section data-section="home-featured-video">
+          <a href={featuredVideo.url}>{featuredVideo.title || 'Featured video'}</a>
+          {(featuredVideo.channelName || featuredVideo.publishedDate) && (
+            <p>
+              {[featuredVideo.channelName, featuredVideo.publishedDate]
+                .filter(Boolean)
+                .join(' / ')}
+            </p>
+          )}
+        </section>
+      )}
+      {[...sectionsOnHome].map((section) => (
+        <div data-home-section={section} key={section}>
+          {renderHomeSection(section)}
+        </div>
+      ))}
     </section>
   )
 }

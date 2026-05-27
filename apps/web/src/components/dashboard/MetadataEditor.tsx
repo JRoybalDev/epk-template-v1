@@ -1,4 +1,5 @@
 import type { DashboardEditorProps } from './types'
+import { optionalString } from './types'
 import './DashboardEditors.css'
 
 const fallbackUrl = 'https://artist-site.example'
@@ -46,7 +47,7 @@ export function MetadataEditor({ draft, updateField }: DashboardEditorProps) {
               value={metadata.title ?? ''}
               placeholder={title}
               onChange={(event) =>
-                updateMetadata({ ...metadata, title: event.target.value })
+                updateMetadata({ ...metadata, title: optionalString(event.target.value) })
               }
             />
           </div>
@@ -57,7 +58,7 @@ export function MetadataEditor({ draft, updateField }: DashboardEditorProps) {
               value={metadata.description ?? ''}
               placeholder={description}
               onChange={(event) =>
-                updateMetadata({ ...metadata, description: event.target.value })
+                updateMetadata({ ...metadata, description: optionalString(event.target.value) })
               }
             />
           </div>
@@ -68,7 +69,7 @@ export function MetadataEditor({ draft, updateField }: DashboardEditorProps) {
               value={metadata.socialImage ?? ''}
               placeholder={socialImage}
               onChange={(event) =>
-                updateMetadata({ ...metadata, socialImage: event.target.value })
+                updateMetadata({ ...metadata, socialImage: optionalString(event.target.value) })
               }
             />
           </div>
@@ -79,7 +80,7 @@ export function MetadataEditor({ draft, updateField }: DashboardEditorProps) {
               value={metadata.faviconPath ?? ''}
               placeholder={faviconPath || '/uploads/site/branding/favicon.ico'}
               onChange={(event) =>
-                updateMetadata({ ...metadata, faviconPath: event.target.value })
+                updateMetadata({ ...metadata, faviconPath: optionalString(event.target.value) })
               }
             />
           </div>
@@ -90,7 +91,7 @@ export function MetadataEditor({ draft, updateField }: DashboardEditorProps) {
               value={metadata.siteUrl ?? ''}
               placeholder={siteUrl}
               onChange={(event) =>
-                updateMetadata({ ...metadata, siteUrl: event.target.value })
+                updateMetadata({ ...metadata, siteUrl: optionalString(event.target.value) })
               }
             />
           </div>

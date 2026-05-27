@@ -1,4 +1,8 @@
-import type { EPK } from '../../../../packages/schema'
+import {
+  EPKSchema,
+  formatValidationIssues,
+  type EPK,
+} from '../../../../packages/schema'
 
 export const apiBaseUrl = '/api'
 
@@ -20,6 +24,24 @@ export class ApiClientError extends Error {
 
 export const getEPKUrl = () => `${apiBaseUrl}/epk`
 export const uploadUrl = (type: AssetType) => `${apiBaseUrl}/upload/${type}`
+
+const parseFetchedEPK = (payload: unknown) => {
+  const parsed = EPKSchema.safeParse(payload)
+
+  if (!parsed.success) {
+    const issues = formatValidationIssues(parsed.error)
+
+    throw new ApiClientError(
+      issues
+        .map((issue) => `${issue.path || 'root'}: ${issue.message}`)
+        .join('\n'),
+      422,
+      { error: 'Fetched EPK failed schema validation', issues },
+    )
+  }
+
+  return parsed.data
+}
 
 const readResponsePayload = async (response: Response) => {
   const contentType = response.headers.get('content-type') ?? ''
@@ -90,7 +112,7 @@ const assertAdminKey = (adminKey: string) => {
   }
 }
 
-export const getEPK = () => requestJson<EPK>(getEPKUrl())
+export const getEPK = async () => parseFetchedEPK(await requestJson<unknown>(getEPKUrl()))
 
 export const saveEPK = (data: EPK, adminKey: string) => {
   assertAdminKey(adminKey)

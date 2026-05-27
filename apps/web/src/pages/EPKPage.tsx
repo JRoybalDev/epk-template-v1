@@ -1,13 +1,13 @@
-import type { CSSProperties } from 'react'
-import { NavLink, Outlet } from 'react-router-dom'
+import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { SiteFooter } from '../components/epk/SiteFooter'
 import { useEPK } from '../hooks/useEPK'
 import { useEPKMeta } from '../hooks/useEPKMeta'
-import './EPKPage.css'
+import type { EPK } from '../../../../packages/schema'
 
 const navLabels = {
   home: 'Home',
   music: 'Music',
+  videos: 'Videos',
   shop: 'Shop',
   tour: 'Tour',
   vip: 'VIP',
@@ -19,6 +19,7 @@ const navLabels = {
 const navPaths = {
   home: '/',
   music: '/music',
+  videos: '/videos',
   shop: '/shop',
   tour: '/tour',
   vip: '/vip',
@@ -26,13 +27,43 @@ const navPaths = {
   newsletter: '/newsletter',
 } as const
 
+const pageLabelsByPath = {
+  '/': 'Home',
+  '/music': 'Music',
+  '/videos': 'Videos',
+  '/shop': 'Shop',
+  '/tour': 'Tour',
+  '/vip': 'VIP',
+  '/about': 'About',
+  '/newsletter': 'Newsletter',
+} as const
+
+const isConfiguredNavItem = (epk: EPK, item: EPK['nav'][number]) => {
+  switch (item) {
+    case 'vip':
+      return Boolean(epk.vip)
+    case 'shop':
+      return Boolean(epk.shop)
+    case 'newsletter':
+      return Boolean(epk.newsletter)
+    case 'contact':
+      return Boolean(epk.contact.bookingEmail)
+    default:
+      return true
+  }
+}
+
 export function EPKPage() {
+  const location = useLocation()
+  const pageLabel =
+    pageLabelsByPath[location.pathname as keyof typeof pageLabelsByPath] ??
+    'Page'
   const epkQuery = useEPK()
-  useEPKMeta(epkQuery.data)
+  useEPKMeta(epkQuery.data, pageLabel)
 
   if (epkQuery.isLoading) {
     return (
-      <main className="epk-status site-shell">
+      <main data-template="epk-public-shell" data-state="loading">
         <p>Loading EPK...</p>
       </main>
     )
@@ -40,7 +71,7 @@ export function EPKPage() {
 
   if (epkQuery.isError) {
     return (
-      <main className="epk-status site-shell">
+      <main data-template="epk-public-shell" data-state="error">
         <h1>EPK unavailable</h1>
         <p>{epkQuery.error.message}</p>
       </main>
@@ -51,9 +82,9 @@ export function EPKPage() {
 
   if (!epk) {
     return (
-      <main className="epk-status epk-status--setup site-shell">
+      <main data-template="epk-public-shell" data-state="empty">
         <section>
-          <p className="epk-status__eyebrow">Setup needed</p>
+          <p>Setup needed</p>
           <h1>No EPK content yet</h1>
           <p>Import a validated EPK JSON file, then refresh this page to render the public site.</p>
           <code>bun run import:epk examples/demo-epk.example.json --admin-key "$ADMIN_API_KEY" --confirm</code>
@@ -62,42 +93,31 @@ export function EPKPage() {
     )
   }
 
-  const shellStyle = {
-    '--epk-accent': epk.branding.accentColor ?? 'var(--color-accent)',
-  } as CSSProperties
-
   return (
-    <main className="epk-shell site-shell" style={shellStyle}>
-      <header className="epk-header">
-        <div className="epk-header__inner site-container">
-          <NavLink className="epk-brand" to="/" aria-label={`${epk.artistName} home`}>
+    <main data-template="epk-public-shell">
+      <header data-section="site-header">
+        <div data-field="branding">
+          <NavLink to="/" aria-label={`${epk.artistName} home`}>
             {epk.branding.logoImage ? (
               <img src={epk.branding.logoImage} alt={epk.artistName} />
             ) : (
               <span>{epk.branding.logoText || epk.artistName}</span>
             )}
           </NavLink>
-          <nav className="epk-nav" aria-label="Public EPK sections">
-            {epk.nav.map((item) =>
-              item === 'contact' ? (
-                <a className="epk-nav__link" href={`mailto:${epk.contact.bookingEmail}`} key={item}>
-                  {navLabels[item]}
-                </a>
-              ) : (
-                <NavLink
-                  className={({ isActive }) =>
-                    isActive ? 'epk-nav__link epk-nav__link--active' : 'epk-nav__link'
-                  }
-                  end={item === 'home'}
-                  key={item}
-                  to={navPaths[item]}
-                >
-                  {navLabels[item]}
-                </NavLink>
-              ),
-            )}
-          </nav>
         </div>
+        <nav aria-label="Public EPK sections" data-section="site-navigation">
+          {epk.nav.filter((item) => isConfiguredNavItem(epk, item)).map((item) =>
+            item === 'contact' ? (
+              <a href={`mailto:${epk.contact.bookingEmail}`} key={item}>
+                {navLabels[item]}
+              </a>
+            ) : (
+              <NavLink end={item === 'home'} key={item} to={navPaths[item]}>
+                {navLabels[item]}
+              </NavLink>
+            ),
+          )}
+        </nav>
       </header>
       <Outlet context={{ epk }} />
       <SiteFooter epk={epk} />

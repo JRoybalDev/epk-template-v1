@@ -13,6 +13,17 @@ const releaseTypes: Release['type'][] = [
   'collab',
 ]
 
+const streamingPlatforms = [
+  'spotify',
+  'appleMusic',
+  'tidal',
+  'deezer',
+  'amazonMusic',
+  'youtube',
+  'soundcloud',
+  'bandcamp',
+] as const
+
 const createRelease = (index: number): Release => ({
   id: createEditorId('release'),
   title: 'New release',
@@ -74,6 +85,16 @@ export function MusicEditor({ draft, updateField }: DashboardEditorProps) {
               </button>
             </div>
             <div className="editor-grid">
+              <div className="editor-field editor-field--wide">
+                <label htmlFor={`${release.id}-id`}>ID</label>
+                <input
+                  id={`${release.id}-id`}
+                  value={release.id}
+                  onChange={(event) =>
+                    updateRelease(release.id, { ...release, id: event.target.value })
+                  }
+                />
+              </div>
               <div className="editor-field">
                 <label htmlFor={`${release.id}-title`}>Title</label>
                 <input
@@ -155,6 +176,33 @@ export function MusicEditor({ draft, updateField }: DashboardEditorProps) {
                   }
                 />
               </div>
+              {streamingPlatforms.map((platform) => (
+                <div className="editor-field" key={platform}>
+                  <label htmlFor={`${release.id}-${platform}`}>{platform} URL</label>
+                  <input
+                    id={`${release.id}-${platform}`}
+                    value={release.streamingLinks?.[platform] ?? ''}
+                    onChange={(event) => {
+                      const nextLinks = {
+                        ...(release.streamingLinks ?? {}),
+                        [platform]: optionalString(event.target.value),
+                      }
+
+                      Object.keys(nextLinks).forEach((key) => {
+                        if (!nextLinks[key as keyof typeof nextLinks]) {
+                          delete nextLinks[key as keyof typeof nextLinks]
+                        }
+                      })
+
+                      updateRelease(release.id, {
+                        ...release,
+                        streamingLinks:
+                          Object.keys(nextLinks).length > 0 ? nextLinks : undefined,
+                      })
+                    }}
+                  />
+                </div>
+              ))}
             </div>
             <label className="editor-check">
               <input

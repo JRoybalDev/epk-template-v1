@@ -1,24 +1,27 @@
 import { useEPKOutlet } from '../../hooks/useEPKOutlet'
-import './EPKSections.css'
 
 export function VIPPage() {
   const { epk } = useEPKOutlet()
   const vip = epk.vip
 
+  if (!vip) {
+    return (
+      <section data-section="vip" data-state="unavailable">
+        <h1>VIP unavailable</h1>
+        <p>VIP details have not been added yet.</p>
+      </section>
+    )
+  }
+
   return (
-    <section className="epk-section">
-      <div className="site-container">
-        <div className="epk-section__header">
-          <p className="epk-section__eyebrow">VIP</p>
-          <h1>{vip?.headline || 'VIP upgrades'}</h1>
-          {vip?.description && <p className="epk-section__lede">{vip.description}</p>}
-        </div>
-        {vip?.externalStoreUrl ? (
-          <a className="epk-button" href={vip.externalStoreUrl}>Open VIP store</a>
-        ) : (
-          <p className="epk-muted">VIP details have not been added yet.</p>
-        )}
-      </div>
+    <section data-section="vip">
+      <header>
+        <p>VIP</p>
+        <h1>{vip.headline || 'VIP upgrades'}</h1>
+        {vip.description && <p>{vip.description}</p>}
+      </header>
+      {vip.redirectOnly && <p>This VIP section is configured as an external store link.</p>}
+      <a href={vip.externalStoreUrl}>Open VIP store</a>
     </section>
   )
 }

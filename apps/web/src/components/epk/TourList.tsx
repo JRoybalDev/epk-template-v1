@@ -1,32 +1,42 @@
 import { useEPKOutlet } from '../../hooks/useEPKOutlet'
-import './EPKSections.css'
 
 export function TourList() {
   const { epk } = useEPKOutlet()
+  const dates = [...epk.tour.dates].sort((a, b) => a.date.localeCompare(b.date))
 
   return (
-    <section className="epk-section">
-      <div className="site-container">
-        <div className="epk-section__header">
-          <p className="epk-section__eyebrow">Tour</p>
-          <h1>{epk.tour.tourName || 'Upcoming dates'}</h1>
-        </div>
-        <div className="tour-list">
-          {epk.tour.dates.map((date) => (
-            <article className="tour-row" key={date.id}>
-              <p className="tour-row__date">{date.date}</p>
-              <div>
-                <h2>{date.venue}</h2>
-                <p className="epk-muted">{date.city}, {date.region}, {date.country}</p>
-              </div>
-              <div className="epk-button-row">
-                {date.vipUrl && <a className="epk-button epk-button--ghost" href={date.vipUrl}>VIP</a>}
-                {date.ticketUrl && <a className="epk-button" href={date.ticketUrl}>{date.isSoldOut ? 'Sold out' : 'Tickets'}</a>}
-              </div>
-            </article>
-          ))}
-        </div>
+    <section data-section="tour">
+      <header>
+        <p>Tour</p>
+        <h1>{epk.tour.tourName || 'Upcoming dates'}</h1>
+        {epk.tour.seatedWidgetUrl && <a href={epk.tour.seatedWidgetUrl}>Open tour widget</a>}
+      </header>
+      {dates.length === 0 && <p>No tour dates have been added yet.</p>}
+      <div data-list="tourDates">
+        {dates.map((date) => (
+          <article data-item="tourDate" key={date.id}>
+            <p>{date.date}</p>
+            <div>
+              <h2>{date.isAnnounced ? date.venue : 'Coming soon'}</h2>
+              <p>{date.city}, {date.region}, {date.country}</p>
+              {date.supportingActs && date.supportingActs.length > 0 && (
+                <p>{date.supportingActs.join(', ')}</p>
+              )}
+            </div>
+            <div>
+              {date.vipUrl && <a href={date.vipUrl}>VIP</a>}
+              {date.ticketUrl && !date.isSoldOut && <a href={date.ticketUrl}>Tickets</a>}
+              {date.isSoldOut && <span>Sold out</span>}
+            </div>
+          </article>
+        ))}
       </div>
+      {epk.tour.notifyCta && (
+        <section data-section="tour-notify">
+          <p>{epk.tour.notifyCta.text}</p>
+          <a href={epk.tour.notifyCta.buttonUrl}>{epk.tour.notifyCta.buttonLabel}</a>
+        </section>
+      )}
     </section>
   )
 }

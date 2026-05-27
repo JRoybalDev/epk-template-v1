@@ -1,4 +1,5 @@
 import type { DashboardEditorProps } from './types'
+import { optionalString } from './types'
 import './DashboardEditors.css'
 
 export function BrandingEditor({ draft, updateField }: DashboardEditorProps) {
@@ -11,6 +12,14 @@ export function BrandingEditor({ draft, updateField }: DashboardEditorProps) {
             id="artist-name"
             value={draft.artistName}
             onChange={(event) => updateField('artistName', event.target.value)}
+          />
+        </div>
+        <div className="editor-field">
+          <label htmlFor="page-title">Page title</label>
+          <input
+            id="page-title"
+            value={draft.pageTitle ?? ''}
+            onChange={(event) => updateField('pageTitle', optionalString(event.target.value))}
           />
         </div>
         <div className="editor-field">
@@ -52,7 +61,59 @@ export function BrandingEditor({ draft, updateField }: DashboardEditorProps) {
             onChange={(event) =>
               updateField('branding', {
                 ...draft.branding,
-                logoText: event.target.value,
+                logoText: optionalString(event.target.value),
+              })
+            }
+          />
+        </div>
+        <div className="editor-field editor-field--wide">
+          <label htmlFor="logo-image">Logo image path</label>
+          <input
+            id="logo-image"
+            value={draft.branding.logoImage ?? ''}
+            onChange={(event) =>
+              updateField('branding', {
+                ...draft.branding,
+                logoImage: optionalString(event.target.value),
+              })
+            }
+          />
+        </div>
+        <div className="editor-field editor-field--wide">
+          <label htmlFor="background-texture">Background texture path</label>
+          <input
+            id="background-texture"
+            value={draft.branding.backgroundTexture ?? ''}
+            onChange={(event) =>
+              updateField('branding', {
+                ...draft.branding,
+                backgroundTexture: optionalString(event.target.value),
+              })
+            }
+          />
+        </div>
+        <div className="editor-field">
+          <label htmlFor="corner-motif">Corner motif path</label>
+          <input
+            id="corner-motif"
+            value={draft.branding.cornerMotif ?? ''}
+            onChange={(event) =>
+              updateField('branding', {
+                ...draft.branding,
+                cornerMotif: optionalString(event.target.value),
+              })
+            }
+          />
+        </div>
+        <div className="editor-field">
+          <label htmlFor="branding-favicon">Favicon path</label>
+          <input
+            id="branding-favicon"
+            value={draft.branding.faviconPath ?? ''}
+            onChange={(event) =>
+              updateField('branding', {
+                ...draft.branding,
+                faviconPath: optionalString(event.target.value),
               })
             }
           />

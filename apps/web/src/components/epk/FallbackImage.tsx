@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 type FallbackImageProps = {
   alt: string
@@ -15,9 +15,13 @@ export function FallbackImage({
 }: FallbackImageProps) {
   const [hasError, setHasError] = useState(false)
 
+  useEffect(() => {
+    setHasError(false)
+  }, [src])
+
   if (!src || hasError) {
     return (
-      <div className={className ? `epk-image-fallback ${className}` : 'epk-image-fallback'}>
+      <div className={className} data-state="image-unavailable">
         <span>{fallbackLabel}</span>
       </div>
     )

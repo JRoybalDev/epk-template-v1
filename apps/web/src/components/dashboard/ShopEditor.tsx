@@ -1,7 +1,16 @@
-import type { ShopItem } from '../../../../../packages/schema'
+import type { EPK, ShopItem } from '../../../../../packages/schema'
 import type { DashboardEditorProps } from './types'
 import { createEditorId, optionalString } from './types'
 import './DashboardEditors.css'
+
+type Shop = NonNullable<EPK['shop']>
+
+const defaultShop: Shop = {
+  externalStoreUrl: 'https://example.com/store',
+  headline: 'Featured merch',
+  featuredItems: [],
+  redirectOnly: false,
+}
 
 const createShopItem = (): ShopItem => ({
   id: createEditorId('merch'),
@@ -15,12 +24,7 @@ const createShopItem = (): ShopItem => ({
 })
 
 export function ShopEditor({ draft, updateField }: DashboardEditorProps) {
-  const shop = draft.shop ?? {
-    externalStoreUrl: 'https://example.com/store',
-    headline: 'Featured merch',
-    featuredItems: [],
-    redirectOnly: false,
-  }
+  const shop = draft.shop ?? defaultShop
   const items = shop.featuredItems ?? []
 
   const updateItem = (id: string, value: ShopItem) => {
@@ -36,6 +40,25 @@ export function ShopEditor({ draft, updateField }: DashboardEditorProps) {
         Configure the external shop and optional featured merch. Image paths usually
         look like <code>/uploads/site/assets/file.jpg</code>.
       </p>
+      <div className="editor-actions">
+        {draft.shop ? (
+          <button
+            className="editor-button"
+            type="button"
+            onClick={() => updateField('shop', undefined)}
+          >
+            Remove shop section
+          </button>
+        ) : (
+          <button
+            className="editor-button editor-button--primary"
+            type="button"
+            onClick={() => updateField('shop', defaultShop)}
+          >
+            Add shop section
+          </button>
+        )}
+      </div>
       <div className="editor-grid">
         <div className="editor-field">
           <label htmlFor="shop-headline">Headline</label>
@@ -87,6 +110,14 @@ export function ShopEditor({ draft, updateField }: DashboardEditorProps) {
               </button>
             </div>
             <div className="editor-grid">
+              <div className="editor-field editor-field--wide">
+                <label htmlFor={`${item.id}-id`}>ID</label>
+                <input
+                  id={`${item.id}-id`}
+                  value={item.id}
+                  onChange={(event) => updateItem(item.id, { ...item, id: event.target.value })}
+                />
+              </div>
               <div className="editor-field">
                 <label htmlFor={`${item.id}-name`}>Name</label>
                 <input

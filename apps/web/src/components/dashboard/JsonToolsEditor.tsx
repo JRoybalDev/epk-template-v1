@@ -1,26 +1,12 @@
 import { useMemo, useRef, useState } from 'react'
 import type { EPK } from '../../../../../packages/schema'
 import { validateEPK } from '../../../../../packages/schema'
+import { downloadEPKJson, getEPKExportFilename } from '../../utils/exportEPK'
 import type { DashboardEditorProps } from './types'
 import './DashboardEditors.css'
 
 type JsonToolsEditorProps = DashboardEditorProps & {
   replaceDraft: (data: EPK) => void
-}
-
-const downloadJson = (filename: string, data: EPK) => {
-  const blob = new Blob([`${JSON.stringify(data, null, 2)}\n`], {
-    type: 'application/json',
-  })
-  const url = URL.createObjectURL(blob)
-  const link = document.createElement('a')
-
-  link.href = url
-  link.download = filename
-  document.body.appendChild(link)
-  link.click()
-  link.remove()
-  URL.revokeObjectURL(url)
 }
 
 const formatIssues = (issues: ReturnType<typeof validateEPK>['issues']) =>
@@ -35,14 +21,7 @@ export function JsonToolsEditor({
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
 
-  const exportFilename = useMemo(() => {
-    const artistSlug = draft.artistName
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)/g, '') || 'artist'
-
-    return `${artistSlug}-epk.json`
-  }, [draft.artistName])
+  const exportFilename = useMemo(() => getEPKExportFilename(draft), [draft])
 
   const importData = (raw: string) => {
     setError('')
@@ -89,7 +68,7 @@ export function JsonToolsEditor({
           <button
             className="editor-button editor-button--primary"
             type="button"
-            onClick={() => downloadJson(exportFilename, draft)}
+            onClick={() => downloadEPKJson(draft)}
           >
             Download JSON
           </button>

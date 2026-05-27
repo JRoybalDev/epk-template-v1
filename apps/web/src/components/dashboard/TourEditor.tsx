@@ -1,6 +1,6 @@
 import type { TourDate } from '../../../../../packages/schema'
 import type { DashboardEditorProps } from './types'
-import { createEditorId, optionalString } from './types'
+import { createEditorId, optionalString, parseCommaList } from './types'
 import './DashboardEditors.css'
 
 const createTourDate = (): TourDate => ({
@@ -17,11 +17,28 @@ const createTourDate = (): TourDate => ({
 export function TourEditor({ draft, updateField }: DashboardEditorProps) {
   const tour = draft.tour
   const dates = tour.dates
+  const notifyCta = tour.notifyCta ?? {
+    text: '',
+    buttonLabel: '',
+    buttonUrl: '',
+  }
 
   const updateDate = (id: string, value: TourDate) => {
     updateField('tour', {
       ...tour,
       dates: dates.map((date) => (date.id === id ? value : date)),
+    })
+  }
+
+  const updateNotifyCta = (value: typeof notifyCta) => {
+    const shouldKeep =
+      value.text.trim().length > 0 ||
+      value.buttonLabel.trim().length > 0 ||
+      value.buttonUrl.trim().length > 0
+
+    updateField('tour', {
+      ...tour,
+      notifyCta: shouldKeep ? value : undefined,
     })
   }
 
@@ -55,6 +72,52 @@ export function TourEditor({ draft, updateField }: DashboardEditorProps) {
           />
         </div>
       </div>
+      <section className="editor-item" aria-labelledby="tour-notify-title">
+        <div className="editor-item__header">
+          <h3 id="tour-notify-title">Notify CTA</h3>
+          {tour.notifyCta && (
+            <button
+              className="editor-button"
+              type="button"
+              onClick={() => updateField('tour', { ...tour, notifyCta: undefined })}
+            >
+              Clear CTA
+            </button>
+          )}
+        </div>
+        <div className="editor-grid">
+          <div className="editor-field editor-field--wide">
+            <label htmlFor="notify-text">Text</label>
+            <input
+              id="notify-text"
+              value={notifyCta.text}
+              onChange={(event) =>
+                updateNotifyCta({ ...notifyCta, text: event.target.value })
+              }
+            />
+          </div>
+          <div className="editor-field">
+            <label htmlFor="notify-label">Button label</label>
+            <input
+              id="notify-label"
+              value={notifyCta.buttonLabel}
+              onChange={(event) =>
+                updateNotifyCta({ ...notifyCta, buttonLabel: event.target.value })
+              }
+            />
+          </div>
+          <div className="editor-field">
+            <label htmlFor="notify-url">Button URL</label>
+            <input
+              id="notify-url"
+              value={notifyCta.buttonUrl}
+              onChange={(event) =>
+                updateNotifyCta({ ...notifyCta, buttonUrl: event.target.value })
+              }
+            />
+          </div>
+        </div>
+      </section>
       <div className="editor-list">
         {dates.map((date, index) => (
           <article className="editor-item" key={date.id}>
@@ -74,6 +137,14 @@ export function TourEditor({ draft, updateField }: DashboardEditorProps) {
               </button>
             </div>
             <div className="editor-grid">
+              <div className="editor-field editor-field--wide">
+                <label htmlFor={`${date.id}-id`}>ID</label>
+                <input
+                  id={`${date.id}-id`}
+                  value={date.id}
+                  onChange={(event) => updateDate(date.id, { ...date, id: event.target.value })}
+                />
+              </div>
               <div className="editor-field">
                 <label htmlFor={`${date.id}-date`}>Date</label>
                 <input
@@ -139,6 +210,21 @@ export function TourEditor({ draft, updateField }: DashboardEditorProps) {
                       vipUrl: optionalString(event.target.value),
                     })
                   }
+                />
+              </div>
+              <div className="editor-field editor-field--wide">
+                <label htmlFor={`${date.id}-supporting`}>Supporting acts, comma separated</label>
+                <input
+                  id={`${date.id}-supporting`}
+                  value={date.supportingActs?.join(', ') ?? ''}
+                  onChange={(event) => {
+                    const supportingActs = parseCommaList(event.target.value)
+                    updateDate(date.id, {
+                      ...date,
+                      supportingActs:
+                        supportingActs.length > 0 ? supportingActs : undefined,
+                    })
+                  }}
                 />
               </div>
             </div>

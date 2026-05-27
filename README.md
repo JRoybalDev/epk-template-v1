@@ -105,6 +105,7 @@ Detailed content references:
 
 ```txt
 docs/client-marketing-content-kit.md   Plain-language client and marketing intake guide
+docs/frontend-handoff.md               Frontend scaffold and data contract notes
 packages/schema/README.md   EPK schema and demo JSON reference
 examples/README.md          Pointer to the shared reference
 ```
@@ -359,6 +360,8 @@ Before launch, follow [docs/production-checklist.md](docs/production-checklist.m
 When replacing demo content for a real artist, follow [docs/template-cleanup.md](docs/template-cleanup.md).
 
 For client-facing intake, content planning, optional fields, and a plain-language explanation of how EPK data is handled, use [docs/client-marketing-content-kit.md](docs/client-marketing-content-kit.md).
+
+For frontend implementation notes, use [docs/frontend-handoff.md](docs/frontend-handoff.md). The public web app is intentionally a data-ready scaffold rather than a finished visual frontend.
 
 ## Verify
 
