@@ -35,6 +35,8 @@ bun run import:epk path/to/artist-epk.json --admin-key "$ADMIN_API_KEY" --confir
 - If importing through the dashboard `JSON` section, confirm the imported draft is reviewed and saved.
 - Fill out the `Contact` section with booking, press, management, and sync emails as needed.
 - Review `Music`, `Videos`, `Tour`, and `Shop` using the form editors instead of editing raw JSON.
+- Confirm optional fields that can be blank are intentionally blank, including release dates, tour regions, and accolades.
+- If using video URL import, restart the API after deployment and confirm `GET /api/youtube-metadata` works.
 
 ## Media
 
@@ -42,6 +44,7 @@ bun run import:epk path/to/artist-epk.json --admin-key "$ADMIN_API_KEY" --confir
 - Upload final images, PDFs, and brand assets to that store.
 - Replace local `/uploads/site/...` placeholder paths with production public URLs when local disk uploads are not durable.
 - Check press photo, release art, newsletter background, logo, favicon, and downloadable asset links.
+- Check background texture and uploaded font paths if the artist branding uses them.
 - Use the `Copy path` button after dashboard uploads to paste media paths into image fields.
 - Use a 1200 x 630 image for the Open Graph/social share image.
 
@@ -57,7 +60,9 @@ bun run import:epk path/to/artist-epk.json --admin-key "$ADMIN_API_KEY" --confir
   - `/about`
   - `/newsletter`
 - Confirm the browser title, description, theme color, and favicon match the artist.
+- Confirm browser titles follow the `<artist name> | <page>` pattern.
 - Confirm the dashboard `Metadata` preview matches the intended social share card.
+- Confirm public EPK color theme, fonts, and background texture apply only to the public site.
 - Check mobile and desktop layouts.
 - Confirm external links open correctly.
 
@@ -67,6 +72,7 @@ bun run import:epk path/to/artist-epk.json --admin-key "$ADMIN_API_KEY" --confir
 - Confirm `Sign out` clears access from `localStorage`.
 - Confirm unsaved changes warn before reload, sign out, or dashboard navigation.
 - Confirm protected API writes fail without `X-Admin-Key`.
+- Confirm dashboard light/dark mode does not affect the public EPK theme.
 
 ## Final Hand-Off
 

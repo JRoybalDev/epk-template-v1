@@ -122,7 +122,32 @@ Controls global visual identity.
   "logoText": "Demo Artist",
   "fontStyle": "script",
   "cornerMotif": "/uploads/site/branding/corner-motif.svg",
-  "faviconPath": "/uploads/site/branding/favicon.ico"
+  "faviconPath": "/uploads/site/branding/favicon.ico",
+  "theme": {
+    "bg": "#f7ede2",
+    "text": "#27211b",
+    "accent": "#8c6844"
+  },
+  "fonts": {
+    "googleFonts": [
+      {
+        "family": "Inter",
+        "weights": "400;700"
+      }
+    ],
+    "uploadedFonts": [
+      {
+        "family": "Artist Display",
+        "source": "/uploads/site/fonts/artist-display.woff2"
+      }
+    ],
+    "assignments": {
+      "h1": {
+        "family": "Artist Display",
+        "weight": "700"
+      }
+    }
+  }
 }
 ```
 
@@ -133,6 +158,8 @@ serif
 sans
 script
 ```
+
+`backgroundTexture`, when provided, is applied to the full public EPK page shell. `theme` and `fonts` only affect the public EPK; the dashboard keeps its own independent light/dark mode.
 
 ### Navigation
 
@@ -228,6 +255,8 @@ collab
 
 `gridColumns` must be `"1"`, `"2"`, `"3"`, or `"4"`.
 
+`releaseDate` is optional. Use `displayOrder` when the team wants manual sorting independent of dates.
+
 ### Videos
 
 Controls embedded YouTube videos.
@@ -257,6 +286,8 @@ scheduled
 other
 ```
 
+The dashboard can import a YouTube URL or video ID and fill `title`, `youtubeVideoId`, `channelName`, `publishedDate`, and an inferred `type` through the server metadata endpoint. Manual JSON entries can still provide these fields directly.
+
 ### Tour
 
 Controls public tour rows and optional widget configuration.
@@ -264,6 +295,7 @@ Controls public tour rows and optional widget configuration.
 ```json
 {
   "tourName": "The Midnight Signal Tour",
+  "dateDisplayFormat": "long_month_day_year",
   "dates": [
     {
       "id": "show-001",
@@ -287,6 +319,22 @@ Controls public tour rows and optional widget configuration.
   "seatedWidgetUrl": "https://example.com/widgets/tour"
 }
 ```
+
+Tour `region` is optional for dates where city and country are enough. The public location formatter skips missing regions.
+
+`dateDisplayFormat` controls public tour date display. Allowed values:
+
+```txt
+iso
+short_month_day_year
+short_month_day
+long_month_day_year
+long_month_day
+numeric_month_day_year
+day_short_month_year
+```
+
+The dashboard stores dates as ISO `YYYY-MM-DD` for sorting and validation, then renders the selected display format on the public page. Past tour dates are automatically treated as unannounced.
 
 ### VIP
 
@@ -376,6 +424,8 @@ landscape
 square
 ```
 
+`similarArtists`, `accolades`, download links, tech rider URL, and book URL are optional. If `accolades` is missing or empty, the public About page skips that list.
+
 ### Newsletter
 
 Controls newsletter copy and provider configuration.
@@ -458,8 +508,6 @@ Stores non-public or contact-link emails used by the EPK.
 
 `bookingEmail` is required. Other email fields are optional.
 
-## Validation
-
 ## Media Path Examples
 
 Local uploaded files are served from:
@@ -468,6 +516,7 @@ Local uploaded files are served from:
 /uploads/site/assets/<file>
 /uploads/site/photos/<file>
 /uploads/site/branding/<file>
+/uploads/site/fonts/<file>
 ```
 
 Common examples:
@@ -478,6 +527,7 @@ Common examples:
 /uploads/site/photos/press-landscape.jpg
 /uploads/site/branding/logo.png
 /uploads/site/branding/favicon.ico
+/uploads/site/fonts/artist-display.woff2
 ```
 
 ## Validation Notes

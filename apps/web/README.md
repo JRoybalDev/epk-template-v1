@@ -59,16 +59,19 @@ Global CSS is split intentionally:
 Public EPK styles live in:
 
 ```txt
-src/pages/EPKPage.css
-src/components/epk/EPKSections.css
-src/components/epk/SiteFooter.css
+src/App.css
+src/utils/brandingTheme.ts
+src/components/epk/*.tsx
 ```
 
 Dashboard styles live in:
 
 ```txt
 src/pages/DashboardPage.css
+src/components/dashboard/DashboardEditors.css
 ```
+
+The public EPK receives artist-specific CSS variables, font imports, font assignments, and full-page background texture rules from `src/utils/brandingTheme.ts`. The dashboard has a separate light/dark theme toggle and does not use public EPK color mode settings.
 
 ## Data Helpers
 
@@ -92,20 +95,33 @@ src/hooks/useEPKStore.ts
 
 The dashboard loads the shared EPK query into a Zustand draft. Editors modify the draft locally, and `Save EPK` sends the whole draft to `POST /api/epk` with `X-Admin-Key`.
 
+The video importer calls `GET /api/youtube-metadata` so pasted YouTube URLs can create rows with title, channel name, publish date, video ID, and inferred type.
+
 ## Editors
 
-The dashboard includes initial editors for:
+The dashboard includes form editors for:
 
 ```txt
-Branding
-Home
 Navigation
+Layout
+Branding
+Fonts & Text Styling
+Metadata
+Home
+Music
+Videos
+Tour
+VIP
+Shop
 About
+Newsletter
+Contact
+JSON
 Footer
 Assets
 ```
 
-Music, videos, tour, VIP, shop, and newsletter use JSON editors for now so the full schema remains editable before bespoke form UIs are added.
+Music releases, videos, tour dates, and font element settings use collapsible rows so large lists stay manageable. The JSON tools remain available for full-file import/export and backup workflows.
 
 ## Build
 

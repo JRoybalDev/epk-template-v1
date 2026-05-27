@@ -9,8 +9,12 @@ The web app is intentionally set up as a data-ready frontend scaffold, not a fin
 - Public route components read typed EPK data through `useEPKOutlet()`.
 - Metadata is populated from EPK data through `useEPKMeta()`.
 - Navigation is driven by the EPK `nav` array.
+- Home can render selected full sections through `home.sectionsOnHome`.
 - Links, sorting, conditional sections, image fallbacks, and empty states are in place.
-- The dashboard can load, edit, validate, save, import/export JSON, and upload assets.
+- Videos render YouTube iframes through `YouTubeEmbed`.
+- Tour dates keep ISO dates in data and render with `tour.dateDisplayFormat`.
+- Public branding applies color variables, font imports, font assignments, and full-page background texture through `getEPKBrandingStyle()`.
+- The dashboard can load, edit, validate, save, import/export JSON, upload assets/fonts, and import YouTube metadata.
 
 ## What Is Intentionally Not Finished
 
@@ -27,8 +31,8 @@ Use the existing public components as logical data boundaries:
 
 - `HomeSection.tsx` handles featured release and home tour preview data.
 - `MusicGrid.tsx` handles release sorting and release links.
-- `VideoGrid.tsx` handles YouTube embed URLs and video ordering.
-- `TourList.tsx` handles tour dates, ticket links, VIP links, and sold-out labels.
+- `VideoGrid.tsx` handles YouTube embeds and video ordering.
+- `TourList.tsx` handles date formatting, hidden regions, passed-date announcements, ticket links, VIP links, and sold-out labels.
 - `VIPPage.tsx` handles optional VIP data and external store links.
 - `ShopGrid.tsx` handles optional shop data and featured items.
 - `AboutSection.tsx` handles bio, accolades, genres, and press quote data.
@@ -44,6 +48,7 @@ The frontend should continue to treat the backend as the source of truth:
 - Read public EPK content from `GET /api/epk`.
 - Save dashboard edits through `POST /api/epk`.
 - Upload assets through `POST /api/upload/:type`.
+- Fetch YouTube metadata for dashboard imports through `GET /api/youtube-metadata`.
 - Validate EPK payloads with the shared schema in `packages/schema`.
 
 The frontend should not hardcode artist content. Artist-specific content belongs in the EPK JSON/database record.

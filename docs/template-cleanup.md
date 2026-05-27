@@ -13,6 +13,9 @@ Use this when turning the demo template into a real artist EPK.
 - `branding.logoText`
 - `branding.logoImage`
 - `branding.faviconPath`
+- `branding.backgroundTexture`
+- `branding.theme`
+- `branding.fonts`
 - `home.featuredRelease`
 - `music.releases`
 - `videos`
@@ -45,9 +48,12 @@ Local dashboard uploads use:
 /uploads/site/assets/<file>
 /uploads/site/photos/<file>
 /uploads/site/branding/<file>
+/uploads/site/fonts/<file>
 ```
 
 For production, move final media to durable storage and replace local paths if the deployment cannot keep local upload files permanently.
+
+If the artist uses uploaded fonts, confirm the font licenses allow web use and that the font URLs remain public.
 
 ## Social Sharing
 
@@ -71,6 +77,9 @@ Recommended share image size:
 - Use `JSON` to export a backup before making major edits.
 - Use `JSON` to import a completed EPK file into the dashboard draft.
 - Review the imported draft in each dashboard section.
+- Use the `Layout` section to confirm navigation order and which sections appear on the home page.
+- Use `Branding` and `Fonts & Text Styling` to confirm public EPK colors, full-page background texture, Google fonts, uploaded fonts, and per-element text settings.
+- Use the video URL importer in `Videos` when adding YouTube videos from links.
 - Click `Save EPK` only after the draft validates and looks correct.
 - Use `Sign out` after editing on shared machines.
 

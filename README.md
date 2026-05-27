@@ -61,6 +61,20 @@ If the container already exists:
 docker start epk-postgres
 ```
 
+List local Docker containers:
+
+```bash
+docker ps -a
+```
+
+List databases in the local Postgres container:
+
+```bash
+docker exec -it epk-postgres psql -U postgres -l
+```
+
+If the app logs `password authentication failed for user "postgres"`, make sure `DATABASE_URL` uses the same password the Docker container was created with. Container passwords are set at creation time.
+
 Run migrations:
 
 ```bash
@@ -101,14 +115,20 @@ ADMIN_API_KEY=change-me-to-a-long-random-secret
 
 Use [examples/demo-epk.example.json](examples/demo-epk.example.json) as the expected shape.
 
-Detailed content references:
+## Documentation Guide
 
-```txt
-docs/client-marketing-content-kit.md   Plain-language client and marketing intake guide
-docs/frontend-handoff.md               Frontend scaffold and data contract notes
-packages/schema/README.md   EPK schema and demo JSON reference
-examples/README.md          Pointer to the shared reference
-```
+Use these docs for different audiences:
+
+| Document | Intended recipient | Purpose |
+| --- | --- | --- |
+| [docs/client-marketing-content-kit.md](docs/client-marketing-content-kit.md) | Clients, artist teams, managers, labels, and marketing teams | Plain-language content intake guide explaining what each field means, what is optional, and how EPK data is handled. |
+| [docs/frontend-handoff.md](docs/frontend-handoff.md) | Frontend developers and designers | Explains the data-ready frontend scaffold, routed public components, logic boundaries, and what visual/frontend work is intentionally unfinished. |
+| [docs/production-checklist.md](docs/production-checklist.md) | Developers, launch managers, and deployment owners | Pre-launch checklist for environment variables, database migrations, media storage, dashboard access, routes, metadata, and final handoff. |
+| [docs/template-cleanup.md](docs/template-cleanup.md) | Developers or content admins preparing a real artist site | Checklist for replacing demo content, removing placeholder URLs, confirming media paths, and preparing the final EPK. |
+| [packages/schema/README.md](packages/schema/README.md) | Developers and technical content admins | Field-by-field schema reference for EPK JSON, including required and optional fields. |
+| [examples/README.md](examples/README.md) | Developers and technical content admins | Notes for validating and importing example EPK JSON files. |
+| [apps/server/README.md](apps/server/README.md) | Backend developers and deployment owners | API, Postgres, migration, upload, and YouTube metadata endpoint notes. |
+| [apps/web/README.md](apps/web/README.md) | Frontend developers | Vite app, dashboard, public route, styling, and editor notes. |
 
 Validate only:
 
@@ -141,7 +161,9 @@ Dashboard sections:
 
 ```txt
 Navigation
+Layout
 Branding
+Fonts & Text Styling
 Metadata
 Home
 Music
@@ -169,6 +191,19 @@ Main dashboard workflow:
 ```
 
 The dashboard warns before leaving with unsaved changes and shows an `Unsaved` badge when the draft has pending edits.
+
+The dashboard has its own light/dark toggle. Public EPK color, font, and texture controls live under `Branding` and `Fonts & Text Styling` and do not change the dashboard theme.
+
+List-heavy editors use collapsible rows:
+
+```txt
+Music releases
+Videos
+Tour dates
+Font element settings
+```
+
+The `Layout` section controls public navigation order and which full sections can also be shown on the home page. The `Videos` section can import a YouTube URL or video ID and ask the API to fill title, channel name, publish date, video ID, and an inferred type.
 
 ## Public Routes
 
@@ -236,7 +271,11 @@ Success:
 
 ```json
 {
-  "ok": true
+  "ok": true,
+  "epk": {
+    "slug": "site",
+    "artistName": "Demo Artist"
+  }
 }
 ```
 
@@ -272,6 +311,7 @@ Valid upload types:
 photos
 branding
 assets
+fonts
 ```
 
 Headers:
@@ -310,7 +350,32 @@ Local uploads are served from:
 GET /uploads/site/assets/<file>
 GET /uploads/site/photos/<file>
 GET /uploads/site/branding/<file>
+GET /uploads/site/fonts/<file>
 ```
+
+### `GET /api/youtube-metadata`
+
+Fetches metadata for a YouTube URL or video ID. The dashboard uses this when importing videos.
+
+Query:
+
+```txt
+url=<youtube-url-or-id>
+```
+
+Success:
+
+```json
+{
+  "youtubeVideoId": "dQw4w9WgXcQ",
+  "title": "Example Video",
+  "channelName": "Example Channel",
+  "publishedDate": "2026-05-01",
+  "type": "video"
+}
+```
+
+If this route returns `404` during local development, restart `bun run dev` so the server process picks up the route.
 
 ## Metadata And Social Preview
 
@@ -332,11 +397,22 @@ Upload share images through the dashboard `Assets` section, then copy the return
 Metadata falls back in this order:
 
 ```txt
-Title: metadata.title -> pageTitle -> "<artistName> | EPK"
+Title: metadata.title -> "<artistName> | <page>"
 Description: metadata.description -> about.shortBio -> home announcement -> generated artist fallback
 Image: metadata.socialImage -> home featured release cover
 Theme color: metadata.themeColor -> branding accent color
 Favicon: metadata.faviconPath -> branding favicon path
+```
+
+Public branding supports:
+
+```txt
+Color theme tokens
+Google font imports
+Uploaded fonts
+Per-element font settings
+Full-page background texture
+Logo and favicon paths
 ```
 
 ## Useful Commands
@@ -346,7 +422,7 @@ bun run dev
 bun run validate:epk examples/demo-epk.example.json
 bun run import:epk examples/demo-epk.example.json --admin-key "$ADMIN_API_KEY" --confirm
 cd apps/web && bun run build
-cd apps/server && bun run ../../node_modules/typescript/bin/tsc --noEmit -p tsconfig.json
+cd apps/server && bun x tsc --noEmit
 ```
 
 ## Production Notes
@@ -370,5 +446,5 @@ Useful checks:
 ```bash
 bun run validate:epk examples/demo-epk.example.json
 cd apps/web && bun run build
-cd apps/server && bun run ../../node_modules/typescript/bin/tsc --noEmit -p tsconfig.json
+cd apps/server && bun x tsc --noEmit
 ```

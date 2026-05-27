@@ -99,6 +99,9 @@ Optional fields:
 - Font style preference: serif, sans, or script.
 - Decorative corner motif image.
 - Favicon path.
+- Public EPK color theme values.
+- Google fonts or uploaded font files.
+- Per-element font styling for body text, headings, links, buttons, and navigation.
 
 Recommended assets:
 
@@ -110,9 +113,11 @@ Recommended assets:
 How this appears:
 
 - Accent color influences key visual treatments.
+- Background texture fills the public EPK page when provided.
 - Logo image is preferred when provided.
 - Logo text appears when no logo image is available.
 - Favicon appears in browser tabs.
+- Public EPK theme and font settings do not change the dashboard's separate light/dark mode.
 
 ### Step 4: Choose Navigation Sections
 
@@ -194,11 +199,11 @@ Required for each release:
 - Unique release ID.
 - Release title.
 - Release type.
-- Release date.
 - Hero image.
 
 Optional for each release:
 
+- Release date.
 - Smart link URL.
 - Spotify link.
 - Apple Music link.
@@ -227,6 +232,7 @@ Recommended client notes:
 - Use dates in year-month-day format, such as `2026-05-01`.
 - Use smart links when possible because they let visitors choose a preferred platform.
 - Use display order when the team wants full control over the sequence.
+- Release date can be left blank when display order is the preferred sorting method.
 
 How this appears:
 
@@ -251,6 +257,12 @@ Optional for each video:
 - Channel name.
 - Featured status.
 - Display order.
+
+Dashboard shortcut:
+
+- Paste a YouTube URL or video ID into the Videos tab to create a new video automatically.
+- The system attempts to fill the title, YouTube video ID, channel name, publish date, and video type.
+- The team can still edit those fields after import.
 
 Allowed video types:
 
@@ -281,11 +293,11 @@ Required for each date:
 - Date.
 - Venue.
 - City.
-- Region or state.
 - Country.
 
 Optional for each date:
 
+- Region or state.
 - Ticket URL.
 - VIP URL.
 - Sold-out status.
@@ -299,10 +311,13 @@ Optional tour-level fields:
 - Notify button label.
 - Notify button URL.
 - Seated widget URL or other external widget URL.
+- Public date display format, such as `Jun 5, 2026`, `June 5`, or `06/05/2026`.
 
 Recommended client notes:
 
 - Use dates in year-month-day format, such as `2026-08-15`.
+- Region can be left blank for international dates that only need city and country.
+- Tour dates that pass are automatically treated as unannounced.
 - Mark sold-out dates clearly.
 - Use per-show VIP links when each city has a different VIP offer.
 - Use a notify link for visitors who do not see their city listed.
@@ -383,7 +398,6 @@ Required:
 - Short bio.
 - Long bio.
 - Genres.
-- Accolades.
 - Awards list.
 - Press quotes list.
 - Press photos list.
@@ -391,6 +405,7 @@ Required:
 Optional:
 
 - Similar artists.
+- Accolades.
 - Downloadable assets URL.
 - Tech rider URL.
 - Booking or book URL.
@@ -532,11 +547,12 @@ Treat contact information as sensitive business information. Depending on how th
 
 ## Media Upload Guide
 
-The dashboard supports three media categories:
+The dashboard supports four media categories:
 
 - Photos.
 - Branding.
 - Assets.
+- Fonts.
 
 Use photos for:
 
@@ -561,6 +577,10 @@ Use assets for:
 - Social share images.
 - Downloadable campaign files.
 
+Use fonts for:
+
+- Uploaded `.woff`, `.woff2`, `.ttf`, or other web font files approved for the site.
+
 Local upload paths look like:
 
 - `/uploads/site/photos/press-landscape.jpg`
@@ -568,6 +588,7 @@ Local upload paths look like:
 - `/uploads/site/branding/favicon.ico`
 - `/uploads/site/assets/social-share.jpg`
 - `/uploads/site/assets/release-cover.jpg`
+- `/uploads/site/fonts/artist-display.woff2`
 
 Production guidance:
 
@@ -652,6 +673,17 @@ When an authorized admin uploads a file:
 5. The returned path is pasted into the relevant image, asset, logo, or download field.
 
 The EPK content stores the file path or URL. It does not duplicate the file inside every section.
+
+### How Video Metadata Import Works
+
+When an admin pastes a YouTube URL in the Videos tab:
+
+1. The dashboard extracts the YouTube video ID.
+2. The dashboard asks the server for public YouTube metadata.
+3. The server returns the title, channel name, publish date when available, video ID, and an inferred video type.
+4. The dashboard creates a new editable video row.
+
+This metadata lookup is a convenience feature. The admin can edit the imported values before saving.
 
 ### How Access Is Protected
 
