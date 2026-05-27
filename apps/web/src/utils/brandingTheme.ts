@@ -10,6 +10,7 @@ const cssVar = (name: string, value?: string) =>
   value ? ({ [name]: value } as CSSProperties) : {}
 
 const escapeCssString = (value: string) => value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')
+const cssUrl = (value: string) => `url("${escapeCssString(value)}")`
 
 const fontFamily = (family?: string) => {
   if (!family) return undefined
@@ -64,6 +65,7 @@ const uploadedFontFace = (
 
 export const getEPKBrandingStyle = (branding: Branding) => {
   const theme = branding.theme
+  const backgroundTexture = branding.backgroundTexture?.trim()
   const variables: CSSProperties = {
     ...cssVar('--bg', theme?.bg),
     ...cssVar('--bg-alt', theme?.bgAlt),
@@ -93,7 +95,17 @@ export const getEPKBrandingStyle = (branding: Branding) => {
   const css = [
     ...(branding.fonts?.googleFonts ?? []).map(googleImport),
     ...(branding.fonts?.uploadedFonts ?? []).map(uploadedFontFace),
-    '[data-template="epk-public-shell"]{background:var(--color-page);color:var(--color-text);font-family:var(--font-body);}',
+    [
+      '[data-template="epk-public-shell"]{',
+      'min-height:100vh;',
+      'background-color:var(--color-page);',
+      backgroundTexture
+        ? `background-image:${cssUrl(backgroundTexture)};background-position:center top;background-repeat:repeat;background-size:cover;background-attachment:fixed;`
+        : '',
+      'color:var(--color-text);',
+      'font-family:var(--font-body);',
+      '}',
+    ].join(''),
     fontRule('', assignments?.body),
     fontRule('h1', assignments?.h1),
     fontRule('h2', assignments?.h2),
