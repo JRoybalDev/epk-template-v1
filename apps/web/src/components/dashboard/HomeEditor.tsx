@@ -1,3 +1,5 @@
+import { DashboardDateInput } from './DashboardDateInput'
+import { RequiredLabel } from './RequiredLabel'
 import type { DashboardEditorProps } from './types'
 import { optionalString } from './types'
 import './DashboardEditors.css'
@@ -83,7 +85,7 @@ export function HomeEditor({ draft, updateField }: DashboardEditorProps) {
         </div>
         <div className="editor-grid">
           <div className="editor-field">
-            <label htmlFor="release-title">Title</label>
+            <RequiredLabel htmlFor="release-title">Title</RequiredLabel>
             <input
               id="release-title"
               value={release.title}
@@ -96,7 +98,7 @@ export function HomeEditor({ draft, updateField }: DashboardEditorProps) {
             />
           </div>
           <div className="editor-field">
-            <label htmlFor="release-subtitle">Subtitle</label>
+            <RequiredLabel htmlFor="release-subtitle">Subtitle</RequiredLabel>
             <input
               id="release-subtitle"
               value={release.subtitle}
@@ -109,7 +111,7 @@ export function HomeEditor({ draft, updateField }: DashboardEditorProps) {
             />
           </div>
           <div className="editor-field editor-field--wide">
-            <label htmlFor="cover-image">Cover image path</label>
+            <RequiredLabel htmlFor="cover-image">Cover image path</RequiredLabel>
             <input
               id="cover-image"
               value={release.coverImage}
@@ -179,7 +181,7 @@ export function HomeEditor({ draft, updateField }: DashboardEditorProps) {
         </p>
         <div className="editor-grid">
           <div className="editor-field editor-field--wide">
-            <label htmlFor="featured-video-url">Video URL</label>
+            <RequiredLabel htmlFor="featured-video-url">Video URL</RequiredLabel>
             <input
               id="featured-video-url"
               value={featuredVideo.url}
@@ -238,15 +240,14 @@ export function HomeEditor({ draft, updateField }: DashboardEditorProps) {
           </div>
           <div className="editor-field">
             <label htmlFor="featured-video-date">Published date</label>
-            <input
+            <DashboardDateInput
               id="featured-video-date"
               placeholder={matchingVideo?.publishedDate}
-              type="date"
               value={featuredVideo.publishedDate ?? ''}
-              onChange={(event) =>
+              onChange={(value) =>
                 updateFeaturedVideo({
                   ...featuredVideo,
-                  publishedDate: optionalString(event.target.value),
+                  publishedDate: optionalString(value),
                 })
               }
             />
@@ -276,7 +277,7 @@ export function HomeEditor({ draft, updateField }: DashboardEditorProps) {
         </div>
         <div className="editor-grid">
           <div className="editor-field editor-field--wide">
-            <label htmlFor="announcement-text">Announcement text</label>
+            <RequiredLabel htmlFor="announcement-text">Announcement text</RequiredLabel>
             <input
               id="announcement-text"
               value={announcement.text}

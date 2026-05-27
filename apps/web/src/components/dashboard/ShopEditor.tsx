@@ -1,4 +1,5 @@
 import type { EPK, ShopItem } from '../../../../../packages/schema'
+import { RequiredLabel } from './RequiredLabel'
 import type { DashboardEditorProps } from './types'
 import { createEditorId, optionalString } from './types'
 import './DashboardEditors.css'
@@ -71,7 +72,7 @@ export function ShopEditor({ draft, updateField }: DashboardEditorProps) {
           />
         </div>
         <div className="editor-field">
-          <label htmlFor="shop-url">External store URL</label>
+          <RequiredLabel htmlFor="shop-url">External store URL</RequiredLabel>
           <input
             id="shop-url"
             value={shop.externalStoreUrl}
@@ -111,7 +112,7 @@ export function ShopEditor({ draft, updateField }: DashboardEditorProps) {
             </div>
             <div className="editor-grid">
               <div className="editor-field editor-field--wide">
-                <label htmlFor={`${item.id}-id`}>ID</label>
+                <RequiredLabel htmlFor={`${item.id}-id`}>ID</RequiredLabel>
                 <input
                   id={`${item.id}-id`}
                   value={item.id}
@@ -119,7 +120,7 @@ export function ShopEditor({ draft, updateField }: DashboardEditorProps) {
                 />
               </div>
               <div className="editor-field">
-                <label htmlFor={`${item.id}-name`}>Name</label>
+                <RequiredLabel htmlFor={`${item.id}-name`}>Name</RequiredLabel>
                 <input
                   id={`${item.id}-name`}
                   value={item.name}
@@ -127,7 +128,7 @@ export function ShopEditor({ draft, updateField }: DashboardEditorProps) {
                 />
               </div>
               <div className="editor-field">
-                <label htmlFor={`${item.id}-price`}>Price</label>
+                <RequiredLabel htmlFor={`${item.id}-price`}>Price</RequiredLabel>
                 <input
                   id={`${item.id}-price`}
                   value={item.price}
@@ -135,7 +136,7 @@ export function ShopEditor({ draft, updateField }: DashboardEditorProps) {
                 />
               </div>
               <div className="editor-field">
-                <label htmlFor={`${item.id}-currency`}>Currency</label>
+                <RequiredLabel htmlFor={`${item.id}-currency`}>Currency</RequiredLabel>
                 <input
                   id={`${item.id}-currency`}
                   value={item.currency}
@@ -169,7 +170,7 @@ export function ShopEditor({ draft, updateField }: DashboardEditorProps) {
                 />
               </div>
               <div className="editor-field editor-field--wide">
-                <label htmlFor={`${item.id}-url`}>Purchase URL</label>
+                <RequiredLabel htmlFor={`${item.id}-url`}>Purchase URL</RequiredLabel>
                 <input
                   id={`${item.id}-url`}
                   value={item.purchaseUrl}

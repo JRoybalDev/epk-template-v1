@@ -1,3 +1,4 @@
+import { RequiredLabel } from './RequiredLabel'
 import type { DashboardEditorProps } from './types'
 import { optionalString } from './types'
 import './DashboardEditors.css'
@@ -12,7 +13,7 @@ export function ContactEditor({ draft, updateField }: DashboardEditorProps) {
       </p>
       <div className="editor-grid">
         <div className="editor-field">
-          <label htmlFor="booking-email">Booking email</label>
+          <RequiredLabel htmlFor="booking-email">Booking email</RequiredLabel>
           <input
             id="booking-email"
             type="email"

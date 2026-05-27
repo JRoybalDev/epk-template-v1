@@ -108,6 +108,7 @@
   ],
   "tour": {
     "tourName": "The Midnight Signal Tour",
+    "dateDisplayFormat": "long_month_day_year",
     "dates": [
       {
         "id": "show-001",

@@ -45,8 +45,6 @@ const isConfiguredNavItem = (epk: EPK, item: EPK['nav'][number]) => {
       return Boolean(epk.vip)
     case 'shop':
       return Boolean(epk.shop)
-    case 'newsletter':
-      return Boolean(epk.newsletter)
     case 'contact':
       return Boolean(epk.contact.bookingEmail)
     default:

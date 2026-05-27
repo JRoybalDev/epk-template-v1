@@ -8,6 +8,7 @@ import { ShopGrid } from './ShopGrid'
 import { TourList } from './TourList'
 import { VIPPage } from './VIPPage'
 import { VideoGrid } from './VideoGrid'
+import { getYouTubeVideoId, YouTubeEmbed } from './YouTubeEmbed'
 
 type HomeSectionKey =
   | 'music'
@@ -18,20 +19,6 @@ type HomeSectionKey =
   | 'about'
   | 'newsletter'
   | 'contact'
-
-const getYouTubeVideoId = (value?: string) => {
-  if (!value) return ''
-
-  try {
-    const url = new URL(value)
-    if (url.hostname.includes('youtu.be')) return url.pathname.replace(/^\//, '')
-    if (url.searchParams.get('v')) return url.searchParams.get('v') ?? ''
-    const embedMatch = url.pathname.match(/\/embed\/([^/?]+)/)
-    return embedMatch?.[1] ?? ''
-  } catch {
-    return value
-  }
-}
 
 const renderHomeSection = (section: HomeSectionKey) => {
   switch (section) {
@@ -96,6 +83,7 @@ export function HomeSection() {
   )
   const featuredVideo = {
     url: featuredVideoUrl,
+    youtubeVideoId: featuredVideoId,
     title: epk.home.featuredVideo?.title || matchingFeaturedVideo?.title,
     channelName:
       epk.home.featuredVideo?.channelName || matchingFeaturedVideo?.channelName,
@@ -132,7 +120,12 @@ export function HomeSection() {
       )}
       {featuredVideo.url && (
         <section data-section="home-featured-video">
-          <a href={featuredVideo.url}>{featuredVideo.title || 'Featured video'}</a>
+          <YouTubeEmbed
+            title={featuredVideo.title || 'Featured video'}
+            url={featuredVideo.url}
+            videoId={featuredVideo.youtubeVideoId}
+          />
+          <h2>{featuredVideo.title || 'Featured video'}</h2>
           {(featuredVideo.channelName || featuredVideo.publishedDate) && (
             <p>
               {[featuredVideo.channelName, featuredVideo.publishedDate]

@@ -1,6 +1,18 @@
 import { useEffect } from 'react'
 import type { EPK } from '../../../../packages/schema'
 
+const epkMetaCacheKey = 'epk-document-meta-cache'
+
+type CachedDocumentMeta = {
+  faviconPath?: string
+  title?: string
+}
+
+type CachedDocumentMetaStore = {
+  byPath?: Record<string, CachedDocumentMeta>
+  fallback?: CachedDocumentMeta
+}
+
 const upsertMeta = (selector: string, attributes: Record<string, string>) => {
   let element = document.head.querySelector<HTMLMetaElement>(selector)
 
@@ -14,7 +26,7 @@ const upsertMeta = (selector: string, attributes: Record<string, string>) => {
   })
 }
 
-const upsertFavicon = (href: string) => {
+export const upsertFavicon = (href: string) => {
   let element = document.head.querySelector<HTMLLinkElement>('link[rel="icon"]')
 
   if (!element) {
@@ -24,6 +36,65 @@ const upsertFavicon = (href: string) => {
   }
 
   element.href = href
+}
+
+export const getEPKFaviconPath = (epk: EPK) =>
+  epk.metadata?.faviconPath || epk.branding.faviconPath
+
+const readCachedDocumentMeta = (): CachedDocumentMetaStore => {
+  try {
+    return JSON.parse(window.localStorage.getItem(epkMetaCacheKey) ?? '{}')
+  } catch {
+    return {}
+  }
+}
+
+export const applyDocumentMeta = ({ faviconPath, title }: CachedDocumentMeta) => {
+  if (title) {
+    document.title = title
+  }
+
+  if (faviconPath) {
+    upsertFavicon(faviconPath)
+  }
+}
+
+export const cacheDocumentMeta = (
+  meta: CachedDocumentMeta,
+  path = window.location.pathname,
+) => {
+  const current = readCachedDocumentMeta()
+  const currentPathMeta = current.byPath?.[path] ?? {}
+  const currentFallbackMeta = current.fallback ?? {}
+  const nextPathMeta = {
+    ...currentPathMeta,
+    ...meta,
+  }
+  const nextFallbackMeta = {
+    ...currentFallbackMeta,
+    faviconPath: meta.faviconPath ?? currentFallbackMeta.faviconPath,
+    title: meta.title ?? currentFallbackMeta.title,
+  }
+
+  window.localStorage.setItem(
+    epkMetaCacheKey,
+    JSON.stringify({
+      byPath: {
+        ...(current.byPath ?? {}),
+        [path]: nextPathMeta,
+      },
+      fallback: nextFallbackMeta,
+    }),
+  )
+}
+
+export const applyCachedDocumentMeta = (path = window.location.pathname) => {
+  const cache = readCachedDocumentMeta()
+  const meta = cache.byPath?.[path] ?? cache.fallback
+
+  if (meta) {
+    applyDocumentMeta(meta)
+  }
 }
 
 export const useEPKMeta = (epk?: EPK, pageLabel = 'Home') => {
@@ -41,11 +112,10 @@ export const useEPKMeta = (epk?: EPK, pageLabel = 'Home') => {
     const themeColor =
       epk.metadata?.themeColor ||
       epk.branding.accentColor
-    const faviconPath =
-      epk.metadata?.faviconPath ||
-      epk.branding.faviconPath
+    const faviconPath = getEPKFaviconPath(epk)
 
-    document.title = title
+    applyDocumentMeta({ faviconPath, title })
+    cacheDocumentMeta({ faviconPath, title })
     upsertMeta('meta[name="description"]', {
       name: 'description',
       content: description,
@@ -101,8 +171,5 @@ export const useEPKMeta = (epk?: EPK, pageLabel = 'Home') => {
       })
     }
 
-    if (faviconPath) {
-      upsertFavicon(faviconPath)
-    }
   }, [epk, pageLabel])
 }

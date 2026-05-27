@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { FiChevronDown } from 'react-icons/fi'
 import type { EPK } from '../../../../../packages/schema'
+import { RequiredLabel } from './RequiredLabel'
 import type { DashboardEditorProps } from './types'
 import { optionalString } from './types'
 import './DashboardEditors.css'
@@ -184,7 +185,7 @@ export function FontsEditor({ draft, updateField }: DashboardEditorProps) {
               </div>
               <div className="editor-grid">
                 <div className="editor-field">
-                  <label htmlFor={`google-font-${index}-family`}>Family</label>
+                  <RequiredLabel htmlFor={`google-font-${index}-family`}>Family</RequiredLabel>
                   <input
                     id={`google-font-${index}-family`}
                     value={font.family}
@@ -257,7 +258,7 @@ export function FontsEditor({ draft, updateField }: DashboardEditorProps) {
               </div>
               <div className="editor-grid">
                 <div className="editor-field">
-                  <label htmlFor={`upload-font-${index}-family`}>Family</label>
+                  <RequiredLabel htmlFor={`upload-font-${index}-family`}>Family</RequiredLabel>
                   <input
                     id={`upload-font-${index}-family`}
                     value={font.family}
@@ -267,7 +268,7 @@ export function FontsEditor({ draft, updateField }: DashboardEditorProps) {
                   />
                 </div>
                 <div className="editor-field editor-field--wide">
-                  <label htmlFor={`upload-font-${index}-source`}>Font file path</label>
+                  <RequiredLabel htmlFor={`upload-font-${index}-source`}>Font file path</RequiredLabel>
                   <input
                     id={`upload-font-${index}-source`}
                     value={font.source}

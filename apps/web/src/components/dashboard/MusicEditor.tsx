@@ -1,4 +1,8 @@
+import { useState } from 'react'
+import { FiChevronDown } from 'react-icons/fi'
 import type { Release } from '../../../../../packages/schema'
+import { DashboardDateInput } from './DashboardDateInput'
+import { RequiredLabel } from './RequiredLabel'
 import type { DashboardEditorProps } from './types'
 import { createEditorId, optionalString } from './types'
 import './DashboardEditors.css'
@@ -28,13 +32,13 @@ const createRelease = (index: number): Release => ({
   id: createEditorId('release'),
   title: 'New release',
   type: 'single',
-  releaseDate: new Date().toISOString().slice(0, 10),
   heroImage: '/uploads/site/assets/release-image.jpg',
   isFeatured: false,
   displayOrder: index + 1,
 })
 
 export function MusicEditor({ draft, updateField }: DashboardEditorProps) {
+  const [openReleaseId, setOpenReleaseId] = useState<string | null>(null)
   const releases = draft.music.releases
 
   const updateRelease = (id: string, value: Release) => {
@@ -49,6 +53,21 @@ export function MusicEditor({ draft, updateField }: DashboardEditorProps) {
       ...draft.music,
       releases: releases.filter((release) => release.id !== id),
     })
+    setOpenReleaseId((current) => (current === id ? null : current))
+  }
+
+  const toggleRelease = (id: string) => {
+    setOpenReleaseId((current) => (current === id ? null : id))
+  }
+
+  const addRelease = () => {
+    const nextRelease = createRelease(releases.length)
+
+    updateField('music', {
+      ...draft.music,
+      releases: [...releases, nextRelease],
+    })
+    setOpenReleaseId(nextRelease.id)
   }
 
   return (
@@ -76,160 +95,196 @@ export function MusicEditor({ draft, updateField }: DashboardEditorProps) {
         </select>
       </div>
       <div className="editor-list">
-        {releases.map((release, index) => (
-          <article className="editor-item" key={release.id}>
-            <div className="editor-item__header">
-              <h3>{release.title || `Release ${index + 1}`}</h3>
-              <button className="editor-button" type="button" onClick={() => removeRelease(release.id)}>
-                Remove
+        {releases.map((release, index) => {
+          const isOpen = openReleaseId === release.id
+          const releaseTitle = release.title || `Release ${index + 1}`
+          const releaseMeta = [release.type, release.releaseDate].filter(Boolean).join(' · ')
+
+          return (
+            <article
+              className={[
+                'editor-item',
+                'editor-collapse',
+                isOpen ? 'editor-collapse--open' : '',
+              ].filter(Boolean).join(' ')}
+              key={release.id}
+            >
+              <button
+                aria-controls={`${release.id}-release-settings`}
+                aria-expanded={isOpen}
+                className="editor-collapse__trigger"
+                type="button"
+                onClick={() => toggleRelease(release.id)}
+              >
+                <span>
+                  {releaseTitle}
+                  <small>{releaseMeta}</small>
+                </span>
+                <FiChevronDown aria-hidden="true" />
               </button>
-            </div>
-            <div className="editor-grid">
-              <div className="editor-field editor-field--wide">
-                <label htmlFor={`${release.id}-id`}>ID</label>
-                <input
-                  id={`${release.id}-id`}
-                  value={release.id}
-                  onChange={(event) =>
-                    updateRelease(release.id, { ...release, id: event.target.value })
-                  }
-                />
-              </div>
-              <div className="editor-field">
-                <label htmlFor={`${release.id}-title`}>Title</label>
-                <input
-                  id={`${release.id}-title`}
-                  value={release.title}
-                  onChange={(event) =>
-                    updateRelease(release.id, { ...release, title: event.target.value })
-                  }
-                />
-              </div>
-              <div className="editor-field">
-                <label htmlFor={`${release.id}-type`}>Type</label>
-                <select
-                  id={`${release.id}-type`}
-                  value={release.type}
-                  onChange={(event) =>
-                    updateRelease(release.id, {
-                      ...release,
-                      type: event.target.value as Release['type'],
-                    })
-                  }
+              {isOpen && (
+                <div
+                  className="editor-collapse__content"
+                  id={`${release.id}-release-settings`}
                 >
-                  {releaseTypes.map((type) => (
-                    <option key={type} value={type}>{type}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="editor-field">
-                <label htmlFor={`${release.id}-date`}>Release date</label>
-                <input
-                  id={`${release.id}-date`}
-                  type="date"
-                  value={release.releaseDate}
-                  onChange={(event) =>
-                    updateRelease(release.id, {
-                      ...release,
-                      releaseDate: event.target.value,
-                    })
-                  }
-                />
-              </div>
-              <div className="editor-field">
-                <label htmlFor={`${release.id}-order`}>Display order</label>
-                <input
-                  id={`${release.id}-order`}
-                  type="number"
-                  value={release.displayOrder ?? index + 1}
-                  onChange={(event) =>
-                    updateRelease(release.id, {
-                      ...release,
-                      displayOrder: Number(event.target.value),
-                    })
-                  }
-                />
-              </div>
-              <div className="editor-field editor-field--wide">
-                <label htmlFor={`${release.id}-image`}>Hero image path</label>
-                <input
-                  id={`${release.id}-image`}
-                  value={release.heroImage}
-                  onChange={(event) =>
-                    updateRelease(release.id, {
-                      ...release,
-                      heroImage: event.target.value,
-                    })
-                  }
-                />
-              </div>
-              <div className="editor-field editor-field--wide">
-                <label htmlFor={`${release.id}-smart-link`}>Smart link URL</label>
-                <input
-                  id={`${release.id}-smart-link`}
-                  value={release.smartLinkUrl ?? ''}
-                  onChange={(event) =>
-                    updateRelease(release.id, {
-                      ...release,
-                      smartLinkUrl: optionalString(event.target.value),
-                    })
-                  }
-                />
-              </div>
-              {streamingPlatforms.map((platform) => (
-                <div className="editor-field" key={platform}>
-                  <label htmlFor={`${release.id}-${platform}`}>{platform} URL</label>
-                  <input
-                    id={`${release.id}-${platform}`}
-                    value={release.streamingLinks?.[platform] ?? ''}
-                    onChange={(event) => {
-                      const nextLinks = {
-                        ...(release.streamingLinks ?? {}),
-                        [platform]: optionalString(event.target.value),
-                      }
-
-                      Object.keys(nextLinks).forEach((key) => {
-                        if (!nextLinks[key as keyof typeof nextLinks]) {
-                          delete nextLinks[key as keyof typeof nextLinks]
+                  <div className="editor-item__header">
+                    <h3>{releaseTitle}</h3>
+                    <button
+                      className="editor-button"
+                      type="button"
+                      onClick={() => removeRelease(release.id)}
+                    >
+                      Remove
+                    </button>
+                  </div>
+                  <div className="editor-grid">
+                    <div className="editor-field editor-field--wide">
+                      <RequiredLabel htmlFor={`${release.id}-id`}>ID</RequiredLabel>
+                      <input
+                        id={`${release.id}-id`}
+                        value={release.id}
+                        onChange={(event) =>
+                          updateRelease(release.id, { ...release, id: event.target.value })
                         }
-                      })
+                      />
+                    </div>
+                    <div className="editor-field">
+                      <RequiredLabel htmlFor={`${release.id}-title`}>Title</RequiredLabel>
+                      <input
+                        id={`${release.id}-title`}
+                        value={release.title}
+                        onChange={(event) =>
+                          updateRelease(release.id, {
+                            ...release,
+                            title: event.target.value,
+                          })
+                        }
+                      />
+                    </div>
+                    <div className="editor-field">
+                      <RequiredLabel htmlFor={`${release.id}-type`}>Type</RequiredLabel>
+                      <select
+                        id={`${release.id}-type`}
+                        value={release.type}
+                        onChange={(event) =>
+                          updateRelease(release.id, {
+                            ...release,
+                            type: event.target.value as Release['type'],
+                          })
+                        }
+                      >
+                        {releaseTypes.map((type) => (
+                          <option key={type} value={type}>{type}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="editor-field">
+                      <label htmlFor={`${release.id}-date`}>Release date</label>
+                      <DashboardDateInput
+                        id={`${release.id}-date`}
+                        value={release.releaseDate ?? ''}
+                        onChange={(value) =>
+                          updateRelease(release.id, {
+                            ...release,
+                            releaseDate: optionalString(value),
+                          })
+                        }
+                      />
+                    </div>
+                    <div className="editor-field">
+                      <label htmlFor={`${release.id}-order`}>Display order</label>
+                      <input
+                        id={`${release.id}-order`}
+                        type="number"
+                        value={release.displayOrder ?? index + 1}
+                        onChange={(event) =>
+                          updateRelease(release.id, {
+                            ...release,
+                            displayOrder: Number(event.target.value),
+                          })
+                        }
+                      />
+                    </div>
+                    <div className="editor-field editor-field--wide">
+                      <RequiredLabel htmlFor={`${release.id}-image`}>Hero image path</RequiredLabel>
+                      <input
+                        id={`${release.id}-image`}
+                        value={release.heroImage}
+                        onChange={(event) =>
+                          updateRelease(release.id, {
+                            ...release,
+                            heroImage: event.target.value,
+                          })
+                        }
+                      />
+                    </div>
+                    <div className="editor-field editor-field--wide">
+                      <label htmlFor={`${release.id}-smart-link`}>Smart link URL</label>
+                      <input
+                        id={`${release.id}-smart-link`}
+                        value={release.smartLinkUrl ?? ''}
+                        onChange={(event) =>
+                          updateRelease(release.id, {
+                            ...release,
+                            smartLinkUrl: optionalString(event.target.value),
+                          })
+                        }
+                      />
+                    </div>
+                    {streamingPlatforms.map((platform) => (
+                      <div className="editor-field" key={platform}>
+                        <label htmlFor={`${release.id}-${platform}`}>{platform} URL</label>
+                        <input
+                          id={`${release.id}-${platform}`}
+                          value={release.streamingLinks?.[platform] ?? ''}
+                          onChange={(event) => {
+                            const nextLinks = {
+                              ...(release.streamingLinks ?? {}),
+                              [platform]: optionalString(event.target.value),
+                            }
 
-                      updateRelease(release.id, {
-                        ...release,
-                        streamingLinks:
-                          Object.keys(nextLinks).length > 0 ? nextLinks : undefined,
-                      })
-                    }}
-                  />
+                            Object.keys(nextLinks).forEach((key) => {
+                              if (!nextLinks[key as keyof typeof nextLinks]) {
+                                delete nextLinks[key as keyof typeof nextLinks]
+                              }
+                            })
+
+                            updateRelease(release.id, {
+                              ...release,
+                              streamingLinks:
+                                Object.keys(nextLinks).length > 0 ? nextLinks : undefined,
+                            })
+                          }}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                  <div className="editor-check-list">
+                    <label className="editor-check">
+                      <input
+                        checked={release.isFeatured}
+                        type="checkbox"
+                        onChange={(event) =>
+                          updateRelease(release.id, {
+                            ...release,
+                            isFeatured: event.target.checked,
+                          })
+                        }
+                      />
+                      <span>Featured release</span>
+                    </label>
+                  </div>
                 </div>
-              ))}
-            </div>
-            <label className="editor-check">
-              <input
-                checked={release.isFeatured}
-                type="checkbox"
-                onChange={(event) =>
-                  updateRelease(release.id, {
-                    ...release,
-                    isFeatured: event.target.checked,
-                  })
-                }
-              />
-              <span>Featured release</span>
-            </label>
-          </article>
-        ))}
+              )}
+            </article>
+          )
+        })}
       </div>
       <div className="editor-actions">
         <button
           className="editor-button editor-button--primary"
           type="button"
-          onClick={() =>
-            updateField('music', {
-              ...draft.music,
-              releases: [...releases, createRelease(releases.length)],
-            })
-          }
+          onClick={addRelease}
         >
           Add release
         </button>

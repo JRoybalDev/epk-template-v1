@@ -2,13 +2,18 @@ import {
   EPKSchema,
   formatValidationIssues,
   type EPK,
+  type Video,
 } from '../../../../packages/schema'
 
 export const apiBaseUrl = '/api'
 
-export type AssetType = 'photos' | 'branding' | 'assets'
-export type SaveEPKResponse = { ok: true }
+export type AssetType = 'photos' | 'branding' | 'assets' | 'fonts'
+export type SaveEPKResponse = { ok: true; epk?: EPK }
 export type UploadAssetResponse = { path: string }
+export type YouTubeMetadataResponse = Pick<
+  Video,
+  'channelName' | 'publishedDate' | 'title' | 'type' | 'youtubeVideoId'
+>
 
 export class ApiClientError extends Error {
   status: number
@@ -24,6 +29,8 @@ export class ApiClientError extends Error {
 
 export const getEPKUrl = () => `${apiBaseUrl}/epk`
 export const uploadUrl = (type: AssetType) => `${apiBaseUrl}/upload/${type}`
+export const youtubeMetadataUrl = (urlOrId: string) =>
+  `${apiBaseUrl}/youtube-metadata?url=${encodeURIComponent(urlOrId)}`
 
 const parseFetchedEPK = (payload: unknown) => {
   const parsed = EPKSchema.safeParse(payload)
@@ -115,10 +122,10 @@ const assertAdminKey = (adminKey: string) => {
 export const getEPK = async () =>
   parseFetchedEPK(await requestJson<unknown>(getEPKUrl(), { cache: 'no-store' }))
 
-export const saveEPK = (data: EPK, adminKey: string) => {
+export const saveEPK = async (data: EPK, adminKey: string) => {
   assertAdminKey(adminKey)
 
-  return requestJson<SaveEPKResponse>(getEPKUrl(), {
+  const response = await requestJson<SaveEPKResponse>(getEPKUrl(), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -126,7 +133,31 @@ export const saveEPK = (data: EPK, adminKey: string) => {
     },
     body: JSON.stringify(data),
   })
+
+  if (!response.epk) return response
+
+  const rawEPK = response.epk as unknown
+  const responseEPK =
+    rawEPK &&
+    typeof rawEPK === 'object' &&
+    'tour' in rawEPK &&
+    rawEPK.tour &&
+    typeof rawEPK.tour === 'object' &&
+    !('dateDisplayFormat' in rawEPK.tour)
+      ? {
+          ...(rawEPK as Record<string, unknown>),
+          tour: {
+            ...(rawEPK.tour as Record<string, unknown>),
+            dateDisplayFormat: data.tour.dateDisplayFormat,
+          },
+        }
+      : rawEPK
+
+  return { ...response, epk: parseFetchedEPK(responseEPK) }
 }
+
+export const getYouTubeMetadata = (urlOrId: string) =>
+  requestJson<YouTubeMetadataResponse>(youtubeMetadataUrl(urlOrId))
 
 export const uploadAsset = (
   type: AssetType,

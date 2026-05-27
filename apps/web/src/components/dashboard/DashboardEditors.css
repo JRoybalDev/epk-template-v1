@@ -33,6 +33,21 @@
   font-weight: 800;
 }
 
+.editor-required {
+  color: var(--color-danger);
+  margin-left: 0.2rem;
+}
+
+.editor-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 .editor-field input,
 .editor-field textarea,
 .editor-field select {
@@ -99,6 +114,143 @@
   border-radius: calc(var(--radius-md) - 1px);
 }
 
+.editor-date-picker {
+  position: relative;
+}
+
+.editor-date-picker__control {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.editor-date-picker__control input {
+  border-bottom-right-radius: 0;
+  border-top-right-radius: 0;
+}
+
+.editor-date-picker__button {
+  display: inline-grid;
+  width: 3rem;
+  place-items: center;
+  border: 1px solid var(--input-border);
+  border-left: 0;
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  background: color-mix(in srgb, var(--surface-strong) 84%, transparent);
+  color: var(--color-text);
+}
+
+.editor-date-picker__button:hover {
+  background: color-mix(in srgb, var(--accent-soft) 18%, var(--surface));
+}
+
+.editor-date-picker__button svg,
+.editor-date-picker__header svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.editor-date-picker__popover {
+  position: absolute;
+  z-index: 12;
+  top: calc(100% + 0.45rem);
+  left: 0;
+  display: grid;
+  width: min(20rem, calc(100vw - 2rem));
+  gap: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-soft);
+  padding: var(--space-3);
+}
+
+.editor-date-picker__header,
+.editor-date-picker__weekdays,
+.editor-date-picker__grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.25rem;
+}
+
+.editor-date-picker__header {
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+}
+
+.editor-date-picker__header strong,
+.editor-date-picker__month-trigger {
+  color: var(--color-text);
+  font-size: 0.92rem;
+  text-align: center;
+}
+
+.editor-date-picker__header button,
+.editor-date-picker__grid button,
+.editor-date-picker__months button {
+  display: inline-grid;
+  min-height: 2rem;
+  place-items: center;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text);
+}
+
+.editor-date-picker__header button:hover,
+.editor-date-picker__grid button:hover,
+.editor-date-picker__months button:hover {
+  border-color: var(--color-border);
+  background: color-mix(in srgb, var(--accent-soft) 16%, transparent);
+}
+
+.editor-date-picker__month-trigger {
+  font-weight: 900;
+}
+
+.editor-date-picker__month-year {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.editor-date-picker__month-year label {
+  display: grid;
+  gap: var(--space-2);
+  color: var(--color-text-muted);
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+.editor-date-picker__month-year select {
+  width: 100%;
+  border: 1px solid var(--input-border);
+  border-radius: var(--radius-md);
+  background: var(--input-bg);
+  color: var(--color-text);
+  padding: var(--space-2) var(--space-3);
+}
+
+.editor-date-picker__months {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.35rem;
+}
+
+.editor-date-picker__weekdays span {
+  color: var(--color-text-muted);
+  font-size: 0.74rem;
+  font-weight: 900;
+  text-align: center;
+}
+
+.editor-date-picker__day--today {
+  border-color: color-mix(in srgb, var(--accent-strong) 42%, var(--border)) !important;
+}
+
+.editor-date-picker__day--selected {
+  background: linear-gradient(135deg, var(--accent), var(--accent-strong)) !important;
+  color: var(--color-accent-contrast) !important;
+}
+
 .editor-field textarea {
   min-height: 8rem;
   resize: vertical;
@@ -107,17 +259,19 @@
 .editor-check-list {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-3);
+  gap: var(--space-2);
+  margin-top: var(--space-4);
 }
 
 .editor-check {
   display: flex;
+  min-height: 2.45rem;
   align-items: center;
   gap: var(--space-2);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   background: color-mix(in srgb, var(--surface-strong) 76%, transparent);
-  padding: var(--space-2) var(--space-3);
+  padding: 0 var(--space-3);
 }
 
 .editor-check input {
@@ -284,6 +438,18 @@
   height: 1rem;
   color: var(--color-text-muted);
   transition: transform 160ms ease;
+}
+
+.editor-collapse__trigger span {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.editor-collapse__trigger small {
+  color: var(--color-text-muted);
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 800;
 }
 
 .editor-collapse--open .editor-collapse__trigger svg {

@@ -1,13 +1,14 @@
 import { useState } from 'react'
 import type { AssetType } from '../../api/client'
 import { uploadAsset } from '../../api/client'
+import { RequiredLabel } from './RequiredLabel'
 import './DashboardEditors.css'
 
 type AssetUploaderProps = {
   adminKey: string
 }
 
-const uploadTypes: AssetType[] = ['photos', 'branding', 'assets']
+const uploadTypes: AssetType[] = ['photos', 'branding', 'assets', 'fonts']
 
 export function AssetUploader({ adminKey }: AssetUploaderProps) {
   const [type, setType] = useState<AssetType>('assets')
@@ -64,7 +65,7 @@ export function AssetUploader({ adminKey }: AssetUploaderProps) {
           </select>
         </div>
         <div className="editor-field">
-          <label htmlFor="asset-file">File</label>
+          <RequiredLabel htmlFor="asset-file">File</RequiredLabel>
           <input
             id="asset-file"
             type="file"

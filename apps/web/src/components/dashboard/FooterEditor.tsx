@@ -1,4 +1,5 @@
 import type { EPK } from '../../../../../packages/schema'
+import { RequiredLabel } from './RequiredLabel'
 import type { DashboardEditorProps } from './types'
 import { optionalString } from './types'
 import './DashboardEditors.css'
@@ -52,7 +53,7 @@ export function FooterEditor({ draft, updateField }: DashboardEditorProps) {
     <div className="editor-form">
       <div className="editor-grid">
         <div className="editor-field">
-          <label htmlFor="copyright-name">Copyright name</label>
+          <RequiredLabel htmlFor="copyright-name">Copyright name</RequiredLabel>
           <input
             id="copyright-name"
             value={footer.copyrightName}
@@ -124,7 +125,7 @@ export function FooterEditor({ draft, updateField }: DashboardEditorProps) {
         </div>
         <div className="editor-list">
           {legalLinks.map((link, index) => (
-            <article className="editor-item" key={`${link.label}-${index}`}>
+            <article className="editor-item" key={index}>
               <div className="editor-item__header">
                 <h4>{link.label || `Legal link ${index + 1}`}</h4>
                 <button
@@ -142,7 +143,7 @@ export function FooterEditor({ draft, updateField }: DashboardEditorProps) {
               </div>
               <div className="editor-grid">
                 <div className="editor-field">
-                  <label htmlFor={`legal-${index}-label`}>Label</label>
+                  <RequiredLabel htmlFor={`legal-${index}-label`}>Label</RequiredLabel>
                   <input
                     id={`legal-${index}-label`}
                     value={link.label}
@@ -152,7 +153,7 @@ export function FooterEditor({ draft, updateField }: DashboardEditorProps) {
                   />
                 </div>
                 <div className="editor-field">
-                  <label htmlFor={`legal-${index}-url`}>URL</label>
+                  <RequiredLabel htmlFor={`legal-${index}-url`}>URL</RequiredLabel>
                   <input
                     id={`legal-${index}-url`}
                     value={link.url}

@@ -25,7 +25,7 @@ export function MusicGrid() {
               src={release.heroImage}
             />
             <div>
-              <p>{release.type} - {release.releaseDate}</p>
+              <p>{[release.type, release.releaseDate].filter(Boolean).join(' - ')}</p>
               <h2>{release.title}</h2>
               {release.smartLinkUrl && <a href={release.smartLinkUrl}>Listen</a>}
             </div>

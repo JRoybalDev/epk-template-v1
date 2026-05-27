@@ -1,4 +1,5 @@
 import type { EPK } from '../../../../../packages/schema'
+import { RequiredLabel } from './RequiredLabel'
 import type { DashboardEditorProps } from './types'
 import { optionalString } from './types'
 import './DashboardEditors.css'
@@ -45,7 +46,7 @@ export function BrandingEditor({ draft, updateField }: DashboardEditorProps) {
     <div className="editor-form">
       <div className="editor-grid">
         <div className="editor-field">
-          <label htmlFor="artist-name">Artist name</label>
+          <RequiredLabel htmlFor="artist-name">Artist name</RequiredLabel>
           <input
             id="artist-name"
             value={draft.artistName}
@@ -67,7 +68,7 @@ export function BrandingEditor({ draft, updateField }: DashboardEditorProps) {
           />
         </div>
         <div className="editor-field">
-          <label htmlFor="font-style">Default font style</label>
+          <RequiredLabel htmlFor="font-style">Default font style</RequiredLabel>
           <select
             id="font-style"
             value={draft.branding.fontStyle}

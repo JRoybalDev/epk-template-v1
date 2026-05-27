@@ -11,7 +11,7 @@ export const epks = pgTable('epks', {
 export const assets = pgTable('assets', {
   id: text('id').primaryKey(),
   epkSlug: text('epk_slug').notNull().references(() => epks.slug, { onDelete: 'cascade' }),
-  type: text('type', { enum: ['photos', 'branding', 'assets'] }).notNull(),
+  type: text('type', { enum: ['photos', 'branding', 'assets', 'fonts'] }).notNull(),
   filename: text('filename').notNull(),
   path: text('path').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),

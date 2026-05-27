@@ -117,3 +117,9 @@
 .site-shell {
   min-height: 100vh;
 }
+
+[data-template="epk-public-shell"] iframe {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 0;
+}

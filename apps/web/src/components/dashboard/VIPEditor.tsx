@@ -1,4 +1,5 @@
 import type { EPK } from '../../../../../packages/schema'
+import { RequiredLabel } from './RequiredLabel'
 import type { DashboardEditorProps } from './types'
 import { optionalString } from './types'
 import './DashboardEditors.css'
@@ -45,7 +46,7 @@ export function VIPEditor({ draft, updateField }: DashboardEditorProps) {
       </div>
       <div className="editor-grid">
         <div className="editor-field editor-field--wide">
-          <label htmlFor="vip-url">External store URL</label>
+          <RequiredLabel htmlFor="vip-url">External store URL</RequiredLabel>
           <input
             id="vip-url"
             value={vip.externalStoreUrl}

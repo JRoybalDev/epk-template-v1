@@ -5,7 +5,7 @@ import { AnimatePresence, LayoutGroup, motion, useReducedMotion } from 'framer-m
 import type { PanInfo, Transition } from 'framer-motion'
 import { Link, NavLink, useParams } from 'react-router-dom'
 import { FiChevronDown, FiMenu, FiMoon, FiSun, FiX } from 'react-icons/fi'
-import { validateEPK } from '../../../../packages/schema'
+import { validateEPK, type EPK } from '../../../../packages/schema'
 import { AboutEditor } from '../components/dashboard/AboutEditor'
 import { AssetUploader } from '../components/dashboard/AssetUploader'
 import { BrandingEditor } from '../components/dashboard/BrandingEditor'
@@ -31,6 +31,11 @@ import {
   setCachedEPK,
   useEPK,
 } from '../hooks/useEPK'
+import {
+  applyDocumentMeta,
+  cacheDocumentMeta,
+  getEPKFaviconPath,
+} from '../hooks/useEPKMeta'
 import { useEPKStore } from '../hooks/useEPKStore'
 import { downloadEPKJson } from '../utils/exportEPK'
 import './DashboardPage.css'
@@ -113,6 +118,17 @@ const dashboardNavGroups: DashboardNavGroup[] = [
 
 const dashboardSections = dashboardNavGroups.flatMap((group) => group.sections)
 const navEase = [0.22, 1, 0.36, 1] as const
+
+const normalizeEPKForSave = (epk: EPK): EPK => ({
+  ...epk,
+  tour: {
+    ...epk.tour,
+    dates: epk.tour.dates.map((date) => ({
+      ...date,
+      region: date.region?.trim() ?? '',
+    })),
+  },
+})
 
 export function DashboardPage() {
   const { section } = useParams()
@@ -213,8 +229,14 @@ export function DashboardPage() {
   }, [activeNavGroup.id])
 
   useEffect(() => {
-    document.title = `${dashboardArtistName} | Dashboard`
-  }, [dashboardArtistName])
+    const title = `${dashboardArtistName} | Dashboard`
+    const faviconPath = epkQuery.data
+      ? getEPKFaviconPath(epkQuery.data)
+      : undefined
+
+    applyDocumentMeta({ faviconPath, title })
+    cacheDocumentMeta({ faviconPath, title })
+  }, [dashboardArtistName, epkQuery.data])
 
   useEffect(() => {
     document.body.style.overflow = isMobileNavOpen ? 'hidden' : ''
@@ -225,14 +247,26 @@ export function DashboardPage() {
   }, [isMobileNavOpen])
 
   const saveMutation = useMutation({
-    mutationFn: async () => {
-      if (!draft) throw new Error('No draft EPK is loaded.')
-      return saveEPK(draft, storedKey)
+    mutationFn: async (epk: EPK) => {
+      const response = await saveEPK(epk, storedKey)
+      return { response, submittedEPK: epk }
     },
-    onSuccess: async () => {
+    onSuccess: async ({ response, submittedEPK }) => {
       if (!draft) return
-      markSaved(draft)
-      setCachedEPK(queryClient, draft)
+      const savedEPK = response.epk
+        ? {
+            ...response.epk,
+            tour: {
+              ...response.epk.tour,
+              dateDisplayFormat:
+                response.epk.tour.dateDisplayFormat ??
+                submittedEPK.tour.dateDisplayFormat,
+            },
+          }
+        : submittedEPK
+
+      markSaved(savedEPK)
+      setCachedEPK(queryClient, savedEPK)
       await invalidateEPK(queryClient)
       await queryClient.refetchQueries({ queryKey: epkQueryKey, type: 'active' })
       broadcastEPKUpdate()
@@ -335,7 +369,8 @@ export function DashboardPage() {
   const saveDraft = () => {
     if (!draft) return
 
-    const validation = validateEPK(draft)
+    const normalizedDraft = normalizeEPKForSave(draft)
+    const validation = validateEPK(normalizedDraft)
     if (!validation.success) {
       setSaveMessage('')
       setValidationIssues(
@@ -348,7 +383,7 @@ export function DashboardPage() {
 
     setValidationIssues([])
     setSaveMessage('')
-    saveMutation.mutate()
+    saveMutation.mutate(normalizedDraft)
   }
 
   const renderDashboardNav = (shouldCloseMobileNav = false, idPrefix = 'desktop') => (

@@ -2,9 +2,22 @@ import { z } from 'zod'
 
 const UrlString = z.url();
 const EmailString = z.email();
-const PublicSectionKey = z.enum(['home', 'music', 'videos', 'shop', 'tour', 'vip', 'about', 'newsletter', 'contact'])
-const HomeEmbedSectionKey = z.enum(['music', 'videos', 'shop', 'tour', 'vip', 'about', 'newsletter', 'contact'])
-const FontAssignmentSchema = z.object({
+const OptionalString = z.preprocess(
+    (value) => value === null || value === '' ? undefined : value,
+    z.string().optional(),
+)
+export const PublicSectionKey = z.enum(['home', 'music', 'videos', 'shop', 'tour', 'vip', 'about', 'newsletter', 'contact'])
+export const HomeEmbedSectionKey = z.enum(['music', 'videos', 'shop', 'tour', 'vip', 'about', 'newsletter', 'contact'])
+export const DateDisplayFormatKey = z.enum([
+    'iso',
+    'short_month_day_year',
+    'short_month_day',
+    'long_month_day_year',
+    'long_month_day',
+    'numeric_month_day_year',
+    'day_short_month_year',
+])
+export const FontAssignmentSchema = z.object({
     family: z.string().optional(),
     weight: z.string().optional(),
     style: z.enum(['normal', 'italic', 'oblique']).optional(),
@@ -12,6 +25,45 @@ const FontAssignmentSchema = z.object({
     lineHeight: z.string().optional(),
     letterSpacing: z.string().optional(),
     textTransform: z.enum(['none', 'uppercase', 'lowercase', 'capitalize']).optional(),
+})
+export const BrandingThemeSchema = z.object({
+    bg: z.string().optional(),
+    bgAlt: z.string().optional(),
+    surface: z.string().optional(),
+    surfaceStrong: z.string().optional(),
+    text: z.string().optional(),
+    muted: z.string().optional(),
+    accent: z.string().optional(),
+    accentStrong: z.string().optional(),
+    accentSoft: z.string().optional(),
+    border: z.string().optional(),
+    cardBorder: z.string().optional(),
+    foam: z.string().optional(),
+})
+export const GoogleFontSchema = z.object({
+    family: z.string(),
+    weights: z.string().optional(),
+    styles: z.string().optional(),
+})
+export const UploadedFontSchema = z.object({
+    family: z.string(),
+    source: z.string(),
+    weight: z.string().optional(),
+    style: z.enum(['normal', 'italic', 'oblique']).optional(),
+})
+export const BrandingFontsSchema = z.object({
+    googleFonts: z.array(GoogleFontSchema).optional(),
+    uploadedFonts: z.array(UploadedFontSchema).optional(),
+    assignments: z.object({
+        body: FontAssignmentSchema.optional(),
+        h1: FontAssignmentSchema.optional(),
+        h2: FontAssignmentSchema.optional(),
+        h3: FontAssignmentSchema.optional(),
+        p: FontAssignmentSchema.optional(),
+        a: FontAssignmentSchema.optional(),
+        button: FontAssignmentSchema.optional(),
+        nav: FontAssignmentSchema.optional(),
+    }).optional(),
 })
 
 // ─── Global Branding ──────────────────────────────────────
@@ -25,43 +77,8 @@ export const BrandingSchema = z.object({
     fontStyle: z.enum(['serif', 'sans', 'script']).default('sans'), // decorative SVG/image for corners
     cornerMotif: z.string().optional(),
     faviconPath: z.string().optional(),
-    theme: z.object({
-        bg: z.string().optional(),
-        bgAlt: z.string().optional(),
-        surface: z.string().optional(),
-        surfaceStrong: z.string().optional(),
-        text: z.string().optional(),
-        muted: z.string().optional(),
-        accent: z.string().optional(),
-        accentStrong: z.string().optional(),
-        accentSoft: z.string().optional(),
-        border: z.string().optional(),
-        cardBorder: z.string().optional(),
-        foam: z.string().optional(),
-    }).optional(),
-    fonts: z.object({
-        googleFonts: z.array(z.object({
-            family: z.string(),
-            weights: z.string().optional(),
-            styles: z.string().optional(),
-        })).optional(),
-        uploadedFonts: z.array(z.object({
-            family: z.string(),
-            source: z.string(),
-            weight: z.string().optional(),
-            style: z.enum(['normal', 'italic', 'oblique']).optional(),
-        })).optional(),
-        assignments: z.object({
-            body: FontAssignmentSchema.optional(),
-            h1: FontAssignmentSchema.optional(),
-            h2: FontAssignmentSchema.optional(),
-            h3: FontAssignmentSchema.optional(),
-            p: FontAssignmentSchema.optional(),
-            a: FontAssignmentSchema.optional(),
-            button: FontAssignmentSchema.optional(),
-            nav: FontAssignmentSchema.optional(),
-        }).optional(),
-    }).optional(),
+    theme: BrandingThemeSchema.optional(),
+    fonts: BrandingFontsSchema.optional(),
 })
 
 // ─── Metadata / Social Sharing ───────────────────────────
@@ -77,30 +94,33 @@ export const MetadataSchema = z.object({
 // ─── Home ─────────────────────────────────────────────────
 // Observed: centered album art card, title + subtitle below,
 // then full tour date list embedded directly on /home
-export const HomeSchema = z.object({
-    featuredRelease: z.object({
+export const FeaturedReleaseSchema = z.object({
         title: z.string(), // e.g. "album or single title"
         subtitle: z.string(), // e.g. "release date or album out now or single out now"
         coverImage: z.string(), // uploaded image path
         smartLinkUrl: UrlString.optional(), // lnk.to or similar aggregator
         directStreamUrl: UrlString.optional(), // fallback direct stream link
-    }),
+})
+export const FeaturedVideoSchema = z.object({
+    url: UrlString,
+    title: z.string().optional(),
+    youtubeVideoId: z.string().optional(),
+    channelName: z.string().optional(),
+    publishedDate: z.string().optional(),
+})
+export const AnnouncementSchema = z.object({
+    text: z.string(),
+    linkUrl: UrlString.optional(),
+    linkLabel: z.string().optional(),
+})
+export const HomeSchema = z.object({
+    featuredRelease: FeaturedReleaseSchema,
     showTourDatesOnHome: z.boolean().default(true), // mirrors /tour section on home
     sectionsOnHome: z.array(HomeEmbedSectionKey).default([]), // full sections to also render on home
     // Optional secondary featured content (video, announcement, etc.)
-    featuredVideo: z.object({
-        url: UrlString,
-        title: z.string().optional(),
-        youtubeVideoId: z.string().optional(),
-        channelName: z.string().optional(),
-        publishedDate: z.string().optional(),
-    }).optional(),
+    featuredVideo: FeaturedVideoSchema.optional(),
     featuredVideoUrl: UrlString.optional(),
-    announcement: z.object({
-        text: z.string(),
-        linkUrl: UrlString.optional(),
-        linkLabel: z.string().optional(),
-    }).optional(),
+    announcement: AnnouncementSchema.optional(),
 })
 
 // ─── Music ────────────────────────────────────────────────
@@ -111,7 +131,7 @@ export const ReleaseSchema = z.object({
     id: z.string(),
     title: z.string(),
     type: z.enum(['album', 'single', 'ep', 'mix', 'compilation', 'deluxe', 'collab']),
-    releaseDate: z.string(), // ISO date
+    releaseDate: OptionalString, // ISO date
     heroImage: z.string(), // full-bleed card image (required)
     smartLinkUrl: UrlString.optional(), // e.g. artistname.lnk.to/albumname
     // Per-platform links shown in the smart link chooser
@@ -159,7 +179,7 @@ export const TourDateSchema = z.object({
     date: z.string(), // ISO date
     venue: z.string(),
     city: z.string(),
-    region: z.string(),
+    region: OptionalString,
     country: z.string(),
     ticketUrl: UrlString.optional(),
     vipUrl: UrlString.optional(), // per-show VIP link (to external store)
@@ -171,6 +191,7 @@ export const TourDateSchema = z.object({
 export const TourSchema = z.object({
     dates: z.array(TourDateSchema),
     tourName: z.string().optional(), // Tour name
+    dateDisplayFormat: DateDisplayFormatKey.default('long_month_day_year'),
     // "Get notified" CTA at bottom of tour list
     notifyCta: z.object({
         text: z.string(),
@@ -243,7 +264,7 @@ export const AboutSchema = z.object({
     longBio: z.string(), // full paragraphs for /about page
     genres: z.array(z.string()),
     similarArtists: z.array(z.string()).optional(),
-    accolades: z.array(z.string()), // achievement bullet list
+    accolades: z.array(z.string()).optional(), // achievement bullet list
     awards: z.array(AwardSchema),
     pressQuotes: z.array(PressQuoteSchema),
     pressPhotos: z.array(z.object({
@@ -355,19 +376,30 @@ export const validateEPK = (data: unknown) => {
 }
 
 export type EPK = z.infer<typeof EPKSchema>
+export type PublicSection = z.infer<typeof PublicSectionKey>
+export type HomeEmbedSection = z.infer<typeof HomeEmbedSectionKey>
+export type DateDisplayFormat = z.infer<typeof DateDisplayFormatKey>
+export type Branding = z.infer<typeof BrandingSchema>
+export type BrandingTheme = z.infer<typeof BrandingThemeSchema>
+export type BrandingFonts = z.infer<typeof BrandingFontsSchema>
+export type GoogleFont = z.infer<typeof GoogleFontSchema>
+export type UploadedFont = z.infer<typeof UploadedFontSchema>
+export type FontAssignment = z.infer<typeof FontAssignmentSchema>
+export type FeaturedRelease = z.infer<typeof FeaturedReleaseSchema>
+export type FeaturedVideo = z.infer<typeof FeaturedVideoSchema>
+export type Announcement = z.infer<typeof AnnouncementSchema>
+export type Home = z.infer<typeof HomeSchema>
 export type Release = z.infer<typeof ReleaseSchema>
+export type Music = z.infer<typeof MusicSchema>
 export type TourDate = z.infer<typeof TourDateSchema>
 export type Video = z.infer<typeof VideoSchema>
 export type ShopItem = z.infer<typeof ShopItemSchema>
+export type Award = z.infer<typeof AwardSchema>
+export type PressQuote = z.infer<typeof PressQuoteSchema>
+export type Footer = z.infer<typeof FooterSchema>
+export type Contact = z.infer<typeof ContactSchema>
+export type Newsletter = z.infer<typeof NewsletterSchema>
+export type VIP = z.infer<typeof VIPSchema>
+export type Shop = z.infer<typeof ShopSchema>
 
-// export type Award = z.infer<typeof AwardSchema>
-// export type PressQuote = z.infer<typeof PressQuoteSchema>
-// export type Branding = z.infer<typeof BrandingSchema>
-// export type Footer = z.infer<typeof FooterSchema>
-// export type Contact = z.infer<typeof ContactSchema>
-// export type Newsletter = z.infer<typeof NewsletterSchema>
-// export type About = z.infer<typeof AboutSchema>
-// export type VIP = z.infer<typeof VIPSchema>
-// export type Shop = z.infer<typeof ShopSchema>
-// export type Home = z.infer<typeof HomeSchema>
-// export type Music = z.infer<typeof MusicSchema>
+export type About = z.infer<typeof AboutSchema>

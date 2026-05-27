@@ -1,4 +1,7 @@
+import { useEffect, useState } from 'react'
 import type { EPK } from '../../../../../packages/schema'
+import { DashboardDateInput } from './DashboardDateInput'
+import { RequiredLabel } from './RequiredLabel'
 import type { DashboardEditorProps } from './types'
 import { createEditorId, optionalString, parseCommaList } from './types'
 import './DashboardEditors.css'
@@ -27,6 +30,18 @@ const createPressPhoto = (): PressPhoto => ({
 
 export function AboutEditor({ draft, updateField }: DashboardEditorProps) {
   const about = draft.about
+  const [genresText, setGenresText] = useState(() => about.genres.join(', '))
+  const [similarArtistsText, setSimilarArtistsText] = useState(() =>
+    about.similarArtists?.join(', ') ?? '',
+  )
+
+  useEffect(() => {
+    setGenresText(about.genres.join(', '))
+  }, [about.genres])
+
+  useEffect(() => {
+    setSimilarArtistsText(about.similarArtists?.join(', ') ?? '')
+  }, [about.similarArtists])
 
   const updateAward = (index: number, value: Award) => {
     updateField('about', {
@@ -58,7 +73,7 @@ export function AboutEditor({ draft, updateField }: DashboardEditorProps) {
   return (
     <div className="editor-form">
       <div className="editor-field">
-        <label htmlFor="short-bio">Short bio</label>
+        <RequiredLabel htmlFor="short-bio">Short bio</RequiredLabel>
         <textarea
           id="short-bio"
           value={about.shortBio}
@@ -68,7 +83,7 @@ export function AboutEditor({ draft, updateField }: DashboardEditorProps) {
         />
       </div>
       <div className="editor-field">
-        <label htmlFor="long-bio">Long bio</label>
+        <RequiredLabel htmlFor="long-bio">Long bio</RequiredLabel>
         <textarea
           id="long-bio"
           value={about.longBio}
@@ -79,31 +94,33 @@ export function AboutEditor({ draft, updateField }: DashboardEditorProps) {
       </div>
       <div className="editor-grid">
         <div className="editor-field">
-          <label htmlFor="genres">Genres, comma separated</label>
+          <RequiredLabel htmlFor="genres">Genres, comma separated</RequiredLabel>
           <input
             id="genres"
-            value={about.genres.join(', ')}
-            onChange={(event) =>
+            value={genresText}
+            onBlur={() =>
               updateField('about', {
                 ...about,
-                genres: parseCommaList(event.target.value),
+                genres: parseCommaList(genresText),
               })
             }
+            onChange={(event) => setGenresText(event.target.value)}
           />
         </div>
         <div className="editor-field">
           <label htmlFor="similar-artists">Similar artists, comma separated</label>
           <input
             id="similar-artists"
-            value={about.similarArtists?.join(', ') ?? ''}
-            onChange={(event) => {
-              const similarArtists = parseCommaList(event.target.value)
+            value={similarArtistsText}
+            onBlur={() => {
+              const similarArtists = parseCommaList(similarArtistsText)
               updateField('about', {
                 ...about,
                 similarArtists:
                   similarArtists.length > 0 ? similarArtists : undefined,
               })
             }}
+            onChange={(event) => setSimilarArtistsText(event.target.value)}
           />
         </div>
         <div className="editor-field">
@@ -150,16 +167,18 @@ export function AboutEditor({ draft, updateField }: DashboardEditorProps) {
         <label htmlFor="accolades">Accolades, one per line</label>
         <textarea
           id="accolades"
-          value={about.accolades.join('\n')}
-          onChange={(event) =>
+          value={about.accolades?.join('\n') ?? ''}
+          onChange={(event) => {
+            const accolades = event.target.value
+              .split(/\r?\n/)
+              .map((item) => item.trim())
+              .filter(Boolean)
+
             updateField('about', {
               ...about,
-              accolades: event.target.value
-                .split(/\r?\n/)
-                .map((item) => item.trim())
-                .filter(Boolean),
+              accolades: accolades.length > 0 ? accolades : undefined,
             })
-          }
+          }}
         />
       </div>
 
@@ -199,7 +218,7 @@ export function AboutEditor({ draft, updateField }: DashboardEditorProps) {
               </div>
               <div className="editor-grid">
                 <div className="editor-field">
-                  <label htmlFor={`award-${index}-name`}>Name</label>
+                  <RequiredLabel htmlFor={`award-${index}-name`}>Name</RequiredLabel>
                   <input
                     id={`award-${index}-name`}
                     value={award.name}
@@ -222,7 +241,7 @@ export function AboutEditor({ draft, updateField }: DashboardEditorProps) {
                   />
                 </div>
                 <div className="editor-field">
-                  <label htmlFor={`award-${index}-year`}>Year</label>
+                  <RequiredLabel htmlFor={`award-${index}-year`}>Year</RequiredLabel>
                   <input
                     id={`award-${index}-year`}
                     type="number"
@@ -284,7 +303,7 @@ export function AboutEditor({ draft, updateField }: DashboardEditorProps) {
               </div>
               <div className="editor-grid">
                 <div className="editor-field editor-field--wide">
-                  <label htmlFor={`${quote.id}-id`}>ID</label>
+                  <RequiredLabel htmlFor={`${quote.id}-id`}>ID</RequiredLabel>
                   <input
                     id={`${quote.id}-id`}
                     value={quote.id}
@@ -297,7 +316,7 @@ export function AboutEditor({ draft, updateField }: DashboardEditorProps) {
                   />
                 </div>
                 <div className="editor-field editor-field--wide">
-                  <label htmlFor={`${quote.id}-quote`}>Quote</label>
+                  <RequiredLabel htmlFor={`${quote.id}-quote`}>Quote</RequiredLabel>
                   <textarea
                     id={`${quote.id}-quote`}
                     value={quote.quote}
@@ -310,7 +329,7 @@ export function AboutEditor({ draft, updateField }: DashboardEditorProps) {
                   />
                 </div>
                 <div className="editor-field">
-                  <label htmlFor={`${quote.id}-publication`}>Publication</label>
+                  <RequiredLabel htmlFor={`${quote.id}-publication`}>Publication</RequiredLabel>
                   <input
                     id={`${quote.id}-publication`}
                     value={quote.publication}
@@ -350,14 +369,13 @@ export function AboutEditor({ draft, updateField }: DashboardEditorProps) {
                 </div>
                 <div className="editor-field">
                   <label htmlFor={`${quote.id}-date`}>Date</label>
-                  <input
+                  <DashboardDateInput
                     id={`${quote.id}-date`}
-                    type="date"
                     value={quote.date ?? ''}
-                    onChange={(event) =>
+                    onChange={(value) =>
                       updatePressQuote(quote.id, {
                         ...quote,
-                        date: optionalString(event.target.value),
+                        date: optionalString(value),
                       })
                     }
                   />
@@ -404,7 +422,7 @@ export function AboutEditor({ draft, updateField }: DashboardEditorProps) {
               </div>
               <div className="editor-grid">
                 <div className="editor-field editor-field--wide">
-                  <label htmlFor={`${photo.id}-id`}>ID</label>
+                  <RequiredLabel htmlFor={`${photo.id}-id`}>ID</RequiredLabel>
                   <input
                     id={`${photo.id}-id`}
                     value={photo.id}
@@ -417,7 +435,7 @@ export function AboutEditor({ draft, updateField }: DashboardEditorProps) {
                   />
                 </div>
                 <div className="editor-field editor-field--wide">
-                  <label htmlFor={`${photo.id}-path`}>Image path</label>
+                  <RequiredLabel htmlFor={`${photo.id}-path`}>Image path</RequiredLabel>
                   <input
                     id={`${photo.id}-path`}
                     value={photo.path}
@@ -430,7 +448,7 @@ export function AboutEditor({ draft, updateField }: DashboardEditorProps) {
                   />
                 </div>
                 <div className="editor-field">
-                  <label htmlFor={`${photo.id}-orientation`}>Orientation</label>
+                  <RequiredLabel htmlFor={`${photo.id}-orientation`}>Orientation</RequiredLabel>
                   <select
                     id={`${photo.id}-orientation`}
                     value={photo.orientation}

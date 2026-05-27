@@ -15,9 +15,11 @@ export function AboutSection() {
         {epk.about.similarArtists && epk.about.similarArtists.length > 0 && (
           <p>{epk.about.similarArtists.join(', ')}</p>
         )}
-        <ul data-list="accolades">
-          {epk.about.accolades.map((item) => <li key={item}>{item}</li>)}
-        </ul>
+        {epk.about.accolades && epk.about.accolades.length > 0 && (
+          <ul data-list="accolades">
+            {epk.about.accolades.map((item) => <li key={item}>{item}</li>)}
+          </ul>
+        )}
         {epk.about.awards.length > 0 && (
           <ul data-list="awards">
             {epk.about.awards.map((award) => (

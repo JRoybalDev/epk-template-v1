@@ -1,4 +1,5 @@
 import { useEPKOutlet } from '../../hooks/useEPKOutlet'
+import { YouTubeEmbed } from './YouTubeEmbed'
 
 export function VideoGrid() {
   const { epk } = useEPKOutlet()
@@ -18,10 +19,9 @@ export function VideoGrid() {
       <div data-list="videos">
         {videos.map((video) => (
           <article data-item="video" key={video.id}>
-            <iframe
-              src={`https://www.youtube.com/embed/${video.youtubeVideoId}`}
+            <YouTubeEmbed
+              videoId={video.youtubeVideoId}
               title={video.title}
-              allowFullScreen
             />
             <div>
               <h2>{video.title}</h2>
