@@ -17,6 +17,7 @@ export const DateDisplayFormatKey = z.enum([
     'numeric_month_day_year',
     'day_short_month_year',
 ])
+export const TourListingModeKey = z.enum(['manual', 'seated'])
 export const FontAssignmentSchema = z.object({
     family: z.string().optional(),
     weight: z.string().optional(),
@@ -192,6 +193,7 @@ export const TourSchema = z.object({
     dates: z.array(TourDateSchema),
     tourName: z.string().optional(), // Tour name
     dateDisplayFormat: DateDisplayFormatKey.default('long_month_day_year'),
+    listingMode: TourListingModeKey.optional(),
     // "Get notified" CTA at bottom of tour list
     notifyCta: z.object({
         text: z.string(),
@@ -200,18 +202,32 @@ export const TourSchema = z.object({
     }).optional(),
     // Integration: embed Seated widget vs render our own list
     seatedWidgetUrl: UrlString.optional(), // if set, iframe it instead
+    seatedEmbedCode: z.string().optional(),
 })
 
 // ─── VIP ──────────────────────────────────────────────────
 // Observed: redirects to artistvip.store (external Shopify)
 // The /vip page itself is a per-show list, each with "vip upgrades" btn
 // No package descriptions on the main site — that's on the external store
+export const VIPItemSchema = z.object({
+    id: z.string(),
+    name: z.string(),
+    price: z.string(),
+    currency: z.string().default('USD'),
+    description: z.string().optional(),
+    image: z.string().optional(),
+    purchaseUrl: UrlString,
+    features: z.array(z.string()).optional(),
+    isFeatured: z.boolean().default(true),
+})
+
 export const VIPSchema = z.object({
     externalStoreUrl: UrlString, // e.g. artistvip.store
     // Optional: override per-show VIP urls (otherwise falls back to externalStoreUrl)
     // These are already on TourDateSchema.vipUrl - VIPSchema is global config
     headline: z.string().optional(),
     description: z.string().optional(),
+    items: z.array(VIPItemSchema).optional(),
     // If true, /vip just redirects to externalStoreUrl immediately
     redirectOnly: z.boolean().default(true),
 })
@@ -279,13 +295,17 @@ export const AboutSchema = z.object({
 })
 
 // ─── Newsletter ───────────────────────────────────────────
+export const NewsletterFieldKey = z.enum(['email', 'firstName', 'postalCode', 'country'])
+export const NewsletterSignupModeKey = z.enum(['native', 'embed'])
 export const NewsletterSchema = z.object({
     headline: z.string().optional(),
     subheadline: z.string().optional(),
     backgroundImage: z.string().optional(),
+    signupMode: NewsletterSignupModeKey.optional(),
     // Provider: Mailchimp, Klaviyo, etc
     embedCode: z.string().optional(),
     externalSignupUrl: UrlString.optional(),
+    formFields: z.array(NewsletterFieldKey).default(['email']),
     // Provider name for display
     provider: z.enum(['mailchimp', 'klaviyo', 'beehiiv', 'convertkit', 'other']).optional(),
 })
@@ -379,6 +399,7 @@ export type EPK = z.infer<typeof EPKSchema>
 export type PublicSection = z.infer<typeof PublicSectionKey>
 export type HomeEmbedSection = z.infer<typeof HomeEmbedSectionKey>
 export type DateDisplayFormat = z.infer<typeof DateDisplayFormatKey>
+export type TourListingMode = z.infer<typeof TourListingModeKey>
 export type Branding = z.infer<typeof BrandingSchema>
 export type BrandingTheme = z.infer<typeof BrandingThemeSchema>
 export type BrandingFonts = z.infer<typeof BrandingFontsSchema>
@@ -394,11 +415,14 @@ export type Music = z.infer<typeof MusicSchema>
 export type TourDate = z.infer<typeof TourDateSchema>
 export type Video = z.infer<typeof VideoSchema>
 export type ShopItem = z.infer<typeof ShopItemSchema>
+export type VIPItem = z.infer<typeof VIPItemSchema>
 export type Award = z.infer<typeof AwardSchema>
 export type PressQuote = z.infer<typeof PressQuoteSchema>
 export type Footer = z.infer<typeof FooterSchema>
 export type Contact = z.infer<typeof ContactSchema>
 export type Newsletter = z.infer<typeof NewsletterSchema>
+export type NewsletterField = z.infer<typeof NewsletterFieldKey>
+export type NewsletterSignupMode = z.infer<typeof NewsletterSignupModeKey>
 export type VIP = z.infer<typeof VIPSchema>
 export type Shop = z.infer<typeof ShopSchema>
 

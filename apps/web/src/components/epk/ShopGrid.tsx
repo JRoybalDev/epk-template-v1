@@ -18,14 +18,26 @@ export function ShopGrid() {
     )
   }
 
+  if (shop.redirectOnly) {
+    return (
+      <section data-section="shop">
+        <header>
+          <p>Shop</p>
+          <h1>{shop.headline || 'Shop'}</h1>
+          <a href={shop.externalStoreUrl} rel="noreferrer" target="_blank">
+            Visit store
+          </a>
+        </header>
+      </section>
+    )
+  }
+
   return (
     <section data-section="shop">
       <header>
         <p>Shop</p>
         <h1>{shop.headline || 'Featured merch'}</h1>
-        <a href={shop.externalStoreUrl}>Visit store</a>
       </header>
-      {shop.redirectOnly && <p>This shop section is configured as an external store link.</p>}
       <div data-list="shopItems">
         {featuredItems.map((item) => (
           <article data-item="shopItem" key={item.id}>

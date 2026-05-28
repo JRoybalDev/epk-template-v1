@@ -435,8 +435,10 @@ Controls newsletter copy and provider configuration.
   "headline": "Stay in the loop",
   "subheadline": "Get new music, tour dates, and merch drops first.",
   "backgroundImage": "/uploads/site/assets/newsletter-bg.jpg",
+  "signupMode": "native",
   "embedCode": "<form><!-- provider embed goes here --></form>",
   "externalSignupUrl": "https://example.com/newsletter",
+  "formFields": ["email", "firstName", "postalCode", "country"],
   "provider": "mailchimp"
 }
 ```
@@ -449,6 +451,24 @@ klaviyo
 beehiiv
 convertkit
 other
+```
+
+`signupMode` must be one of:
+
+```txt
+native
+embed
+```
+
+Use `native` to render the template's built-in form fields. Use `embed` to render provider embed code. Older payloads without `signupMode` infer `embed` when `embedCode` exists, otherwise `native`.
+
+`formFields` controls the native form. Email is always included and required. Allowed field values:
+
+```txt
+email
+firstName
+postalCode
+country
 ```
 
 ### Footer

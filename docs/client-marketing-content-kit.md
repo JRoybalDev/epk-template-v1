@@ -457,8 +457,10 @@ Optional fields:
 - Headline.
 - Subheadline.
 - Background image.
+- Signup method: native form fields or embed code.
 - Provider embed code.
 - External signup URL.
+- Native form fields.
 - Provider name.
 
 Supported provider labels:
@@ -473,11 +475,15 @@ Recommended client decisions:
 
 - Use embed code when the provider form should appear directly on the page.
 - Use external signup URL when the provider handles the form on its own page.
+- Use native form fields when the frontend should show a simple on-site form instead of a provider embed.
+- Use the dashboard signup method toggle to choose which option appears publicly.
+- Email address is always included and required.
+- Optional native fields include first name, postal code, and country.
 - Keep the copy short and benefit-led.
 
 How this appears:
 
-- The newsletter section can display campaign copy, imagery, and either an embedded form or link.
+- The newsletter section can display campaign copy, imagery, and either an embedded form, native form, or signup link.
 
 ### Step 13: Add Footer And Social Links
 

@@ -109,6 +109,7 @@
   "tour": {
     "tourName": "The Midnight Signal Tour",
     "dateDisplayFormat": "long_month_day_year",
+    "listingMode": "manual",
     "dates": [
       {
         "id": "show-001",
@@ -142,12 +143,29 @@
       "buttonLabel": "Follow Demo Artist",
       "buttonUrl": "https://example.com/follow"
     },
-    "seatedWidgetUrl": "https://example.com/widgets/tour"
+    "seatedWidgetUrl": "https://example.com/widgets/tour",
+    "seatedEmbedCode": ""
   },
   "vip": {
     "externalStoreUrl": "https://example.com/vip",
     "headline": "VIP Upgrades",
     "description": "Meet and greet upgrades are available for select shows.",
+    "items": [
+      {
+        "id": "vip-001",
+        "name": "Meet and Greet Package",
+        "price": "150.00",
+        "currency": "USD",
+        "description": "Upgrade your night with a premium VIP experience.",
+        "purchaseUrl": "https://example.com/vip/meet-and-greet",
+        "features": [
+          "Photo opportunity",
+          "Early entry",
+          "Commemorative laminate"
+        ],
+        "isFeatured": true
+      }
+    ],
     "redirectOnly": false
   },
   "shop": {
@@ -233,8 +251,10 @@
     "headline": "Stay in the loop",
     "subheadline": "Get new music, tour dates, and merch drops first.",
     "backgroundImage": "/uploads/site/assets/newsletter-bg.jpg",
+    "signupMode": "embed",
     "embedCode": "<form><!-- provider embed goes here --></form>",
     "externalSignupUrl": "https://example.com/newsletter",
+    "formFields": ["email", "firstName", "postalCode", "country"],
     "provider": "mailchimp"
   },
   "footer": {

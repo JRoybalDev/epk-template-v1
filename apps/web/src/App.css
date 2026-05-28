@@ -123,3 +123,12 @@
   aspect-ratio: 16 / 9;
   border: 0;
 }
+
+[data-template="epk-public-shell"] [data-field="seatedTourEmbed"] {
+  width: 100%;
+}
+
+[data-template="epk-public-shell"] iframe[data-field="seatedTourEmbed"] {
+  min-height: 38rem;
+  aspect-ratio: auto;
+}

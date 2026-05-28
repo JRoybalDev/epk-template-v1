@@ -278,6 +278,68 @@
   accent-color: var(--accent-strong);
 }
 
+.editor-segmented {
+  position: relative;
+  display: grid;
+  width: min(100%, 28rem);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--switch-bg) 74%, var(--surface));
+  padding: 0.25rem;
+}
+
+.editor-segmented__thumb {
+  position: absolute;
+  z-index: 0;
+  top: 0.25rem;
+  bottom: 0.25rem;
+  left: 0.25rem;
+  width: calc(50% - 0.25rem);
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+  box-shadow: var(--shadow-tight);
+  transform: translateX(0);
+  transition: transform 180ms ease;
+}
+
+.editor-segmented--embed .editor-segmented__thumb,
+.editor-segmented--manual .editor-segmented__thumb {
+  transform: translateX(100%);
+}
+
+.editor-segmented__option {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  min-height: 2.45rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  font-size: 0.86rem;
+  font-weight: 900;
+  text-align: center;
+  transition: color 160ms ease;
+}
+
+.editor-segmented__option input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.editor-segmented__option:has(input:checked) {
+  color: var(--color-accent-contrast);
+}
+
+.editor-segmented:has(input:focus-visible) {
+  box-shadow: 0 0 0 4px var(--color-focus);
+}
+
 .editor-actions {
   display: flex;
   flex-wrap: wrap;

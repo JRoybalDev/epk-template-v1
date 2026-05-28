@@ -52,6 +52,17 @@ const isConfiguredNavItem = (epk: EPK, item: EPK['nav'][number]) => {
   }
 }
 
+const getExternalNavUrl = (epk: EPK, item: EPK['nav'][number]) => {
+  switch (item) {
+    case 'shop':
+      return epk.shop?.redirectOnly ? epk.shop.externalStoreUrl : null
+    case 'vip':
+      return epk.vip?.redirectOnly ? epk.vip.externalStoreUrl : null
+    default:
+      return null
+  }
+}
+
 export function EPKPage() {
   const location = useLocation()
   const pageLabel =
@@ -107,17 +118,31 @@ export function EPKPage() {
           </NavLink>
         </div>
         <nav aria-label="Public EPK sections" data-section="site-navigation">
-          {epk.nav.filter((item) => isConfiguredNavItem(epk, item)).map((item) =>
-            item === 'contact' ? (
-              <a href={`mailto:${epk.contact.bookingEmail}`} key={item}>
-                {navLabels[item]}
-              </a>
-            ) : (
+          {epk.nav.filter((item) => isConfiguredNavItem(epk, item)).map((item) => {
+            const externalNavUrl = getExternalNavUrl(epk, item)
+
+            if (item === 'contact') {
+              return (
+                <a href={`mailto:${epk.contact.bookingEmail}`} key={item}>
+                  {navLabels[item]}
+                </a>
+              )
+            }
+
+            if (externalNavUrl) {
+              return (
+                <a href={externalNavUrl} key={item} rel="noreferrer" target="_blank">
+                  {navLabels[item]}
+                </a>
+              )
+            }
+
+            return (
               <NavLink end={item === 'home'} key={item} to={navPaths[item]}>
                 {navLabels[item]}
               </NavLink>
-            ),
-          )}
+            )
+          })}
         </nav>
       </header>
       <Outlet context={{ epk }} />

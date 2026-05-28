@@ -1,6 +1,10 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { FiChevronDown } from 'react-icons/fi'
-import type { DateDisplayFormat, TourDate } from '../../../../../packages/schema'
+import type {
+  DateDisplayFormat,
+  TourDate,
+  TourListingMode,
+} from '../../../../../packages/schema'
 import { DashboardDateInput, getTodayDateKey } from './DashboardDateInput'
 import { RequiredLabel } from './RequiredLabel'
 import type { DashboardEditorProps } from './types'
@@ -39,27 +43,26 @@ export function TourEditor({ draft, updateField }: DashboardEditorProps) {
   const [openDateId, setOpenDateId] = useState<string | null>(null)
   const tour = draft.tour
   const dates = tour.dates
-  const latestTourRef = useRef(tour)
+  const listingMode: TourListingMode =
+    tour.listingMode ?? (tour.seatedEmbedCode || tour.seatedWidgetUrl ? 'seated' : 'manual')
   const notifyCta = tour.notifyCta ?? {
     text: '',
     buttonLabel: '',
     buttonUrl: '',
   }
 
-  latestTourRef.current = tour
-
   useEffect(() => {
     if (!dates.some((date) => date.isAnnounced && isPastDate(date.date))) return
 
     updateField('tour', {
-      ...latestTourRef.current,
+      ...tour,
       dates: dates.map((date) =>
         date.isAnnounced && isPastDate(date.date)
           ? { ...date, isAnnounced: false }
           : date,
       ),
     })
-  }, [dates, updateField])
+  }, [dates, tour, updateField])
 
   const updateDate = (id: string, value: TourDate) => {
     updateField('tour', {
@@ -107,9 +110,49 @@ export function TourEditor({ draft, updateField }: DashboardEditorProps) {
   return (
     <div className="editor-form">
       <p className="editor-note">
-        Add public tour rows. Ticket and VIP URLs can be left blank until links are available.
+        Choose whether tour listings come from Seated or from manually entered rows.
       </p>
       <div className="editor-grid">
+        <div className="editor-field editor-field--wide">
+          <label>Tour listing source</label>
+          <div
+            className={`editor-segmented editor-segmented--${listingMode}`}
+            role="radiogroup"
+            aria-label="Tour listing source"
+          >
+            <span className="editor-segmented__thumb" aria-hidden="true" />
+            <label className="editor-segmented__option">
+              <input
+                checked={listingMode === 'seated'}
+                name="tour-listing-mode"
+                type="radio"
+                value="seated"
+                onChange={() =>
+                  updateField('tour', {
+                    ...tour,
+                    listingMode: 'seated',
+                  })
+                }
+              />
+              <span>Seated</span>
+            </label>
+            <label className="editor-segmented__option">
+              <input
+                checked={listingMode === 'manual'}
+                name="tour-listing-mode"
+                type="radio"
+                value="manual"
+                onChange={() =>
+                  updateField('tour', {
+                    ...tour,
+                    listingMode: 'manual',
+                  })
+                }
+              />
+              <span>Manual</span>
+            </label>
+          </div>
+        </div>
         <div className="editor-field">
           <label htmlFor="tour-name">Tour name</label>
           <input
@@ -120,39 +163,60 @@ export function TourEditor({ draft, updateField }: DashboardEditorProps) {
             }
           />
         </div>
-        <div className="editor-field">
-          <label htmlFor="seated-widget">Seated widget URL</label>
-          <input
-            id="seated-widget"
-            value={tour.seatedWidgetUrl ?? ''}
-            onChange={(event) =>
-              updateField('tour', {
-                ...tour,
-                seatedWidgetUrl: optionalString(event.target.value),
-              })
-            }
-          />
-        </div>
-        <div className="editor-field editor-field--wide">
-          <label htmlFor="tour-date-format">Date display format</label>
-          <select
-            id="tour-date-format"
-            value={tour.dateDisplayFormat ?? 'long_month_day_year'}
-            onChange={(event) =>
-              updateField('tour', {
-                ...tour,
-                dateDisplayFormat: event.target.value as DateDisplayFormat,
-              })
-            }
-          >
-            {dateDisplayFormatOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </div>
+        {listingMode === 'seated' && (
+          <>
+            <div className="editor-field editor-field--wide">
+              <label htmlFor="seated-embed">Seated embed code</label>
+              <textarea
+                id="seated-embed"
+                value={tour.seatedEmbedCode ?? ''}
+                onChange={(event) =>
+                  updateField('tour', {
+                    ...tour,
+                    seatedEmbedCode: optionalString(event.target.value),
+                  })
+                }
+              />
+            </div>
+            <div className="editor-field editor-field--wide">
+              <label htmlFor="seated-widget">Seated widget URL fallback</label>
+              <input
+                id="seated-widget"
+                value={tour.seatedWidgetUrl ?? ''}
+                onChange={(event) =>
+                  updateField('tour', {
+                    ...tour,
+                    seatedWidgetUrl: optionalString(event.target.value),
+                  })
+                }
+              />
+            </div>
+          </>
+        )}
+        {listingMode === 'manual' && (
+          <div className="editor-field editor-field--wide">
+            <label htmlFor="tour-date-format">Date display format</label>
+            <select
+              id="tour-date-format"
+              value={tour.dateDisplayFormat ?? 'long_month_day_year'}
+              onChange={(event) =>
+                updateField('tour', {
+                  ...tour,
+                  dateDisplayFormat: event.target.value as DateDisplayFormat,
+                })
+              }
+            >
+              {dateDisplayFormatOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
       </div>
+      {listingMode === 'manual' && (
+        <>
       <section className="editor-item" aria-labelledby="tour-notify-title">
         <div className="editor-item__header">
           <h3 id="tour-notify-title">Notify CTA</h3>
@@ -413,6 +477,8 @@ export function TourEditor({ draft, updateField }: DashboardEditorProps) {
           Add tour date
         </button>
       </div>
+        </>
+      )}
     </div>
   )
 }
