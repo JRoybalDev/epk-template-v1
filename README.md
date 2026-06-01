@@ -160,23 +160,10 @@ Dashboard route:
 Dashboard sections:
 
 ```txt
-Navigation
-Layout
-Branding
-Fonts & Text Styling
-Metadata
-Home
-Music
-Videos
-Tour
-VIP
-Shop
-About
-Newsletter
-Contact
-JSON
-Assets
-Footer
+Site setup: Navigation, Layout, Branding, Fonts & Text Styling, Metadata
+Core content: Home, Music, Videos, Tour, About, Contact, Footer
+Extras: VIP, Shop, Newsletter
+Tools: JSON, Assets
 ```
 
 Main dashboard workflow:
@@ -190,7 +177,7 @@ Main dashboard workflow:
 6. Export a JSON backup from the JSON section.
 ```
 
-The dashboard warns before leaving with unsaved changes and shows an `Unsaved` badge when the draft has pending edits.
+The dashboard warns before leaving with unsaved changes and shows an `Unsaved` badge when the draft has pending edits. The dashboard navigation is grouped into collapsible sections on desktop and opens as a draggable bottom sheet on mobile.
 
 The dashboard has its own light/dark toggle. Public EPK color, font, and texture controls live under `Branding` and `Fonts & Text Styling` and do not change the dashboard theme.
 
@@ -203,7 +190,7 @@ Tour dates
 Font element settings
 ```
 
-The `Layout` section controls public navigation order and which full sections can also be shown on the home page. The `Videos` section can import a YouTube URL or video ID and ask the API to fill title, channel name, publish date, video ID, and an inferred type.
+The `Layout` section uses drag-and-drop controls for public navigation order and for the order of full sections embedded on the home page. The `Videos` section can import a YouTube URL or video ID and ask the API to fill title, channel name, publish date, video ID, and an inferred type.
 
 ## Public Routes
 
@@ -218,6 +205,8 @@ The `Layout` section controls public navigation order and which full sections ca
 /newsletter   Newsletter signup
 /*            Not found page
 ```
+
+The `contact` navigation item is supported, but it renders as a `mailto:` link to the booking email instead of a standalone `/contact` route.
 
 The public site reads from `GET /api/epk`. If no EPK has been imported yet, the public shell shows a setup state.
 
@@ -361,6 +350,7 @@ Query:
 
 ```txt
 url=<youtube-url-or-id>
+id=<youtube-video-id>
 ```
 
 Success:
@@ -394,15 +384,17 @@ Upload share images through the dashboard `Assets` section, then copy the return
 /uploads/site/branding/favicon.ico
 ```
 
-Metadata falls back in this order:
+Metadata currently falls back in this order:
 
 ```txt
-Title: metadata.title -> "<artistName> | <page>"
+Browser and social title: "<artistName> | <page>"
 Description: metadata.description -> about.shortBio -> home announcement -> generated artist fallback
 Image: metadata.socialImage -> home featured release cover
-Theme color: metadata.themeColor -> branding accent color
-Favicon: metadata.faviconPath -> branding favicon path
+Theme color: metadata.themeColor -> branding.accentColor
+Favicon: metadata.faviconPath -> branding.faviconPath
 ```
+
+`metadata.title` and `pageTitle` are stored in the EPK data and shown in the dashboard metadata preview, but the routed public pages currently set document and Open Graph titles from the artist name and page label.
 
 Public branding supports:
 

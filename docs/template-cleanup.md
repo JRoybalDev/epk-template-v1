@@ -77,9 +77,10 @@ Recommended share image size:
 - Use `JSON` to export a backup before making major edits.
 - Use `JSON` to import a completed EPK file into the dashboard draft.
 - Review the imported draft in each dashboard section.
-- Use the `Layout` section to confirm navigation order and which sections appear on the home page.
+- Use the `Layout` section to drag public navigation into the right order and choose which reusable sections appear on the home page.
 - Use `Branding` and `Fonts & Text Styling` to confirm public EPK colors, full-page background texture, Google fonts, uploaded fonts, and per-element text settings.
 - Use the video URL importer in `Videos` when adding YouTube videos from links.
+- Confirm whether `Tour` should use manual date listings or a Seated widget/embed.
 - Click `Save EPK` only after the draft validates and looks correct.
 - Use `Sign out` after editing on shared machines.
 

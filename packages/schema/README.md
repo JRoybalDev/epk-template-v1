@@ -97,7 +97,7 @@ newsletter
 
 ### Metadata
 
-Controls browser and social sharing metadata.
+Stores browser and social sharing metadata fields.
 
 ```json
 {
@@ -109,6 +109,8 @@ Controls browser and social sharing metadata.
   "siteUrl": "https://example.com"
 }
 ```
+
+The routed public pages currently set document and Open Graph titles from `<artistName> | <page>`. `metadata.title` and `pageTitle` are retained in the EPK data and shown in the dashboard metadata preview.
 
 ### Branding
 
@@ -316,7 +318,9 @@ Controls public tour rows and optional widget configuration.
     "buttonLabel": "Follow Demo Artist",
     "buttonUrl": "https://example.com/follow"
   },
-  "seatedWidgetUrl": "https://example.com/widgets/tour"
+  "listingMode": "manual",
+  "seatedWidgetUrl": "https://example.com/widgets/tour",
+  "seatedEmbedCode": "<script src=\"https://example.com/seated.js\"></script>"
 }
 ```
 
@@ -335,6 +339,8 @@ day_short_month_year
 ```
 
 The dashboard stores dates as ISO `YYYY-MM-DD` for sorting and validation, then renders the selected display format on the public page. Past tour dates are automatically treated as unannounced.
+
+`listingMode` can be `manual` or `seated`. When omitted, the public Tour page uses `seated` if `seatedEmbedCode` or `seatedWidgetUrl` is present, otherwise it uses the manual date list. `seatedEmbedCode` takes priority over `seatedWidgetUrl` when both are provided.
 
 ### VIP
 

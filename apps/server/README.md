@@ -95,7 +95,7 @@ fonts
 
 ## YouTube Metadata
 
-`GET /api/youtube-metadata` accepts a YouTube URL or 11-character video ID through the `url` query parameter. It is used by the dashboard to create video rows from pasted YouTube links.
+`GET /api/youtube-metadata` accepts a YouTube URL or 11-character video ID through the `url` query parameter. It also accepts `id=<youtube-video-id>`. It is used by the dashboard to create video rows from pasted YouTube links.
 
 Example:
 
@@ -116,6 +116,8 @@ Response:
 ```
 
 The metadata lookup is best-effort. Title and channel come from YouTube oEmbed. Publish date is read from the public watch page when available. Type is inferred and can be edited in the dashboard.
+
+When YouTube does not expose a publish date, the API falls back to the current local date in `YYYY-MM-DD` format.
 
 ## Production Notes
 
