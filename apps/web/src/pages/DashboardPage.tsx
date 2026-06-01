@@ -12,6 +12,7 @@ import { BrandingEditor } from '../components/dashboard/BrandingEditor'
 import { ContactEditor } from '../components/dashboard/ContactEditor'
 import { FontsEditor } from '../components/dashboard/FontsEditor'
 import { FooterEditor } from '../components/dashboard/FooterEditor'
+import { HelpGuide } from '../components/dashboard/HelpGuide'
 import { HomeEditor } from '../components/dashboard/HomeEditor'
 import { JsonToolsEditor } from '../components/dashboard/JsonToolsEditor'
 import { LayoutEditor } from '../components/dashboard/LayoutEditor'
@@ -61,7 +62,8 @@ type DashboardSectionId =
   | 'json'
   | 'assets'
   | 'footer'
-type DashboardNavGroupId = 'setup' | 'content' | 'commerce' | 'tools'
+  | 'help'
+type DashboardNavGroupId = 'setup' | 'content' | 'commerce' | 'tools' | 'help'
 type DashboardSection = {
   id: DashboardSectionId
   label: string
@@ -112,6 +114,13 @@ const dashboardNavGroups: DashboardNavGroup[] = [
     sections: [
       { id: 'json', label: 'JSON' },
       { id: 'assets', label: 'Assets' },
+    ],
+  },
+  {
+    id: 'help',
+    label: 'Help',
+    sections: [
+      { id: 'help', label: 'Setup Guide' },
     ],
   },
 ]
@@ -531,6 +540,8 @@ export function DashboardPage() {
         return <AssetUploader adminKey={storedKey} />
       case 'footer':
         return <FooterEditor {...editorProps} />
+      case 'help':
+        return <HelpGuide {...editorProps} />
       default:
         return null
     }

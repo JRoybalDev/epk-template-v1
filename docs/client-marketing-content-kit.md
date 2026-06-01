@@ -373,11 +373,11 @@ How this appears:
 
 ### Step 10: Configure Shop
 
-Shop can send visitors to an external store and optionally feature selected products.
+Shop can send visitors to an external store or show selected products with internal item pages, cart behavior, and a template checkout flow.
 
 Required when shop is enabled:
 
-- External store URL.
+- Shopify or external store URL.
 
 Optional:
 
@@ -391,15 +391,20 @@ Optional product fields:
 - Product name.
 - Price.
 - Currency.
+- Product description.
 - Product image.
-- Purchase URL.
-- Category.
+- Reference purchase URL.
+- Shopify variant ID for future integrations.
+- Category: clothing, music, or other.
+- Clothing sizes: XS, S, M, L, XL, 2XL, or 3XL.
 - Featured status.
 
 Recommended client notes:
 
-- This template does not run an on-site cart.
-- Product purchase happens on the external store.
+- This template does not process payment on-site.
+- Product browsing, item details, cart updates, and checkout setup happen inside the EPK template.
+- Shopify URLs and variant IDs can be stored as references for a future provider integration.
+- Clothing products can list available sizes so visitors can choose a size before adding an item to cart.
 - Featured products are best used for campaign items, new merch, bundles, or vinyl.
 
 How this appears:

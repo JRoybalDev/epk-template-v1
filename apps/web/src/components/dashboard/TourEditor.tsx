@@ -160,12 +160,18 @@ export function TourEditor({ draft, updateField }: DashboardEditorProps) {
     <div className="editor-form">
       <section className="editor-section" aria-labelledby="tour-setup-title">
         <div className="editor-section__header">
-          <h3 id="tour-setup-title">Tour setup</h3>
-          <p>Choose the listing source and set the public tour title.</p>
+          <div className="editor-section__title">
+            <span className="editor-section__eyebrow">Step 1</span>
+            <h3 id="tour-setup-title">Tour setup</h3>
+            <p>Choose the listing source and set the public tour title.</p>
+          </div>
         </div>
         <div className="editor-grid">
           <div className="editor-field editor-field--wide">
             <label>Tour listing source</label>
+            <p className="editor-help">
+              Seated uses an external widget. Manual uses the tour date rows below.
+            </p>
             <div
               className={`editor-segmented editor-segmented--${listingMode}`}
               role="radiogroup"
@@ -206,6 +212,7 @@ export function TourEditor({ draft, updateField }: DashboardEditorProps) {
           </div>
           <div className="editor-field">
             <label htmlFor="tour-name">Tour name</label>
+            <p className="editor-help">Optional public heading above tour listings.</p>
             <input
               id="tour-name"
               value={tour.tourName ?? ''}
@@ -222,12 +229,16 @@ export function TourEditor({ draft, updateField }: DashboardEditorProps) {
       {listingMode === 'seated' && (
         <section className="editor-section" aria-labelledby="tour-seated-title">
           <div className="editor-section__header">
-            <h3 id="tour-seated-title">Seated integration</h3>
-            <p>Add the embedded widget code, or use a widget URL as fallback.</p>
+            <div className="editor-section__title">
+              <span className="editor-section__eyebrow">Step 2</span>
+              <h3 id="tour-seated-title">Seated integration</h3>
+              <p>Add the embedded widget code, or use a widget URL as fallback.</p>
+            </div>
           </div>
           <div className="editor-grid">
               <div className="editor-field editor-field--wide">
                 <label htmlFor="seated-embed">Seated embed code</label>
+                <p className="editor-help">Paste the full embed snippet from Seated.</p>
                 <textarea
                   id="seated-embed"
                   value={tour.seatedEmbedCode ?? ''}
@@ -241,6 +252,9 @@ export function TourEditor({ draft, updateField }: DashboardEditorProps) {
               </div>
               <div className="editor-field editor-field--wide">
                 <label htmlFor="seated-widget">Seated widget URL fallback</label>
+                <p className="editor-help">
+                  Used as an iframe fallback and as an external listings link.
+                </p>
                 <input
                   id="seated-widget"
                   value={tour.seatedWidgetUrl ?? ''}
@@ -259,12 +273,16 @@ export function TourEditor({ draft, updateField }: DashboardEditorProps) {
         <>
       <section className="editor-section" aria-labelledby="tour-display-title">
         <div className="editor-section__header">
-          <h3 id="tour-display-title">Manual listing display</h3>
-          <p>Control date formatting and the optional notify call to action.</p>
+          <div className="editor-section__title">
+            <span className="editor-section__eyebrow">Step 2</span>
+            <h3 id="tour-display-title">Manual listing display</h3>
+            <p>Control date formatting and the optional notify call to action.</p>
+          </div>
         </div>
         <div className="editor-grid">
           <div className="editor-field editor-field--wide">
             <label htmlFor="tour-date-format">Date display format</label>
+            <p className="editor-help">Choose how dates appear on the public Tour page.</p>
             <select
               id="tour-date-format"
               value={tour.dateDisplayFormat ?? 'long_month_day_year'}
@@ -300,6 +318,7 @@ export function TourEditor({ draft, updateField }: DashboardEditorProps) {
         <div className="editor-grid">
           <div className="editor-field editor-field--wide">
             <RequiredLabel htmlFor="notify-text">Text</RequiredLabel>
+            <p className="editor-help">Shown below manual tour listings.</p>
             <input
               id="notify-text"
               value={notifyCta.text}
@@ -310,6 +329,7 @@ export function TourEditor({ draft, updateField }: DashboardEditorProps) {
           </div>
           <div className="editor-field">
             <RequiredLabel htmlFor="notify-label">Button label</RequiredLabel>
+            <p className="editor-help">Short action text for the notify link.</p>
             <input
               id="notify-label"
               value={notifyCta.buttonLabel}
@@ -320,6 +340,7 @@ export function TourEditor({ draft, updateField }: DashboardEditorProps) {
           </div>
           <div className="editor-field">
             <RequiredLabel htmlFor="notify-url">Button URL</RequiredLabel>
+            <p className="editor-help">Bandsintown, Seated, newsletter, or follow URL.</p>
             <input
               id="notify-url"
               value={notifyCta.buttonUrl}
@@ -332,8 +353,11 @@ export function TourEditor({ draft, updateField }: DashboardEditorProps) {
       </section>
       <section className="editor-section" aria-labelledby="tour-dates-title">
         <div className="editor-section__header">
-          <h3 id="tour-dates-title">Tour dates</h3>
-          <p>Add shows, ticket links, and VIP package selections for each date.</p>
+          <div className="editor-section__title">
+            <span className="editor-section__eyebrow">Step 3</span>
+            <h3 id="tour-dates-title">Tour dates</h3>
+            <p>Add shows, ticket links, and VIP package selections for each date.</p>
+          </div>
         </div>
         <div className="editor-list">
         {dates.map((date, index) => {
@@ -407,9 +431,17 @@ export function TourEditor({ draft, updateField }: DashboardEditorProps) {
                       Remove
                     </button>
                   </div>
+                  <div className="editor-subsection">
+                    <div className="editor-subsection__header">
+                      <h4>Show details</h4>
+                      <p>Set the date, venue, and location shown in the tour row.</p>
+                    </div>
                   <div className="editor-grid">
                     <div className="editor-field editor-field--wide">
                       <RequiredLabel htmlFor={`${date.id}-id`}>ID</RequiredLabel>
+                      <p className="editor-help">
+                        Internal show identifier. Keep it stable after launch.
+                      </p>
                       <input
                         id={`${date.id}-id`}
                         value={date.id}
@@ -454,6 +486,7 @@ export function TourEditor({ draft, updateField }: DashboardEditorProps) {
                     </div>
                     <div className="editor-field">
                       <label htmlFor={`${date.id}-region`}>Region</label>
+                      <p className="editor-help">State, province, or region when needed.</p>
                       <input
                         id={`${date.id}-region`}
                         value={date.region ?? ''}
@@ -470,30 +503,46 @@ export function TourEditor({ draft, updateField }: DashboardEditorProps) {
                         }
                       />
                     </div>
-                    <div className="editor-field">
-                      <label htmlFor={`${date.id}-ticket`}>Ticket URL</label>
-                      <input
-                        id={`${date.id}-ticket`}
-                        value={date.ticketUrl ?? ''}
-                        onChange={(event) =>
-                          updateDate(date.id, {
-                            ...date,
-                            ticketUrl: optionalString(event.target.value),
-                          })
-                        }
-                      />
+                  </div>
+                  </div>
+                  <div className="editor-subsection">
+                    <div className="editor-subsection__header">
+                      <h4>Ticketing and VIP</h4>
+                      <p>
+                        Add the public ticket link and select any VIP packages
+                        available for this show.
+                      </p>
                     </div>
-                    <div
-                      aria-labelledby={`${date.id}-vip-packages-label`}
-                      className="editor-field editor-field--wide"
-                      role="group"
-                    >
+                    <div className="editor-grid">
+                      <div className="editor-field">
+                        <label htmlFor={`${date.id}-ticket`}>Ticket URL</label>
+                        <p className="editor-help">Leave blank if tickets are not public yet.</p>
+                        <input
+                          id={`${date.id}-ticket`}
+                          value={date.ticketUrl ?? ''}
+                          onChange={(event) =>
+                            updateDate(date.id, {
+                              ...date,
+                              ticketUrl: optionalString(event.target.value),
+                            })
+                          }
+                        />
+                      </div>
+                      <div
+                        aria-labelledby={`${date.id}-vip-packages-label`}
+                        className="editor-field editor-field--wide"
+                        role="group"
+                      >
                       <span
                         className="editor-field__label"
                         id={`${date.id}-vip-packages-label`}
                       >
                         VIP packages for this date
                       </span>
+                      <p className="editor-help">
+                        Add packages from the VIP tab, then optionally override
+                        each package with a venue/date-specific URL.
+                      </p>
                       {vipPackages.length > 0 ? (
                         <div className="editor-vip-package-picker">
                           <select
@@ -540,6 +589,10 @@ export function TourEditor({ draft, updateField }: DashboardEditorProps) {
                                       <label htmlFor={`${date.id}-${selection.packageId}-vip-url`}>
                                         Date-specific package URL
                                       </label>
+                                      <p className="editor-help">
+                                        Example:
+                                        `https://exampleartistvip.store/packagename/venueordate`.
+                                      </p>
                                       <input
                                         id={`${date.id}-${selection.packageId}-vip-url`}
                                         value={selection.dateSpecificUrl ?? ''}
@@ -572,11 +625,20 @@ export function TourEditor({ draft, updateField }: DashboardEditorProps) {
                           Create VIP packages in the VIP tab, then select them here.
                         </p>
                       )}
+                      </div>
                     </div>
+                  </div>
+                  <div className="editor-subsection">
+                    <div className="editor-subsection__header">
+                      <h4>Lineup and status</h4>
+                      <p>Add supporting acts and set public availability states.</p>
+                    </div>
+                    <div className="editor-grid">
                     <div className="editor-field editor-field--wide">
                       <label htmlFor={`${date.id}-supporting`}>
                         Supporting acts, comma separated
                       </label>
+                      <p className="editor-help">Optional list shown under the location.</p>
                       <input
                         id={`${date.id}-supporting`}
                         value={date.supportingActs?.join(', ') ?? ''}
@@ -590,7 +652,7 @@ export function TourEditor({ draft, updateField }: DashboardEditorProps) {
                         }}
                       />
                     </div>
-                  </div>
+                    </div>
                   <div className="editor-check-list">
                     <label className="editor-check">
                       <input
@@ -619,6 +681,7 @@ export function TourEditor({ draft, updateField }: DashboardEditorProps) {
                       />
                       <span>Announced</span>
                     </label>
+                  </div>
                   </div>
                 </div>
               )}

@@ -200,7 +200,7 @@ The `Layout` section uses drag-and-drop controls for public navigation order and
 /videos       Videos
 /tour         Tour dates
 /vip          VIP page or external VIP link
-/shop         Featured shop items or external shop link
+/shop         Shopify featured shop items or external shop link
 /about        Bio, accolades, press, and artist details
 /newsletter   Newsletter signup
 /*            Not found page

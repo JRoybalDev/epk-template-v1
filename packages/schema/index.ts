@@ -18,6 +18,31 @@ export const DateDisplayFormatKey = z.enum([
     'day_short_month_year',
 ])
 export const TourListingModeKey = z.enum(['manual', 'seated'])
+export const ShopItemCategoryKey = z.enum(['clothing', 'music', 'other'])
+export const ClothingSizeKey = z.enum(['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL'])
+const normalizeShopItemCategory = (value: unknown) => {
+    if (typeof value !== 'string') return value
+
+    const category = value.trim().toLowerCase()
+
+    if (['apparel', 'clothes', 'shirt', 'shirts', 'tee', 'tshirt', 't-shirt'].includes(category)) {
+        return 'clothing'
+    }
+
+    if (['album', 'cd', 'record', 'vinyl'].includes(category)) {
+        return 'music'
+    }
+
+    if (['merch', 'merchandise', 'accessory', 'accessories', 'poster', 'posters'].includes(category)) {
+        return 'other'
+    }
+
+    return value
+}
+export const ShopItemCategorySchema = z.preprocess(
+    normalizeShopItemCategory,
+    ShopItemCategoryKey.optional(),
+)
 export const TourDateVipPackageSchema = z.object({
     packageId: z.string(),
     dateSpecificUrl: UrlString.optional(),
@@ -246,9 +271,12 @@ export const ShopItemSchema = z.object({
     name: z.string(),
     price: z.string(),
     currency: z.string().default('USD'),
+    description: z.string().optional(),
     image: z.string().optional(),
-    purchaseUrl: UrlString,
-    category: z.string().optional(),
+    purchaseUrl: UrlString.optional(),
+    shopifyVariantId: z.string().optional(),
+    category: ShopItemCategorySchema,
+    sizes: z.array(ClothingSizeKey).optional(),
     isFeatured: z.boolean().default(false),
 })
 
@@ -405,6 +433,8 @@ export type PublicSection = z.infer<typeof PublicSectionKey>
 export type HomeEmbedSection = z.infer<typeof HomeEmbedSectionKey>
 export type DateDisplayFormat = z.infer<typeof DateDisplayFormatKey>
 export type TourListingMode = z.infer<typeof TourListingModeKey>
+export type ShopItemCategory = z.infer<typeof ShopItemCategoryKey>
+export type ClothingSize = z.infer<typeof ClothingSizeKey>
 export type TourDateVipPackage = z.infer<typeof TourDateVipPackageSchema>
 export type Branding = z.infer<typeof BrandingSchema>
 export type BrandingTheme = z.infer<typeof BrandingThemeSchema>

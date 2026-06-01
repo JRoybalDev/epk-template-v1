@@ -1,28 +1,83 @@
 .editor-form {
   display: grid;
-  gap: var(--space-5);
+  gap: var(--space-6);
 }
 
 .editor-section {
   display: grid;
-  gap: var(--space-4);
+  gap: var(--space-5);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-md);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--surface-strong) 72%, transparent), transparent 10rem),
+    color-mix(in srgb, var(--surface) 94%, transparent);
+  padding: var(--space-5);
 }
 
 .editor-section__header {
-  display: grid;
-  gap: var(--space-1);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: var(--space-4);
 }
 
 .editor-section__header h3 {
   margin: 0;
   color: var(--color-text);
   font-family: var(--font-heading);
-  font-size: 1.08rem;
+  font-size: 1.18rem;
+  line-height: 1.15;
 }
 
 .editor-section__header p {
+  max-width: 48rem;
   margin: 0;
   color: var(--color-text-muted);
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.editor-section__title {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.editor-section__eyebrow {
+  color: var(--accent-strong);
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.editor-subsection {
+  display: grid;
+  gap: var(--space-4);
+  border: 1px solid color-mix(in srgb, var(--color-border) 72%, transparent);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--surface-strong) 52%, transparent);
+  padding: var(--space-4);
+}
+
+.editor-subsection__header {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.editor-subsection__header h4 {
+  margin: 0;
+  color: var(--color-text);
+  font-family: var(--font-heading);
+  font-size: 1rem;
+}
+
+.editor-subsection__header p {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.88rem;
+  line-height: 1.45;
 }
 
 .editor-form code {
@@ -34,12 +89,14 @@
 
 .editor-grid {
   display: grid;
+  align-items: start;
   gap: var(--space-4);
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .editor-field {
   display: grid;
+  align-content: start;
   gap: var(--space-2);
 }
 
@@ -54,6 +111,13 @@
   color: var(--color-text-muted);
   font-size: 0.86rem;
   font-weight: 800;
+}
+
+.editor-help {
+  margin: -0.15rem 0 0;
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+  line-height: 1.45;
 }
 
 .editor-required {
@@ -80,6 +144,11 @@
   background: var(--input-bg);
   color: var(--color-text);
   padding: var(--space-3) var(--space-4);
+}
+
+.editor-field input::placeholder,
+.editor-field textarea::placeholder {
+  color: color-mix(in srgb, var(--color-text-muted) 72%, transparent);
 }
 
 .editor-field select {
@@ -283,12 +352,11 @@
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-2);
-  margin-top: var(--space-4);
 }
 
 .editor-check {
   display: flex;
-  min-height: 2.45rem;
+  min-height: 2.6rem;
   align-items: center;
   gap: var(--space-2);
   border: 1px solid var(--color-border);
@@ -298,12 +366,72 @@
 }
 
 .editor-check input {
+  width: auto;
+  flex: 0 0 auto;
   accent-color: var(--accent-strong);
+  margin: 0;
 }
 
 .editor-check--inline {
   width: fit-content;
   max-width: 100%;
+}
+
+.editor-size-picker {
+  display: grid;
+  grid-template-columns: minmax(11rem, 16rem) minmax(0, 1fr);
+  gap: var(--space-3);
+  align-items: start;
+}
+
+.editor-size-picker__selected {
+  display: flex;
+  min-height: 2.9rem;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--surface-strong) 72%, transparent);
+  padding: var(--space-2);
+}
+
+.editor-size-picker__empty {
+  color: var(--color-text-muted);
+  font-size: 0.88rem;
+}
+
+.editor-size-pill {
+  display: inline-flex;
+  min-height: 2rem;
+  align-items: center;
+  gap: var(--space-2);
+  border: 1px solid color-mix(in srgb, var(--accent-strong) 42%, var(--color-border));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent-soft) 28%, var(--surface));
+  color: var(--color-text);
+  font-size: 0.88rem;
+  font-weight: 700;
+  padding: 0.25rem 0.35rem 0.25rem 0.75rem;
+}
+
+.editor-size-pill button {
+  display: inline-grid;
+  width: 1.35rem;
+  height: 1.35rem;
+  place-items: center;
+  border: 0;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent-strong) 86%, #000);
+  color: var(--color-accent-contrast);
+  cursor: pointer;
+  font: inherit;
+  line-height: 1;
+  padding: 0;
+}
+
+.editor-size-pill button:hover {
+  background: var(--accent-strong);
 }
 
 .editor-segmented {
@@ -416,6 +544,48 @@
   gap: var(--space-4);
 }
 
+.editor-help-grid {
+  display: grid;
+  align-items: start;
+  gap: var(--space-4);
+  grid-template-columns: minmax(16rem, 0.75fr) minmax(0, 1.25fr);
+}
+
+.editor-help-steps {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.editor-help-stats {
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0;
+}
+
+.editor-help-stats div {
+  display: grid;
+  gap: var(--space-1);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--surface) 72%, transparent);
+  padding: var(--space-3);
+}
+
+.editor-help-stats dt {
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.editor-help-stats dd {
+  margin: 0;
+  color: var(--color-text);
+  font-family: var(--font-heading);
+  font-size: 1.35rem;
+  font-weight: 900;
+}
+
 .editor-sortable-list {
   display: grid;
   gap: var(--space-2);
@@ -468,11 +638,11 @@
 .editor-item {
   display: grid;
   gap: var(--space-4);
-  border: 1px solid var(--card-border);
+  border: 1px solid color-mix(in srgb, var(--card-border) 86%, transparent);
   border-radius: var(--radius-md);
   background:
-    linear-gradient(145deg, color-mix(in srgb, var(--surface-strong) 72%, transparent), transparent),
-    color-mix(in srgb, var(--surface) 92%, transparent);
+    linear-gradient(145deg, color-mix(in srgb, var(--surface-strong) 62%, transparent), transparent),
+    color-mix(in srgb, var(--surface) 88%, transparent);
   padding: var(--space-4);
 }
 
@@ -558,7 +728,12 @@
 
 .editor-note {
   margin: 0;
+  border-left: 3px solid color-mix(in srgb, var(--accent-strong) 72%, transparent);
+  background: color-mix(in srgb, var(--accent-soft) 10%, transparent);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
   color: var(--color-text-muted);
+  line-height: 1.5;
+  padding: var(--space-3);
 }
 
 .editor-empty {
@@ -679,6 +854,14 @@
   }
 
   .metadata-editor {
+    grid-template-columns: 1fr;
+  }
+
+  .editor-help-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .editor-size-picker {
     grid-template-columns: 1fr;
   }
 }

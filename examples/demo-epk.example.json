@@ -196,7 +196,7 @@
     "redirectOnly": false
   },
   "shop": {
-    "externalStoreUrl": "https://example.com/store",
+    "externalStoreUrl": "https://exampleartistshop.myshopify.com",
     "headline": "Featured Merch",
     "featuredItems": [
       {
@@ -204,9 +204,12 @@
         "name": "Midnight Signal Tee",
         "price": "35.00",
         "currency": "USD",
+        "description": "Soft black tour tee with Midnight Signal artwork on the front.",
         "image": "/uploads/site/assets/tee.jpg",
-        "purchaseUrl": "https://example.com/store/midnight-signal-tee",
-        "category": "apparel",
+        "purchaseUrl": "https://exampleartistshop.myshopify.com/products/midnight-signal-tee",
+        "shopifyVariantId": "41234567890123",
+        "category": "clothing",
+        "sizes": ["S", "M", "L", "XL"],
         "isFeatured": true
       },
       {
@@ -214,8 +217,10 @@
         "name": "City Lights Vinyl",
         "price": "28.00",
         "currency": "USD",
+        "description": "Limited City Lights EP vinyl pressing.",
         "image": "/uploads/site/assets/vinyl.jpg",
-        "purchaseUrl": "https://example.com/store/city-lights-vinyl",
+        "purchaseUrl": "https://exampleartistshop.myshopify.com/products/city-lights-vinyl",
+        "shopifyVariantId": "42345678901234",
         "category": "music",
         "isFeatured": true
       }

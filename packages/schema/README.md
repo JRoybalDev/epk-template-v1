@@ -382,11 +382,11 @@ Controls the VIP page or external VIP store link.
 
 ### Shop
 
-Controls the shop page, external store link, and featured merch.
+Controls the shop page, optional store reference, internal item pages, and featured merch.
 
 ```json
 {
-  "externalStoreUrl": "https://example.com/store",
+  "externalStoreUrl": "https://exampleartistshop.myshopify.com",
   "headline": "Featured Merch",
   "featuredItems": [
     {
@@ -394,15 +394,26 @@ Controls the shop page, external store link, and featured merch.
       "name": "Midnight Signal Tee",
       "price": "35.00",
       "currency": "USD",
+      "description": "Soft black tour tee with Midnight Signal artwork on the front.",
       "image": "/uploads/site/assets/tee.jpg",
-      "purchaseUrl": "https://example.com/store/midnight-signal-tee",
-      "category": "apparel",
+      "purchaseUrl": "https://exampleartistshop.myshopify.com/products/midnight-signal-tee",
+      "shopifyVariantId": "41234567890123",
+      "category": "clothing",
+      "sizes": ["S", "M", "L", "XL"],
       "isFeatured": true
     }
   ],
   "redirectOnly": false
 }
 ```
+
+When `redirectOnly` is `false`, the dashboard treats the shop as an internal featured product list. Each product opens at `/shop/:itemId`, where visitors can review details, choose clothing sizes, add to cart, and use the template checkout flow.
+
+`externalStoreUrl`, `purchaseUrl`, and `shopifyVariantId` are retained as optional references for teams that later connect a provider, but the public shop flow does not send visitors to separate product pages by default.
+
+Shop item `category` must be `clothing`, `music`, or `other`. Clothing items can include `sizes` using `XS`, `S`, `M`, `L`, `XL`, `2XL`, and `3XL`.
+
+Legacy imported values such as `apparel`, `vinyl`, `poster`, and `merch` are normalized during validation so older saved EPK data can still load.
 
 ### About
 
