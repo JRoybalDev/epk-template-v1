@@ -57,7 +57,9 @@ const getExternalNavUrl = (epk: EPK, item: EPK['nav'][number]) => {
     case 'shop':
       return epk.shop?.redirectOnly ? epk.shop.externalStoreUrl : null
     case 'vip':
-      return epk.vip?.redirectOnly ? epk.vip.externalStoreUrl : null
+      return epk.vip?.redirectOnly && epk.vip.externalStoreUrl
+        ? epk.vip.externalStoreUrl
+        : null
     default:
       return null
   }

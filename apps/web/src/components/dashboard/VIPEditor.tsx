@@ -7,7 +7,7 @@ import './DashboardEditors.css'
 type VIP = NonNullable<EPK['vip']>
 
 const defaultVip: VIP = {
-  externalStoreUrl: 'https://example.com/vip',
+  externalStoreUrl: 'https://exampleartistvip.store',
   headline: 'VIP Upgrades',
   description: '',
   items: [],
@@ -20,7 +20,6 @@ const createVipItem = (): VIPItem => ({
   price: '100.00',
   currency: 'USD',
   description: '',
-  purchaseUrl: 'https://example.com/vip/package',
   features: [],
   isFeatured: true,
 })
@@ -43,98 +42,119 @@ export function VIPEditor({ draft, updateField }: DashboardEditorProps) {
 
   return (
     <div className="editor-form">
-      <p className="editor-note">
-        Choose whether VIP opens an external store or renders manual packages.
-      </p>
-      <div className="editor-actions">
-        {draft.vip ? (
-          <button
-            className="editor-button"
-            type="button"
-            onClick={() => updateField('vip', undefined)}
-          >
-            Remove VIP section
-          </button>
-        ) : (
-          <button
-            className="editor-button editor-button--primary"
-            type="button"
-            onClick={() => updateField('vip', defaultVip)}
-          >
-            Add VIP section
-          </button>
-        )}
-      </div>
-      <div className="editor-grid">
-        <div className="editor-field editor-field--wide">
-          <label>VIP mode</label>
-          <div
-            className={`editor-segmented editor-segmented--${listingMode}`}
-            role="radiogroup"
-            aria-label="VIP mode"
-          >
-            <span className="editor-segmented__thumb" aria-hidden="true" />
-            <label className="editor-segmented__option">
-              <input
-                checked={listingMode === 'external'}
-                name="vip-listing-mode"
-                type="radio"
-                value="external"
-                onChange={() => updateVip({ ...vip, redirectOnly: true })}
-              />
-              <span>External</span>
-            </label>
-            <label className="editor-segmented__option">
-              <input
-                checked={listingMode === 'manual'}
-                name="vip-listing-mode"
-                type="radio"
-                value="manual"
-                onChange={() => updateVip({ ...vip, redirectOnly: false })}
-              />
-              <span>Manual</span>
-            </label>
-          </div>
+      <section className="editor-section" aria-labelledby="vip-settings-title">
+        <div className="editor-section__header">
+          <h3 id="vip-settings-title">VIP settings</h3>
+          <p>
+            Choose whether VIP routes to a store or renders packages on the site.
+          </p>
         </div>
-        {listingMode === 'external' && (
+        <div className="editor-actions">
+          {draft.vip ? (
+            <button
+              className="editor-button"
+              type="button"
+              onClick={() => updateField('vip', undefined)}
+            >
+              Remove VIP section
+            </button>
+          ) : (
+            <button
+              className="editor-button editor-button--primary"
+              type="button"
+              onClick={() => updateField('vip', defaultVip)}
+            >
+              Add VIP section
+            </button>
+          )}
+        </div>
+        <div className="editor-grid">
           <div className="editor-field editor-field--wide">
-            <RequiredLabel htmlFor="vip-url">External VIP URL</RequiredLabel>
+            <label>VIP mode</label>
+            <div
+              className={`editor-segmented editor-segmented--${listingMode}`}
+              role="radiogroup"
+              aria-label="VIP mode"
+            >
+              <span className="editor-segmented__thumb" aria-hidden="true" />
+              <label className="editor-segmented__option">
+                <input
+                  checked={listingMode === 'external'}
+                  name="vip-listing-mode"
+                  type="radio"
+                  value="external"
+                  onChange={() => updateVip({ ...vip, redirectOnly: true })}
+                />
+                <span>External</span>
+              </label>
+              <label className="editor-segmented__option">
+                <input
+                  checked={listingMode === 'manual'}
+                  name="vip-listing-mode"
+                  type="radio"
+                  value="manual"
+                  onChange={() => updateVip({ ...vip, redirectOnly: false })}
+                />
+                <span>Manual</span>
+              </label>
+            </div>
+          </div>
+          <div className="editor-field editor-field--wide">
+            <label htmlFor="vip-url">Main VIP site URL</label>
             <input
               id="vip-url"
-              value={vip.externalStoreUrl}
+              value={vip.externalStoreUrl ?? ''}
               onChange={(event) =>
-                updateVip({ ...vip, externalStoreUrl: event.target.value })
+                updateVip({
+                  ...vip,
+                  externalStoreUrl: optionalString(event.target.value),
+                })
               }
             />
           </div>
-        )}
-        {listingMode === 'manual' && (
-          <>
-            <div className="editor-field">
-              <label htmlFor="vip-headline">Headline</label>
-              <input
-                id="vip-headline"
-                value={vip.headline ?? ''}
-                onChange={(event) =>
-                  updateVip({ ...vip, headline: optionalString(event.target.value) })
-                }
-              />
-            </div>
-            <div className="editor-field editor-field--wide">
-              <label htmlFor="vip-description">Description</label>
-              <textarea
-                id="vip-description"
-                value={vip.description ?? ''}
-                onChange={(event) =>
-                  updateVip({ ...vip, description: optionalString(event.target.value) })
-                }
-              />
-            </div>
-          </>
-        )}
-      </div>
+        </div>
+      </section>
       {listingMode === 'manual' && (
-        <>
+        <section className="editor-section" aria-labelledby="vip-page-copy-title">
+          <div className="editor-section__header">
+            <h3 id="vip-page-copy-title">VIP page copy</h3>
+            <p>These fields introduce the package list when VIP is shown on-site.</p>
+          </div>
+          <div className="editor-grid">
+              <div className="editor-field">
+                <label htmlFor="vip-headline">Headline</label>
+                <input
+                  id="vip-headline"
+                  value={vip.headline ?? ''}
+                  onChange={(event) =>
+                    updateVip({ ...vip, headline: optionalString(event.target.value) })
+                  }
+                />
+              </div>
+              <div className="editor-field editor-field--wide">
+                <label htmlFor="vip-description">Description</label>
+                <textarea
+                  id="vip-description"
+                  value={vip.description ?? ''}
+                  onChange={(event) =>
+                    updateVip({
+                      ...vip,
+                      description: optionalString(event.target.value),
+                    })
+                  }
+                />
+              </div>
+          </div>
+        </section>
+      )}
+      {listingMode === 'manual' && (
+        <section className="editor-section" aria-labelledby="vip-packages-title">
+          <div className="editor-section__header">
+            <h3 id="vip-packages-title">VIP packages</h3>
+            <p>
+              Create reusable offers that can be selected on individual tour dates.
+            </p>
+          </div>
           <div className="editor-list">
             {items.map((item, index) => (
               <article className="editor-item" key={item.id}>
@@ -208,15 +228,39 @@ export function VIPEditor({ draft, updateField }: DashboardEditorProps) {
                     />
                   </div>
                   <div className="editor-field editor-field--wide">
-                    <RequiredLabel htmlFor={`${item.id}-url`}>Purchase URL</RequiredLabel>
-                    <input
-                      id={`${item.id}-url`}
-                      value={item.purchaseUrl}
-                      onChange={(event) =>
-                        updateItem(item.id, { ...item, purchaseUrl: event.target.value })
-                      }
-                    />
+                    <label className="editor-check editor-check--inline">
+                      <input
+                        checked={Boolean(item.purchaseUrl)}
+                        type="checkbox"
+                        onChange={(event) =>
+                          updateItem(item.id, {
+                            ...item,
+                            purchaseUrl: event.target.checked
+                              ? vip.externalStoreUrl
+                                ? `${vip.externalStoreUrl.replace(/\/$/, '')}/${item.id}`
+                                : 'https://exampleartistvip.store/packagename'
+                              : undefined,
+                          })
+                        }
+                      />
+                      <span>Package URL is different from the main VIP site</span>
+                    </label>
                   </div>
+                  {item.purchaseUrl && (
+                    <div className="editor-field editor-field--wide">
+                      <label htmlFor={`${item.id}-url`}>Package URL</label>
+                      <input
+                        id={`${item.id}-url`}
+                        value={item.purchaseUrl}
+                        onChange={(event) =>
+                          updateItem(item.id, {
+                            ...item,
+                            purchaseUrl: optionalString(event.target.value),
+                          })
+                        }
+                      />
+                    </div>
+                  )}
                   <div className="editor-field editor-field--wide">
                     <label htmlFor={`${item.id}-description`}>Description</label>
                     <textarea
@@ -274,7 +318,7 @@ export function VIPEditor({ draft, updateField }: DashboardEditorProps) {
               Add VIP package
             </button>
           </div>
-        </>
+        </section>
       )}
     </div>
   )

@@ -3,6 +3,7 @@ import { FiChevronDown } from 'react-icons/fi'
 import type {
   DateDisplayFormat,
   TourDate,
+  TourDateVipPackage,
   TourListingMode,
 } from '../../../../../packages/schema'
 import { DashboardDateInput, getTodayDateKey } from './DashboardDateInput'
@@ -25,6 +26,11 @@ const createTourDate = (): TourDate => ({
 const isPastDate = (date: string) => date < getTodayDateKey()
 const formatTourLocation = (date: TourDate) =>
   [date.city, date.region, date.country].filter(Boolean).join(', ')
+const getVipPackageSelections = (date: TourDate): TourDateVipPackage[] => {
+  if (date.vipPackages?.length) return date.vipPackages
+
+  return (date.vipPackageIds ?? []).map((packageId) => ({ packageId }))
+}
 
 const dateDisplayFormatOptions: Array<{
   label: string
@@ -43,6 +49,7 @@ export function TourEditor({ draft, updateField }: DashboardEditorProps) {
   const [openDateId, setOpenDateId] = useState<string | null>(null)
   const tour = draft.tour
   const dates = tour.dates
+  const vipPackages = draft.vip?.items ?? []
   const listingMode: TourListingMode =
     tour.listingMode ?? (tour.seatedEmbedCode || tour.seatedWidgetUrl ? 'seated' : 'manual')
   const notifyCta = tour.notifyCta ?? {
@@ -95,6 +102,48 @@ export function TourEditor({ draft, updateField }: DashboardEditorProps) {
     updateDate(date.id, nextDate)
   }
 
+  const updateVipPackageSelections = (
+    date: TourDate,
+    vipPackages: TourDateVipPackage[],
+  ) => {
+    const nextVipPackages = vipPackages.length > 0 ? vipPackages : undefined
+
+    updateDate(date.id, {
+      ...date,
+      vipPackageIds: nextVipPackages?.map((item) => item.packageId),
+      vipPackages: nextVipPackages,
+    })
+  }
+
+  const addVipPackageSelection = (date: TourDate, packageId: string) => {
+    if (!packageId) return
+
+    const currentSelections = getVipPackageSelections(date)
+    if (currentSelections.some((item) => item.packageId === packageId)) return
+
+    updateVipPackageSelections(date, [...currentSelections, { packageId }])
+  }
+
+  const updateVipPackageSelection = (
+    date: TourDate,
+    packageId: string,
+    value: TourDateVipPackage,
+  ) => {
+    updateVipPackageSelections(
+      date,
+      getVipPackageSelections(date).map((item) =>
+        item.packageId === packageId ? value : item,
+      ),
+    )
+  }
+
+  const removeVipPackageSelection = (date: TourDate, packageId: string) => {
+    updateVipPackageSelections(
+      date,
+      getVipPackageSelections(date).filter((item) => item.packageId !== packageId),
+    )
+  }
+
   const updateNotifyCta = (value: typeof notifyCta) => {
     const shouldKeep =
       value.text.trim().length > 0 ||
@@ -109,91 +158,111 @@ export function TourEditor({ draft, updateField }: DashboardEditorProps) {
 
   return (
     <div className="editor-form">
-      <p className="editor-note">
-        Choose whether tour listings come from Seated or from manually entered rows.
-      </p>
-      <div className="editor-grid">
-        <div className="editor-field editor-field--wide">
-          <label>Tour listing source</label>
-          <div
-            className={`editor-segmented editor-segmented--${listingMode}`}
-            role="radiogroup"
-            aria-label="Tour listing source"
-          >
-            <span className="editor-segmented__thumb" aria-hidden="true" />
-            <label className="editor-segmented__option">
-              <input
-                checked={listingMode === 'seated'}
-                name="tour-listing-mode"
-                type="radio"
-                value="seated"
-                onChange={() =>
-                  updateField('tour', {
-                    ...tour,
-                    listingMode: 'seated',
-                  })
-                }
-              />
-              <span>Seated</span>
-            </label>
-            <label className="editor-segmented__option">
-              <input
-                checked={listingMode === 'manual'}
-                name="tour-listing-mode"
-                type="radio"
-                value="manual"
-                onChange={() =>
-                  updateField('tour', {
-                    ...tour,
-                    listingMode: 'manual',
-                  })
-                }
-              />
-              <span>Manual</span>
-            </label>
+      <section className="editor-section" aria-labelledby="tour-setup-title">
+        <div className="editor-section__header">
+          <h3 id="tour-setup-title">Tour setup</h3>
+          <p>Choose the listing source and set the public tour title.</p>
+        </div>
+        <div className="editor-grid">
+          <div className="editor-field editor-field--wide">
+            <label>Tour listing source</label>
+            <div
+              className={`editor-segmented editor-segmented--${listingMode}`}
+              role="radiogroup"
+              aria-label="Tour listing source"
+            >
+              <span className="editor-segmented__thumb" aria-hidden="true" />
+              <label className="editor-segmented__option">
+                <input
+                  checked={listingMode === 'seated'}
+                  name="tour-listing-mode"
+                  type="radio"
+                  value="seated"
+                  onChange={() =>
+                    updateField('tour', {
+                      ...tour,
+                      listingMode: 'seated',
+                    })
+                  }
+                />
+                <span>Seated</span>
+              </label>
+              <label className="editor-segmented__option">
+                <input
+                  checked={listingMode === 'manual'}
+                  name="tour-listing-mode"
+                  type="radio"
+                  value="manual"
+                  onChange={() =>
+                    updateField('tour', {
+                      ...tour,
+                      listingMode: 'manual',
+                    })
+                  }
+                />
+                <span>Manual</span>
+              </label>
+            </div>
+          </div>
+          <div className="editor-field">
+            <label htmlFor="tour-name">Tour name</label>
+            <input
+              id="tour-name"
+              value={tour.tourName ?? ''}
+              onChange={(event) =>
+                updateField('tour', {
+                  ...tour,
+                  tourName: optionalString(event.target.value),
+                })
+              }
+            />
           </div>
         </div>
-        <div className="editor-field">
-          <label htmlFor="tour-name">Tour name</label>
-          <input
-            id="tour-name"
-            value={tour.tourName ?? ''}
-            onChange={(event) =>
-              updateField('tour', { ...tour, tourName: optionalString(event.target.value) })
-            }
-          />
+      </section>
+      {listingMode === 'seated' && (
+        <section className="editor-section" aria-labelledby="tour-seated-title">
+          <div className="editor-section__header">
+            <h3 id="tour-seated-title">Seated integration</h3>
+            <p>Add the embedded widget code, or use a widget URL as fallback.</p>
+          </div>
+          <div className="editor-grid">
+              <div className="editor-field editor-field--wide">
+                <label htmlFor="seated-embed">Seated embed code</label>
+                <textarea
+                  id="seated-embed"
+                  value={tour.seatedEmbedCode ?? ''}
+                  onChange={(event) =>
+                    updateField('tour', {
+                      ...tour,
+                      seatedEmbedCode: optionalString(event.target.value),
+                    })
+                  }
+                />
+              </div>
+              <div className="editor-field editor-field--wide">
+                <label htmlFor="seated-widget">Seated widget URL fallback</label>
+                <input
+                  id="seated-widget"
+                  value={tour.seatedWidgetUrl ?? ''}
+                  onChange={(event) =>
+                    updateField('tour', {
+                      ...tour,
+                      seatedWidgetUrl: optionalString(event.target.value),
+                    })
+                  }
+                />
+              </div>
+          </div>
+        </section>
+      )}
+      {listingMode === 'manual' && (
+        <>
+      <section className="editor-section" aria-labelledby="tour-display-title">
+        <div className="editor-section__header">
+          <h3 id="tour-display-title">Manual listing display</h3>
+          <p>Control date formatting and the optional notify call to action.</p>
         </div>
-        {listingMode === 'seated' && (
-          <>
-            <div className="editor-field editor-field--wide">
-              <label htmlFor="seated-embed">Seated embed code</label>
-              <textarea
-                id="seated-embed"
-                value={tour.seatedEmbedCode ?? ''}
-                onChange={(event) =>
-                  updateField('tour', {
-                    ...tour,
-                    seatedEmbedCode: optionalString(event.target.value),
-                  })
-                }
-              />
-            </div>
-            <div className="editor-field editor-field--wide">
-              <label htmlFor="seated-widget">Seated widget URL fallback</label>
-              <input
-                id="seated-widget"
-                value={tour.seatedWidgetUrl ?? ''}
-                onChange={(event) =>
-                  updateField('tour', {
-                    ...tour,
-                    seatedWidgetUrl: optionalString(event.target.value),
-                  })
-                }
-              />
-            </div>
-          </>
-        )}
-        {listingMode === 'manual' && (
+        <div className="editor-grid">
           <div className="editor-field editor-field--wide">
             <label htmlFor="tour-date-format">Date display format</label>
             <select
@@ -213,10 +282,8 @@ export function TourEditor({ draft, updateField }: DashboardEditorProps) {
               ))}
             </select>
           </div>
-        )}
-      </div>
-      {listingMode === 'manual' && (
-        <>
+        </div>
+      </section>
       <section className="editor-item" aria-labelledby="tour-notify-title">
         <div className="editor-item__header">
           <h3 id="tour-notify-title">Notify CTA</h3>
@@ -263,17 +330,31 @@ export function TourEditor({ draft, updateField }: DashboardEditorProps) {
           </div>
         </div>
       </section>
-      <div className="editor-list">
+      <section className="editor-section" aria-labelledby="tour-dates-title">
+        <div className="editor-section__header">
+          <h3 id="tour-dates-title">Tour dates</h3>
+          <p>Add shows, ticket links, and VIP package selections for each date.</p>
+        </div>
+        <div className="editor-list">
         {dates.map((date, index) => {
           const isOpen = openDateId === date.id
           const dateTitle = date.venue || `Show ${index + 1}`
           const dateLocation = formatTourLocation(date)
+          const selectedVipPackages = getVipPackageSelections(date)
+          const selectedVipPackageIds = selectedVipPackages.map((item) => item.packageId)
+          const availableVipPackages = vipPackages.filter(
+            (item) => !selectedVipPackageIds.includes(item.id),
+          )
+          const vipPackageCount = selectedVipPackages.length
           const dateMeta = [
             formatTourDate(
               date.date,
               tour.dateDisplayFormat ?? 'long_month_day_year',
             ),
             dateLocation,
+            vipPackageCount > 0
+              ? `${vipPackageCount} VIP package${vipPackageCount === 1 ? '' : 's'}`
+              : '',
           ].filter(Boolean).join(' · ')
 
           return (
@@ -402,18 +483,95 @@ export function TourEditor({ draft, updateField }: DashboardEditorProps) {
                         }
                       />
                     </div>
-                    <div className="editor-field editor-field--wide">
-                      <label htmlFor={`${date.id}-vip`}>VIP URL</label>
-                      <input
-                        id={`${date.id}-vip`}
-                        value={date.vipUrl ?? ''}
-                        onChange={(event) =>
-                          updateDate(date.id, {
-                            ...date,
-                            vipUrl: optionalString(event.target.value),
-                          })
-                        }
-                      />
+                    <div
+                      aria-labelledby={`${date.id}-vip-packages-label`}
+                      className="editor-field editor-field--wide"
+                      role="group"
+                    >
+                      <span
+                        className="editor-field__label"
+                        id={`${date.id}-vip-packages-label`}
+                      >
+                        VIP packages for this date
+                      </span>
+                      {vipPackages.length > 0 ? (
+                        <div className="editor-vip-package-picker">
+                          <select
+                            aria-label="Add VIP package to this date"
+                            value=""
+                            onChange={(event) =>
+                              addVipPackageSelection(date, event.target.value)
+                            }
+                          >
+                            <option value="">Select a VIP package...</option>
+                            {availableVipPackages.map((item) => (
+                              <option key={item.id} value={item.id}>
+                                {item.name}
+                              </option>
+                            ))}
+                          </select>
+                          {selectedVipPackages.length > 0 ? (
+                            <div className="editor-list">
+                              {selectedVipPackages.map((selection) => {
+                                const vipPackage = vipPackages.find(
+                                  (item) => item.id === selection.packageId,
+                                )
+                                const packageName =
+                                  vipPackage?.name ?? selection.packageId
+
+                                return (
+                                  <article className="editor-item" key={selection.packageId}>
+                                    <div className="editor-item__header">
+                                      <h4>{packageName}</h4>
+                                      <button
+                                        className="editor-button"
+                                        type="button"
+                                        onClick={() =>
+                                          removeVipPackageSelection(
+                                            date,
+                                            selection.packageId,
+                                          )
+                                        }
+                                      >
+                                        Remove
+                                      </button>
+                                    </div>
+                                    <div className="editor-field">
+                                      <label htmlFor={`${date.id}-${selection.packageId}-vip-url`}>
+                                        Date-specific package URL
+                                      </label>
+                                      <input
+                                        id={`${date.id}-${selection.packageId}-vip-url`}
+                                        value={selection.dateSpecificUrl ?? ''}
+                                        onChange={(event) =>
+                                          updateVipPackageSelection(
+                                            date,
+                                            selection.packageId,
+                                            {
+                                              ...selection,
+                                              dateSpecificUrl: optionalString(
+                                                event.target.value,
+                                              ),
+                                            },
+                                          )
+                                        }
+                                      />
+                                    </div>
+                                  </article>
+                                )
+                              })}
+                            </div>
+                          ) : (
+                            <p className="editor-empty">
+                              Select packages from the dropdown for this tour date.
+                            </p>
+                          )}
+                        </div>
+                      ) : (
+                        <p className="editor-empty">
+                          Create VIP packages in the VIP tab, then select them here.
+                        </p>
+                      )}
                     </div>
                     <div className="editor-field editor-field--wide">
                       <label htmlFor={`${date.id}-supporting`}>
@@ -467,16 +625,17 @@ export function TourEditor({ draft, updateField }: DashboardEditorProps) {
             </article>
           )
         })}
-      </div>
-      <div className="editor-actions">
-        <button
-          className="editor-button editor-button--primary"
-          type="button"
-          onClick={addTourDate}
-        >
-          Add tour date
-        </button>
-      </div>
+        </div>
+        <div className="editor-actions">
+          <button
+            className="editor-button editor-button--primary"
+            type="button"
+            onClick={addTourDate}
+          >
+            Add tour date
+          </button>
+        </div>
+      </section>
         </>
       )}
     </div>

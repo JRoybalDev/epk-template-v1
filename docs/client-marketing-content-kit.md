@@ -299,7 +299,8 @@ Optional for each date:
 
 - Region or state.
 - Ticket URL.
-- VIP URL.
+- Date-specific VIP URL.
+- VIP packages available for that show.
 - Sold-out status.
 - Supporting acts.
 - Announced status.
@@ -319,7 +320,8 @@ Recommended client notes:
 - Region can be left blank for international dates that only need city and country.
 - Tour dates that pass are automatically treated as unannounced.
 - Mark sold-out dates clearly.
-- Use per-show VIP links when each city has a different VIP offer.
+- Create reusable VIP packages in the VIP section, then select the packages available for each tour date.
+- Use date-specific VIP package URLs when a package has a unique purchase page for a venue or date.
 - Use a notify link for visitors who do not see their city listed.
 
 How this appears:
@@ -330,28 +332,44 @@ How this appears:
 
 ### Step 9: Configure VIP
 
-VIP can either redirect directly to an external store or show a lightweight VIP page first.
+VIP can either redirect directly to an external store or show a lightweight VIP page with reusable packages.
 
-Required when VIP is enabled:
+Optional when VIP is enabled:
 
-- External VIP store URL.
+- Main external VIP store URL.
 
 Optional:
 
 - VIP headline.
 - VIP description.
 - Redirect-only setting.
+- VIP packages.
+
+VIP package fields:
+
+- Package ID.
+- Package name.
+- Price.
+- Currency.
+- Description.
+- Image.
+- Package URL.
+- Features.
+- Featured status.
 
 Recommended client decisions:
 
 - Use redirect-only when the external VIP store already explains all package details.
 - Use an on-site VIP page when the team wants a short intro before sending visitors to the store.
-- Use per-show VIP URLs in the tour section if VIP offers vary by date.
+- Use reusable VIP packages when the same offers appear across multiple tour dates.
+- Add a package URL only when that package has a page different from the main VIP site.
+- Add date-specific package URLs in the Tour section when VIP purchase pages vary by venue or date.
 
 How this appears:
 
 - If redirect-only is enabled, visitors go straight to the VIP store.
 - If redirect-only is disabled, visitors can see a VIP landing page with headline and description.
+- Tour date VIP links can show selected package names and send visitors to the date-specific package URL, package URL, or main VIP site URL.
 
 ### Step 10: Configure Shop
 
@@ -753,6 +771,8 @@ Use this checklist before content entry begins.
 - Tour dates, ticket links, and VIP links are confirmed.
 - Shop URL and featured products are confirmed.
 - VIP URL and redirect preference are confirmed.
+- VIP packages are confirmed.
+- Each tour date has the correct VIP packages and any date-specific package URLs.
 - Short bio and long bio are approved.
 - Genres, similar artists, awards, accolades, and press quotes are approved.
 - Press photos and credits are approved.

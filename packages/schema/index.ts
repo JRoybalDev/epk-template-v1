@@ -18,6 +18,10 @@ export const DateDisplayFormatKey = z.enum([
     'day_short_month_year',
 ])
 export const TourListingModeKey = z.enum(['manual', 'seated'])
+export const TourDateVipPackageSchema = z.object({
+    packageId: z.string(),
+    dateSpecificUrl: UrlString.optional(),
+})
 export const FontAssignmentSchema = z.object({
     family: z.string().optional(),
     weight: z.string().optional(),
@@ -183,7 +187,9 @@ export const TourDateSchema = z.object({
     region: OptionalString,
     country: z.string(),
     ticketUrl: UrlString.optional(),
-    vipUrl: UrlString.optional(), // per-show VIP link (to external store)
+    vipUrl: UrlString.optional(), // per-show VIP link override
+    vipPackageIds: z.array(z.string()).optional(), // legacy selected reusable VIP packages
+    vipPackages: z.array(TourDateVipPackageSchema).optional(), // selected packages with optional per-date URLs
     isSoldOut: z.boolean().default(false),
     supportingActs: z.array(z.string()).optional(),
     isAnnounced: z.boolean().default(true), // false = "coming soon" placeholder
@@ -216,15 +222,14 @@ export const VIPItemSchema = z.object({
     currency: z.string().default('USD'),
     description: z.string().optional(),
     image: z.string().optional(),
-    purchaseUrl: UrlString,
+    purchaseUrl: UrlString.optional(),
     features: z.array(z.string()).optional(),
     isFeatured: z.boolean().default(true),
 })
 
 export const VIPSchema = z.object({
-    externalStoreUrl: UrlString, // e.g. artistvip.store
-    // Optional: override per-show VIP urls (otherwise falls back to externalStoreUrl)
-    // These are already on TourDateSchema.vipUrl - VIPSchema is global config
+    externalStoreUrl: UrlString.optional(), // e.g. artistvip.store
+    // Optional: per-show VIP urls on TourDateSchema override package/store URLs
     headline: z.string().optional(),
     description: z.string().optional(),
     items: z.array(VIPItemSchema).optional(),
@@ -400,6 +405,7 @@ export type PublicSection = z.infer<typeof PublicSectionKey>
 export type HomeEmbedSection = z.infer<typeof HomeEmbedSectionKey>
 export type DateDisplayFormat = z.infer<typeof DateDisplayFormatKey>
 export type TourListingMode = z.infer<typeof TourListingModeKey>
+export type TourDateVipPackage = z.infer<typeof TourDateVipPackageSchema>
 export type Branding = z.infer<typeof BrandingSchema>
 export type BrandingTheme = z.infer<typeof BrandingThemeSchema>
 export type BrandingFonts = z.infer<typeof BrandingFontsSchema>

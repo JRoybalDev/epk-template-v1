@@ -1,6 +1,12 @@
 import { useEffect, useRef } from 'react'
 import { useEPKOutlet } from '../../hooks/useEPKOutlet'
 import { formatTourDate } from '../../utils/tourDateFormat'
+import type {
+  EPK,
+  TourDate,
+  TourDateVipPackage,
+  VIPItem,
+} from '../../../../../packages/schema'
 
 const formatTourLocation = (
   city: string,
@@ -19,6 +25,54 @@ const getTodayDateKey = () => {
 
 const isTourDateAnnounced = (date: { date: string; isAnnounced: boolean }) =>
   date.isAnnounced && date.date >= getTodayDateKey()
+
+const getVipPackageSelections = (date: TourDate): TourDateVipPackage[] => {
+  if (date.vipPackages?.length) return date.vipPackages
+
+  return (date.vipPackageIds ?? []).map((packageId) => ({ packageId }))
+}
+
+const getSelectedVipPackages = (epk: EPK, date: TourDate) => {
+  const packageIds = getVipPackageSelections(date).map((item) => item.packageId)
+  const packages = epk.vip?.items ?? []
+
+  return packages.filter((item) => packageIds.includes(item.id))
+}
+
+const getPackageVipUrl = (
+  epk: EPK,
+  selection?: TourDateVipPackage,
+  item?: VIPItem,
+) => selection?.dateSpecificUrl ?? item?.purchaseUrl ?? epk.vip?.externalStoreUrl
+
+function TourVipLinks({ date, epk }: { date: TourDate; epk: EPK }) {
+  const selectedPackages = getSelectedVipPackages(epk, date)
+
+  if (selectedPackages.length > 0) {
+    const selectedPackageUrls = getVipPackageSelections(date)
+
+    return (
+      <>
+        {selectedPackages.map((item) => {
+          const selection = selectedPackageUrls.find(
+            (entry) => entry.packageId === item.id,
+          )
+          const vipUrl = getPackageVipUrl(epk, selection, item)
+
+          return vipUrl ? (
+            <a href={vipUrl} key={item.id}>{item.name}</a>
+          ) : (
+            <span key={item.id}>{item.name}</span>
+          )
+        })}
+      </>
+    )
+  }
+
+  const fallbackVipUrl = date.vipUrl ?? epk.vip?.externalStoreUrl
+
+  return fallbackVipUrl ? <a href={fallbackVipUrl}>VIP</a> : null
+}
 
 function SeatedTourEmbed({
   embedCode,
@@ -112,7 +166,7 @@ export function TourList() {
                   )}
                 </div>
                 <div>
-                  {date.vipUrl && <a href={date.vipUrl}>VIP</a>}
+                  <TourVipLinks date={date} epk={epk} />
                   {date.ticketUrl && !date.isSoldOut && <a href={date.ticketUrl}>Tickets</a>}
                   {date.isSoldOut && <span>Sold out</span>}
                 </div>

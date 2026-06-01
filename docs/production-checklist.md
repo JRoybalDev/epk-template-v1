@@ -35,6 +35,8 @@ bun run import:epk path/to/artist-epk.json --admin-key "$ADMIN_API_KEY" --confir
 - If importing through the dashboard `JSON` section, confirm the imported draft is reviewed and saved.
 - Fill out the `Contact` section with booking, press, management, and sync emails as needed.
 - Review `Music`, `Videos`, `Tour`, and `Shop` using the form editors instead of editing raw JSON.
+- Confirm VIP packages are created in `VIP` and selected on the correct manual tour dates.
+- Confirm any date-specific VIP package URLs intentionally override package or main VIP site links.
 - Confirm optional fields that can be blank are intentionally blank, including release dates, tour regions, and accolades.
 - If using video URL import, restart the API after deployment and confirm `GET /api/youtube-metadata` works.
 

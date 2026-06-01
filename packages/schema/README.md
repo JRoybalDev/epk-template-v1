@@ -307,7 +307,16 @@ Controls public tour rows and optional widget configuration.
       "region": "CA",
       "country": "USA",
       "ticketUrl": "https://example.com/tickets/la",
-      "vipUrl": "https://example.com/vip/la",
+      "vipPackages": [
+        {
+          "packageId": "vip-001",
+          "dateSpecificUrl": "https://exampleartistvip.store/meet-and-greet/the-echo-2026-08-15"
+        },
+        {
+          "packageId": "vip-002",
+          "dateSpecificUrl": "https://exampleartistvip.store/early-entry/the-echo-2026-08-15"
+        }
+      ],
       "isSoldOut": false,
       "supportingActs": ["Opening Artist"],
       "isAnnounced": true
@@ -325,6 +334,8 @@ Controls public tour rows and optional widget configuration.
 ```
 
 Tour `region` is optional for dates where city and country are enough. The public location formatter skips missing regions.
+
+`vipPackages` connects a tour date to reusable VIP packages defined in the `vip.items` array. Each selected package can also have a `dateSpecificUrl`, such as `https://exampleartistvip.store/packagename/venueordate`. Without a date-specific package URL, the public Tour page uses the package `purchaseUrl`, then the main `vip.externalStoreUrl` if one is configured. Legacy `vipPackageIds` and `vipUrl` fields are still accepted for older payloads.
 
 `dateDisplayFormat` controls public tour date display. Allowed values:
 
@@ -348,12 +359,26 @@ Controls the VIP page or external VIP store link.
 
 ```json
 {
-  "externalStoreUrl": "https://example.com/vip",
+  "externalStoreUrl": "https://exampleartistvip.store",
   "headline": "VIP Upgrades",
   "description": "Meet and greet upgrades are available for select shows.",
+  "items": [
+    {
+      "id": "vip-001",
+      "name": "Meet and Greet Package",
+      "price": "150.00",
+      "currency": "USD",
+      "description": "Upgrade your night with a premium VIP experience.",
+      "purchaseUrl": "https://exampleartistvip.store/meet-and-greet",
+      "features": ["Photo opportunity", "Early entry"],
+      "isFeatured": true
+    }
+  ],
   "redirectOnly": false
 }
 ```
+
+`externalStoreUrl` is optional unless the VIP nav should redirect directly to a main VIP site or packages should fall back to a shared VIP store. VIP package `purchaseUrl` is optional; use it only when the package URL is different from the main VIP site URL. Tour date links can override each selected package with `dateSpecificUrl`.
 
 ### Shop
 

@@ -18,7 +18,7 @@ export function VIPPage() {
     )
   }
 
-  if (vip.redirectOnly) {
+  if (vip.redirectOnly && vip.externalStoreUrl) {
     return (
       <section data-section="vip">
         <header>
@@ -59,7 +59,9 @@ export function VIPPage() {
                   ))}
                 </ul>
               )}
-              <a href={item.purchaseUrl}>View package</a>
+              {(item.purchaseUrl || vip.externalStoreUrl) && (
+                <a href={item.purchaseUrl ?? vip.externalStoreUrl}>View package</a>
+              )}
             </div>
           </article>
         ))}
