@@ -43,7 +43,11 @@ const getPackageVipUrl = (
   epk: EPK,
   selection?: TourDateVipPackage,
   item?: VIPItem,
-) => selection?.dateSpecificUrl ?? item?.purchaseUrl ?? epk.vip?.externalStoreUrl
+) => {
+  if (epk.vip?.redirectOnly) return epk.vip.externalStoreUrl
+
+  return selection?.dateSpecificUrl ?? item?.purchaseUrl ?? epk.vip?.externalStoreUrl
+}
 
 function TourVipLinks({ date, epk }: { date: TourDate; epk: EPK }) {
   const selectedPackages = getSelectedVipPackages(epk, date)

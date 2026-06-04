@@ -190,7 +190,7 @@ Tour dates
 Font element settings
 ```
 
-The `Layout` section uses drag-and-drop controls for public navigation order and for the order of full sections embedded on the home page. The `VIP` section creates reusable VIP packages, asks whether each package has its own URL, and can store the artist's main VIP site URL. The `Tour` section can select VIP packages from a dropdown per date, then add optional date-specific URLs for each selected package. The `Videos` section can import a YouTube URL or video ID and ask the API to fill title, channel name, publish date, video ID, and an inferred type.
+The `Layout` section uses drag-and-drop controls for public navigation order and for the order of full sections embedded on the home page. The `VIP` section can send visitors directly to the artist's main VIP site or show reusable VIP packages on-site. When VIP mode is External, tour date VIP packages use the Default External URL from the VIP section; when VIP mode is Manual, the `Tour` section can select VIP packages from a dropdown per date and optionally add date-specific URLs. The `Shop` section supports an external store link or curated item cards where each item has its own external store URL. The `Videos` section can import a YouTube URL or video ID and ask the API to fill title, channel name, publish date, video ID, and an inferred type.
 
 ## Public Routes
 
@@ -200,7 +200,7 @@ The `Layout` section uses drag-and-drop controls for public navigation order and
 /videos       Videos
 /tour         Tour dates
 /vip          VIP page or external VIP link
-/shop         Shopify featured shop items or external shop link
+/shop         External shop link or item-link shop cards
 /about        Bio, accolades, press, and artist details
 /newsletter   Newsletter signup
 /*            Not found page

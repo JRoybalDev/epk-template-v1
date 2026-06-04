@@ -81,8 +81,9 @@ Recommended share image size:
 - Use `Branding` and `Fonts & Text Styling` to confirm public EPK colors, full-page background texture, Google fonts, uploaded fonts, and per-element text settings.
 - Use the video URL importer in `Videos` when adding YouTube videos from links.
 - Confirm whether `Tour` should use manual date listings or a Seated widget/embed.
-- Create reusable VIP packages in `VIP`, then select the relevant packages on each manual tour date.
-- Use date-specific VIP package URLs in `Tour` only when a selected package has its own venue or date purchase page.
+- If VIP mode is External, set the main VIP store URL and confirm tour date VIP packages use that Default External URL.
+- If VIP mode is Manual, create reusable VIP packages in `VIP`, select the relevant packages on each manual tour date, and use date-specific VIP package URLs only when a selected package has its own venue or date purchase page.
+- Configure `Shop` as either External mode with one default store URL or Item links mode with featured items and per-item store URLs.
 - Click `Save EPK` only after the draft validates and looks correct.
 - Use `Sign out` after editing on shared machines.
 

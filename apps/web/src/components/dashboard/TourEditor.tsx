@@ -50,6 +50,8 @@ export function TourEditor({ draft, updateField }: DashboardEditorProps) {
   const tour = draft.tour
   const dates = tour.dates
   const vipPackages = draft.vip?.items ?? []
+  const isVipExternalMode = Boolean(draft.vip?.redirectOnly)
+  const defaultVipExternalUrl = draft.vip?.externalStoreUrl
   const listingMode: TourListingMode =
     tour.listingMode ?? (tour.seatedEmbedCode || tour.seatedWidgetUrl ? 'seated' : 'manual')
   const notifyCta = tour.notifyCta ?? {
@@ -70,6 +72,44 @@ export function TourEditor({ draft, updateField }: DashboardEditorProps) {
       ),
     })
   }, [dates, tour, updateField])
+
+  useEffect(() => {
+    if (!isVipExternalMode) return
+
+    const nextDates = dates.map((date) => {
+      const selectedVipPackages = getVipPackageSelections(date)
+
+      if (selectedVipPackages.length === 0) return date
+
+      const nextVipPackages = selectedVipPackages.map((selection) => ({
+        ...selection,
+        dateSpecificUrl: defaultVipExternalUrl,
+      }))
+
+      const didChange =
+        date.vipPackages?.length !== nextVipPackages.length ||
+        nextVipPackages.some(
+          (selection, index) =>
+            date.vipPackages?.[index]?.packageId !== selection.packageId ||
+            date.vipPackages?.[index]?.dateSpecificUrl !== selection.dateSpecificUrl,
+        )
+
+      return didChange
+        ? {
+            ...date,
+            vipPackageIds: nextVipPackages.map((item) => item.packageId),
+            vipPackages: nextVipPackages,
+          }
+        : date
+    })
+
+    if (nextDates.some((date, index) => date !== dates[index])) {
+      updateField('tour', {
+        ...tour,
+        dates: nextDates,
+      })
+    }
+  }, [dates, defaultVipExternalUrl, isVipExternalMode, tour, updateField])
 
   const updateDate = (id: string, value: TourDate) => {
     updateField('tour', {
@@ -111,7 +151,12 @@ export function TourEditor({ draft, updateField }: DashboardEditorProps) {
     updateDate(date.id, {
       ...date,
       vipPackageIds: nextVipPackages?.map((item) => item.packageId),
-      vipPackages: nextVipPackages,
+      vipPackages: isVipExternalMode
+        ? nextVipPackages?.map((item) => ({
+            ...item,
+            dateSpecificUrl: defaultVipExternalUrl,
+          }))
+        : nextVipPackages,
     })
   }
 
@@ -121,7 +166,13 @@ export function TourEditor({ draft, updateField }: DashboardEditorProps) {
     const currentSelections = getVipPackageSelections(date)
     if (currentSelections.some((item) => item.packageId === packageId)) return
 
-    updateVipPackageSelections(date, [...currentSelections, { packageId }])
+    updateVipPackageSelections(date, [
+      ...currentSelections,
+      {
+        packageId,
+        dateSpecificUrl: isVipExternalMode ? defaultVipExternalUrl : undefined,
+      },
+    ])
   }
 
   const updateVipPackageSelection = (
@@ -540,8 +591,9 @@ export function TourEditor({ draft, updateField }: DashboardEditorProps) {
                         VIP packages for this date
                       </span>
                       <p className="editor-help">
-                        Add packages from the VIP tab, then optionally override
-                        each package with a venue/date-specific URL.
+                        {isVipExternalMode
+                          ? 'VIP mode is External, so selected packages use the Default External URL.'
+                          : 'Add packages from the VIP tab, then optionally override each package with a venue/date-specific URL.'}
                       </p>
                       {vipPackages.length > 0 ? (
                         <div className="editor-vip-package-picker">
@@ -585,31 +637,47 @@ export function TourEditor({ draft, updateField }: DashboardEditorProps) {
                                         Remove
                                       </button>
                                     </div>
-                                    <div className="editor-field">
-                                      <label htmlFor={`${date.id}-${selection.packageId}-vip-url`}>
-                                        Date-specific package URL
-                                      </label>
-                                      <p className="editor-help">
-                                        Example:
-                                        `https://exampleartistvip.store/packagename/venueordate`.
-                                      </p>
-                                      <input
-                                        id={`${date.id}-${selection.packageId}-vip-url`}
-                                        value={selection.dateSpecificUrl ?? ''}
-                                        onChange={(event) =>
-                                          updateVipPackageSelection(
-                                            date,
-                                            selection.packageId,
-                                            {
-                                              ...selection,
-                                              dateSpecificUrl: optionalString(
-                                                event.target.value,
-                                              ),
-                                            },
-                                          )
-                                        }
-                                      />
-                                    </div>
+                                    {isVipExternalMode ? (
+                                      <div className="editor-field">
+                                        <label htmlFor={`${date.id}-${selection.packageId}-vip-url`}>
+                                          Default External URL
+                                        </label>
+                                        <p className="editor-help">
+                                          Controlled by the Main VIP site URL in the VIP tab.
+                                        </p>
+                                        <input
+                                          id={`${date.id}-${selection.packageId}-vip-url`}
+                                          readOnly
+                                          value={defaultVipExternalUrl ?? ''}
+                                        />
+                                      </div>
+                                    ) : (
+                                      <div className="editor-field">
+                                        <label htmlFor={`${date.id}-${selection.packageId}-vip-url`}>
+                                          Date-specific package URL
+                                        </label>
+                                        <p className="editor-help">
+                                          Example:
+                                          `https://exampleartistvip.store/packagename/venueordate`.
+                                        </p>
+                                        <input
+                                          id={`${date.id}-${selection.packageId}-vip-url`}
+                                          value={selection.dateSpecificUrl ?? ''}
+                                          onChange={(event) =>
+                                            updateVipPackageSelection(
+                                              date,
+                                              selection.packageId,
+                                              {
+                                                ...selection,
+                                                dateSpecificUrl: optionalString(
+                                                  event.target.value,
+                                                ),
+                                              },
+                                            )
+                                          }
+                                        />
+                                      </div>
+                                    )}
                                   </article>
                                 )
                               })}
@@ -620,11 +688,11 @@ export function TourEditor({ draft, updateField }: DashboardEditorProps) {
                             </p>
                           )}
                         </div>
-                      ) : (
+                      ) : !isVipExternalMode ? (
                         <p className="editor-empty">
                           Create VIP packages in the VIP tab, then select them here.
                         </p>
-                      )}
+                      ) : null}
                       </div>
                     </div>
                   </div>

@@ -129,6 +129,10 @@ Assets
 
 Music releases, videos, tour dates, and font element settings use collapsible rows so large lists stay manageable. The Layout editor uses drag-and-drop controls for public navigation order and reusable home section order. The JSON tools remain available for full-file import/export and backup workflows, and the workspace header also includes a quick `Export EPK` action.
 
+On first launch, if no EPK has been saved yet, the public site still shows its setup state, but the dashboard seeds an unsaved starter draft so every editor is available immediately. Saving that starter draft creates the first live EPK record.
+
+Shop supports two modes: `External`, which sends visitors directly to the default store URL, and `Item links`, which shows featured item cards with external Buy URLs per item. VIP supports External mode, where tour date VIP package links use the main VIP store URL as the Default External URL, and Manual mode, where reusable packages can use package-level or date-specific URLs.
+
 ## Build
 
 ```bash

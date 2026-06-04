@@ -31,17 +31,16 @@ const defaultShop: Shop = {
   externalStoreUrl: 'https://exampleartistshop.myshopify.com',
   headline: 'Featured merch',
   featuredItems: [],
-  redirectOnly: false,
+  redirectOnly: true,
 }
 
-const createShopItem = (): ShopItem => ({
+const createShopItem = (storeUrl: string): ShopItem => ({
   id: createEditorId('merch'),
   name: 'New item',
   price: '35.00',
   currency: 'USD',
   description: '',
-  purchaseUrl: 'https://exampleartistshop.myshopify.com/products/item',
-  shopifyVariantId: '',
+  purchaseUrl: `${storeUrl.replace(/\/$/, '')}/products/item`,
   isFeatured: true,
   category: 'clothing',
   sizes: [],
@@ -51,10 +50,14 @@ const createShopItem = (): ShopItem => ({
 export function ShopEditor({ draft, updateField }: DashboardEditorProps) {
   const shop = draft.shop ?? defaultShop
   const items = shop.featuredItems ?? []
-  const listingMode = shop.redirectOnly ? 'external' : 'manual'
+  const listingMode = shop.redirectOnly ? 'external' : 'items'
+
+  const updateShop = (value: Shop) => {
+    updateField('shop', value)
+  }
 
   const updateItem = (id: string, value: ShopItem) => {
-    updateField('shop', {
+    updateShop({
       ...shop,
       featuredItems: items.map((item) => (item.id === id ? value : item)),
     })
@@ -68,8 +71,8 @@ export function ShopEditor({ draft, updateField }: DashboardEditorProps) {
             <span className="editor-section__eyebrow">Step 1</span>
             <h3 id="shop-settings-title">Shop settings</h3>
             <p>
-              Choose whether visitors go straight to a storefront or see featured
-              Shopify products on this EPK first.
+              Choose one storefront link or curated product cards that each send
+              visitors to an external store URL.
             </p>
           </div>
         </div>
@@ -96,8 +99,8 @@ export function ShopEditor({ draft, updateField }: DashboardEditorProps) {
           <div className="editor-field editor-field--wide">
             <label>Shop mode</label>
             <p className="editor-help">
-              External redirects to the store. Shopify shows selected products
-              on the EPK with internal item pages and cart behavior.
+              External links straight to the main store. Item links show product
+              details on the EPK, then send buyers to each item's store URL.
             </p>
             <div
               className={`editor-segmented editor-segmented--${listingMode}`}
@@ -111,60 +114,54 @@ export function ShopEditor({ draft, updateField }: DashboardEditorProps) {
                   name="shop-listing-mode"
                   type="radio"
                   value="external"
-                  onChange={() => updateField('shop', { ...shop, redirectOnly: true })}
+                  onChange={() => updateShop({ ...shop, redirectOnly: true })}
                 />
                 <span>External</span>
               </label>
               <label className="editor-segmented__option">
                 <input
-                  checked={listingMode === 'manual'}
+                  checked={listingMode === 'items'}
                   name="shop-listing-mode"
                   type="radio"
-                  value="manual"
-                  onChange={() => updateField('shop', { ...shop, redirectOnly: false })}
+                  value="items"
+                  onChange={() => updateShop({ ...shop, redirectOnly: false })}
                 />
-                <span>Shopify</span>
+                <span>Item links</span>
               </label>
             </div>
           </div>
           <div className="editor-field editor-field--wide">
-            <RequiredLabel htmlFor="shop-url">
-              {listingMode === 'external' ? 'External store URL' : 'Shopify store URL'}
-            </RequiredLabel>
+            <RequiredLabel htmlFor="shop-url">Default store URL</RequiredLabel>
             <p className="editor-help">
-              Use the main Shopify storefront URL, for example
-              `https://exampleartistshop.myshopify.com`.
+              Used for External mode and as the fallback if an item has no URL.
             </p>
             <input
               id="shop-url"
               value={shop.externalStoreUrl}
               onChange={(event) =>
-                updateField('shop', { ...shop, externalStoreUrl: event.target.value })
+                updateShop({ ...shop, externalStoreUrl: event.target.value })
               }
             />
           </div>
         </div>
       </section>
-      {listingMode === 'manual' && (
+      {listingMode === 'items' && (
         <section className="editor-section" aria-labelledby="shop-products-title">
           <div className="editor-section__header">
             <div className="editor-section__title">
               <span className="editor-section__eyebrow">Step 2</span>
-              <h3 id="shop-products-title">Shopify products</h3>
-              <p>
-                Add featured products visitors can inspect and add to a cart
-                inside this EPK template.
-              </p>
+              <h3 id="shop-products-title">Shop items</h3>
+              <p>Add merch details and the external store URL for each item.</p>
             </div>
           </div>
           <div className="editor-field editor-field--wide">
             <label htmlFor="shop-headline">Headline</label>
-            <p className="editor-help">Shown above the featured product cards.</p>
+            <p className="editor-help">Shown above the item cards.</p>
             <input
               id="shop-headline"
               value={shop.headline ?? ''}
               onChange={(event) =>
-                updateField('shop', { ...shop, headline: optionalString(event.target.value) })
+                updateShop({ ...shop, headline: optionalString(event.target.value) })
               }
             />
           </div>
@@ -177,7 +174,7 @@ export function ShopEditor({ draft, updateField }: DashboardEditorProps) {
                     className="editor-button"
                     type="button"
                     onClick={() =>
-                      updateField('shop', {
+                      updateShop({
                         ...shop,
                         featuredItems: items.filter((entry) => entry.id !== item.id),
                       })
@@ -188,13 +185,13 @@ export function ShopEditor({ draft, updateField }: DashboardEditorProps) {
                 </div>
                 <div className="editor-subsection">
                   <div className="editor-subsection__header">
-                    <h4>Product details</h4>
-                    <p>Match these fields to the Shopify product listing.</p>
+                    <h4>Item details</h4>
+                    <p>These fields appear on the public shop card.</p>
                   </div>
                   <div className="editor-grid">
                     <div className="editor-field editor-field--wide">
                       <RequiredLabel htmlFor={`${item.id}-id`}>ID</RequiredLabel>
-                      <p className="editor-help">Internal product ID for this EPK.</p>
+                      <p className="editor-help">Internal item ID for this EPK.</p>
                       <input
                         id={`${item.id}-id`}
                         value={item.id}
@@ -235,10 +232,6 @@ export function ShopEditor({ draft, updateField }: DashboardEditorProps) {
                     </div>
                     <div className="editor-field">
                       <label htmlFor={`${item.id}-category`}>Category</label>
-                      <p className="editor-help">
-                        Choose the product type so templates can handle clothing
-                        options cleanly.
-                      </p>
                       <select
                         id={`${item.id}-category`}
                         value={item.category ?? 'other'}
@@ -263,9 +256,6 @@ export function ShopEditor({ draft, updateField }: DashboardEditorProps) {
                     {item.category === 'clothing' && (
                       <div className="editor-field editor-field--wide">
                         <label htmlFor={`${item.id}-sizes`}>Available sizes</label>
-                        <p className="editor-help">
-                          Add sizes from the dropdown. Selected sizes appear beside it.
-                        </p>
                         <div className="editor-size-picker">
                           <select
                             id={`${item.id}-sizes`}
@@ -322,9 +312,6 @@ export function ShopEditor({ draft, updateField }: DashboardEditorProps) {
                     )}
                     <div className="editor-field editor-field--wide">
                       <label htmlFor={`${item.id}-description`}>Description</label>
-                      <p className="editor-help">
-                        Optional product details shown when visitors inspect the item.
-                      </p>
                       <textarea
                         id={`${item.id}-description`}
                         value={item.description ?? ''}
@@ -336,20 +323,8 @@ export function ShopEditor({ draft, updateField }: DashboardEditorProps) {
                         }
                       />
                     </div>
-                  </div>
-                </div>
-                <div className="editor-subsection">
-                  <div className="editor-subsection__header">
-                    <h4>Product links and media</h4>
-                    <p>Use an uploaded or hosted product image. External URLs are optional references.</p>
-                  </div>
-                  <div className="editor-grid">
                     <div className="editor-field editor-field--wide">
                       <label htmlFor={`${item.id}-image`}>Image path</label>
-                      <p className="editor-help">
-                        Usually an uploaded asset path like
-                        <code>/uploads/site/assets/file.jpg</code>.
-                      </p>
                       <input
                         id={`${item.id}-image`}
                         value={item.image ?? ''}
@@ -362,10 +337,10 @@ export function ShopEditor({ draft, updateField }: DashboardEditorProps) {
                       />
                     </div>
                     <div className="editor-field editor-field--wide">
-                      <label htmlFor={`${item.id}-url`}>Reference product URL</label>
+                      <RequiredLabel htmlFor={`${item.id}-url`}>Item store URL</RequiredLabel>
                       <p className="editor-help">
-                        Optional. The public shop opens this item inside the EPK
-                        instead of sending visitors to this URL.
+                        This is the product page, preorder page, or direct store
+                        URL opened by the public Buy button.
                       </p>
                       <input
                         id={`${item.id}-url`}
@@ -374,23 +349,6 @@ export function ShopEditor({ draft, updateField }: DashboardEditorProps) {
                           updateItem(item.id, {
                             ...item,
                             purchaseUrl: optionalString(event.target.value),
-                          })
-                        }
-                      />
-                    </div>
-                    <div className="editor-field editor-field--wide">
-                      <label htmlFor={`${item.id}-variant`}>Shopify variant ID</label>
-                      <p className="editor-help">
-                        Optional reference for future Shopify integrations. The
-                        template cart works inside the EPK without this value.
-                      </p>
-                      <input
-                        id={`${item.id}-variant`}
-                        value={item.shopifyVariantId ?? ''}
-                        onChange={(event) =>
-                          updateItem(item.id, {
-                            ...item,
-                            shopifyVariantId: optionalString(event.target.value),
                           })
                         }
                       />
@@ -415,9 +373,9 @@ export function ShopEditor({ draft, updateField }: DashboardEditorProps) {
               className="editor-button editor-button--primary"
               type="button"
               onClick={() =>
-                updateField('shop', {
+                updateShop({
                   ...shop,
-                  featuredItems: [...items, createShopItem()],
+                  featuredItems: [...items, createShopItem(shop.externalStoreUrl)],
                 })
               }
             >

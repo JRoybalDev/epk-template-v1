@@ -36,7 +36,7 @@ Use the existing public components as logical data boundaries:
 - `VideoGrid.tsx` handles YouTube embeds and video ordering.
 - `TourList.tsx` handles date formatting, hidden regions, passed-date announcements, ticket links, VIP links, sold-out labels, and Seated embed/widget rendering.
 - `VIPPage.tsx` handles optional VIP data and external store links.
-- `ShopGrid.tsx` handles optional shop data and featured items.
+- `ShopGrid.tsx` handles optional shop data, External mode, and Item links mode with external Buy URLs.
 - `AboutSection.tsx` handles bio, accolades, genres, and press quote data.
 - `NewsletterSection.tsx` handles optional newsletter data.
 - `SiteFooter.tsx` handles socials, legal links, and powered-by links.

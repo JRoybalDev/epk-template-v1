@@ -29,8 +29,38 @@ export function VIPEditor({ draft, updateField }: DashboardEditorProps) {
   const items = vip.items ?? []
   const listingMode = vip.redirectOnly ? 'external' : 'manual'
 
+  const syncTourVipPackagesToExternalUrl = (externalStoreUrl: VIP['externalStoreUrl']) => {
+    const dates = draft.tour.dates.map((date) => {
+      const selectedVipPackages = date.vipPackages?.length
+        ? date.vipPackages
+        : (date.vipPackageIds ?? []).map((packageId) => ({ packageId }))
+
+      if (selectedVipPackages.length === 0) return date
+
+      const nextVipPackages = selectedVipPackages.map((selection) => ({
+        ...selection,
+        dateSpecificUrl: externalStoreUrl,
+      }))
+
+      return {
+        ...date,
+        vipPackageIds: nextVipPackages.map((item) => item.packageId),
+        vipPackages: nextVipPackages,
+      }
+    })
+
+    updateField('tour', {
+      ...draft.tour,
+      dates,
+    })
+  }
+
   const updateVip = (value: VIP) => {
     updateField('vip', value)
+
+    if (value.redirectOnly) {
+      syncTourVipPackagesToExternalUrl(value.externalStoreUrl)
+    }
   }
 
   const updateItem = (id: string, value: VIPItem) => {

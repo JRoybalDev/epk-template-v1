@@ -320,8 +320,9 @@ Recommended client notes:
 - Region can be left blank for international dates that only need city and country.
 - Tour dates that pass are automatically treated as unannounced.
 - Mark sold-out dates clearly.
-- Create reusable VIP packages in the VIP section, then select the packages available for each tour date.
-- Use date-specific VIP package URLs when a package has a unique purchase page for a venue or date.
+- If VIP mode is External, selected tour date VIP packages use the main VIP store as the Default External URL.
+- If VIP mode is Manual, create reusable VIP packages in the VIP section, then select the packages available for each tour date.
+- Use date-specific VIP package URLs in Manual VIP mode when a package has a unique purchase page for a venue or date.
 - Use a notify link for visitors who do not see their city listed.
 
 How this appears:
@@ -342,7 +343,7 @@ Optional:
 
 - VIP headline.
 - VIP description.
-- Redirect-only setting.
+- VIP mode: External or Manual.
 - VIP packages.
 
 VIP package fields:
@@ -359,31 +360,31 @@ VIP package fields:
 
 Recommended client decisions:
 
-- Use redirect-only when the external VIP store already explains all package details.
+- Use External mode when the external VIP store already explains all package details.
 - Use an on-site VIP page when the team wants a short intro before sending visitors to the store.
 - Use reusable VIP packages when the same offers appear across multiple tour dates.
 - Add a package URL only when that package has a page different from the main VIP site.
-- Add date-specific package URLs in the Tour section when VIP purchase pages vary by venue or date.
+- Add date-specific package URLs in the Tour section only when VIP mode is Manual and purchase pages vary by venue or date.
 
 How this appears:
 
-- If redirect-only is enabled, visitors go straight to the VIP store.
-- If redirect-only is disabled, visitors can see a VIP landing page with headline and description.
-- Tour date VIP links can show selected package names and send visitors to the date-specific package URL, package URL, or main VIP site URL.
+- In External mode, visitors go straight to the VIP store.
+- In Manual mode, visitors can see a VIP landing page with headline and description.
+- In External mode, tour date VIP package links use the main VIP store URL. In Manual mode, tour date VIP links can show selected package names and send visitors to the date-specific package URL, package URL, or main VIP site URL.
 
 ### Step 10: Configure Shop
 
-Shop can send visitors to an external store or show selected products with internal item pages, cart behavior, and a template checkout flow.
+Shop can send visitors to a single external store or show selected product cards that each link to an external store URL.
 
 Required when shop is enabled:
 
-- Shopify or external store URL.
+- Default store URL.
 
 Optional:
 
 - Shop headline.
-- Featured products.
-- Redirect-only setting.
+- Shop mode: External or Item links.
+- Featured shop items.
 
 Optional product fields:
 
@@ -393,8 +394,7 @@ Optional product fields:
 - Currency.
 - Product description.
 - Product image.
-- Reference purchase URL.
-- Shopify variant ID for future integrations.
+- Item store URL.
 - Category: clothing, music, or other.
 - Clothing sizes: XS, S, M, L, XL, 2XL, or 3XL.
 - Featured status.
@@ -402,15 +402,15 @@ Optional product fields:
 Recommended client notes:
 
 - This template does not process payment on-site.
-- Product browsing, item details, cart updates, and checkout setup happen inside the EPK template.
-- Shopify URLs and variant IDs can be stored as references for a future provider integration.
-- Clothing products can list available sizes so visitors can choose a size before adding an item to cart.
+- Use External mode when the artist wants the Shop nav to open the main storefront directly.
+- Use Item links mode when the EPK should highlight selected merch, vinyl, bundles, or campaign items before sending buyers to the external product page.
+- Clothing products can list available sizes for reference, but size selection and checkout happen on the external store.
 - Featured products are best used for campaign items, new merch, bundles, or vinyl.
 
 How this appears:
 
-- Visitors can browse highlighted items, then click out to purchase.
-- If redirect-only is enabled, visitors go straight to the external store.
+- In External mode, visitors go straight to the external store.
+- In Item links mode, visitors browse highlighted items and click each Buy button to purchase on the external store.
 
 ### Step 11: Write The About And Press Section
 
@@ -774,10 +774,10 @@ Use this checklist before content entry begins.
 - Music release list is complete.
 - Video links or YouTube IDs are ready.
 - Tour dates, ticket links, and VIP links are confirmed.
-- Shop URL and featured products are confirmed.
+- Shop mode, default store URL, and any item store URLs are confirmed.
 - VIP URL and redirect preference are confirmed.
 - VIP packages are confirmed.
-- Each tour date has the correct VIP packages and any date-specific package URLs.
+- Each tour date has the correct VIP packages. If VIP mode is External, package links use the Default External URL; if VIP mode is Manual, any date-specific package URLs are confirmed.
 - Short bio and long bio are approved.
 - Genres, similar artists, awards, accolades, and press quotes are approved.
 - Press photos and credits are approved.
@@ -828,9 +828,13 @@ A yes/no setting that tells the site to prioritize an item.
 
 A number that controls the order of items. Lower numbers usually appear first.
 
-### Redirect Only
+### External Mode
 
-A yes/no setting. When enabled, the visitor is sent directly to an external VIP or shop URL instead of seeing an on-site page first.
+A mode for VIP or Shop that sends visitors directly to the main external URL instead of showing an on-site page first.
+
+### Item Links Mode
+
+A Shop mode that shows selected item cards on the EPK. Each item has its own external store URL for the public Buy button.
 
 ### Embed Code
 

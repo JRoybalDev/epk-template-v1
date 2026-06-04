@@ -7,7 +7,6 @@ import { HomeSection } from './components/epk/HomeSection'
 import { MusicGrid } from './components/epk/MusicGrid'
 import { NewsletterSection } from './components/epk/NewsletterSection'
 import { ShopGrid } from './components/epk/ShopGrid'
-import { ShopItemPage } from './components/epk/ShopItemPage'
 import { TourList } from './components/epk/TourList'
 import { VIPPage } from './components/epk/VIPPage'
 import { VideoGrid } from './components/epk/VideoGrid'
@@ -29,7 +28,6 @@ function App() {
             <Route path="tour" element={<TourList />} />
             <Route path="vip" element={<VIPPage />} />
             <Route path="shop" element={<ShopGrid />} />
-            <Route path="shop/:itemId" element={<ShopItemPage />} />
             <Route path="about" element={<AboutSection />} />
             <Route path="newsletter" element={<NewsletterSection />} />
           </Route>

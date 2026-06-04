@@ -335,7 +335,7 @@ Controls public tour rows and optional widget configuration.
 
 Tour `region` is optional for dates where city and country are enough. The public location formatter skips missing regions.
 
-`vipPackages` connects a tour date to reusable VIP packages defined in the `vip.items` array. Each selected package can also have a `dateSpecificUrl`, such as `https://exampleartistvip.store/packagename/venueordate`. Without a date-specific package URL, the public Tour page uses the package `purchaseUrl`, then the main `vip.externalStoreUrl` if one is configured. Legacy `vipPackageIds` and `vipUrl` fields are still accepted for older payloads.
+`vipPackages` connects a tour date to reusable VIP packages defined in the `vip.items` array. When `vip.redirectOnly` is `true`, each selected package uses the main `vip.externalStoreUrl` as its Default External URL. When `vip.redirectOnly` is `false`, each selected package can also have a `dateSpecificUrl`, such as `https://exampleartistvip.store/packagename/venueordate`; without that override, the public Tour page uses the package `purchaseUrl`, then the main `vip.externalStoreUrl` if one is configured. Legacy `vipPackageIds` and `vipUrl` fields are still accepted for older payloads.
 
 `dateDisplayFormat` controls public tour date display. Allowed values:
 
@@ -378,11 +378,11 @@ Controls the VIP page or external VIP store link.
 }
 ```
 
-`externalStoreUrl` is optional unless the VIP nav should redirect directly to a main VIP site or packages should fall back to a shared VIP store. VIP package `purchaseUrl` is optional; use it only when the package URL is different from the main VIP site URL. Tour date links can override each selected package with `dateSpecificUrl`.
+`externalStoreUrl` is optional unless the VIP nav should redirect directly to a main VIP site or packages should fall back to a shared VIP store. VIP package `purchaseUrl` is optional; use it only when the package URL is different from the main VIP site URL. Tour date links can override each selected package with `dateSpecificUrl` only when VIP is not in External mode.
 
 ### Shop
 
-Controls the shop page, optional store reference, internal item pages, and featured merch.
+Controls the shop page, external store link, and optional featured merch cards with per-item external store URLs.
 
 ```json
 {
@@ -397,7 +397,6 @@ Controls the shop page, optional store reference, internal item pages, and featu
       "description": "Soft black tour tee with Midnight Signal artwork on the front.",
       "image": "/uploads/site/assets/tee.jpg",
       "purchaseUrl": "https://exampleartistshop.myshopify.com/products/midnight-signal-tee",
-      "shopifyVariantId": "41234567890123",
       "category": "clothing",
       "sizes": ["S", "M", "L", "XL"],
       "isFeatured": true
@@ -407,9 +406,9 @@ Controls the shop page, optional store reference, internal item pages, and featu
 }
 ```
 
-When `redirectOnly` is `false`, the dashboard treats the shop as an internal featured product list. Each product opens at `/shop/:itemId`, where visitors can review details, choose clothing sizes, add to cart, and use the template checkout flow.
+When `redirectOnly` is `true`, public navigation sends visitors directly to `externalStoreUrl`. When `redirectOnly` is `false`, `/shop` shows featured item cards inside the EPK and each public Buy button opens the item's `purchaseUrl`, falling back to `externalStoreUrl` if the item URL is blank.
 
-`externalStoreUrl`, `purchaseUrl`, and `shopifyVariantId` are retained as optional references for teams that later connect a provider, but the public shop flow does not send visitors to separate product pages by default.
+`externalStoreUrl` is the default store destination. Item `purchaseUrl` should be the product page, preorder page, or store URL for that item. `shopifyVariantId` is retained as an optional reference for teams that later connect a provider, but the current public shop flow does not process checkout on-site.
 
 Shop item `category` must be `clothing`, `music`, or `other`. Clothing items can include `sizes` using `XS`, `S`, `M`, `L`, `XL`, `2XL`, and `3XL`.
 

@@ -24,7 +24,7 @@ import { ShopEditor } from '../components/dashboard/ShopEditor'
 import { TourEditor } from '../components/dashboard/TourEditor'
 import { VIPEditor } from '../components/dashboard/VIPEditor'
 import { VideoEditor } from '../components/dashboard/VideoEditor'
-import { saveEPK } from '../api/client'
+import { ApiClientError, saveEPK } from '../api/client'
 import {
   broadcastEPKUpdate,
   epkQueryKey,
@@ -39,6 +39,7 @@ import {
 } from '../hooks/useEPKMeta'
 import { useEPKStore } from '../hooks/useEPKStore'
 import { downloadEPKJson } from '../utils/exportEPK'
+import { createStarterEPK } from '../utils/starterEPK'
 import './DashboardPage.css'
 
 const adminKeyStorageKey = 'epk-admin-key'
@@ -127,6 +128,8 @@ const dashboardNavGroups: DashboardNavGroup[] = [
 
 const dashboardSections = dashboardNavGroups.flatMap((group) => group.sections)
 const navEase = [0.22, 1, 0.36, 1] as const
+const isMissingEPKError = (error: unknown) =>
+  error instanceof ApiClientError && error.status === 404
 
 const normalizeEPKForSave = (epk: EPK): EPK => ({
   ...epk,
@@ -167,6 +170,7 @@ export function DashboardPage() {
   const prefersReducedMotion = useReducedMotion()
   const dashboardArtistName =
     draft?.artistName || epkQuery.data?.artistName || 'Artist'
+  const hasStarterDraft = epkQuery.isError && isMissingEPKError(epkQuery.error)
 
   const updateDashboardTheme = (theme: DashboardTheme) => {
     window.localStorage.setItem(dashboardThemeStorageKey, theme)
@@ -293,6 +297,12 @@ export function DashboardPage() {
       loadedDraftAtRef.current = epkQuery.dataUpdatedAt
     }
   }, [epkQuery.data, epkQuery.dataUpdatedAt, isDirty, loadDraft])
+
+  useEffect(() => {
+    if (!hasStarterDraft || draft || isDirty) return
+
+    replaceDraft(createStarterEPK())
+  }, [draft, hasStarterDraft, isDirty, replaceDraft])
 
   useEffect(() => {
     if (!isDirty) return
@@ -708,12 +718,18 @@ export function DashboardPage() {
         </div>
         <div className="dashboard-workspace__panel">
           {epkQuery.isLoading && <p>Loading EPK content...</p>}
-          {epkQuery.isError && (
+          {hasStarterDraft && draft && (
+            <p className="dashboard-message">
+              No EPK JSON is saved yet. This starter draft is ready to edit and
+              will become the live EPK after you save it.
+            </p>
+          )}
+          {epkQuery.isError && !hasStarterDraft && (
             <div className="dashboard-empty">
-              <h3>No EPK content loaded</h3>
+              <h3>EPK content could not load</h3>
               <p>
-                Validate and import an EPK JSON file from the terminal, then refresh
-                this dashboard.
+                Fix the API response or import a validated EPK JSON file, then
+                refresh this dashboard.
               </p>
               <code>bun run import:epk examples/demo-epk.example.json --admin-key "$ADMIN_API_KEY" --confirm</code>
             </div>

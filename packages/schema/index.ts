@@ -237,7 +237,7 @@ export const TourSchema = z.object({
 })
 
 // ─── VIP ──────────────────────────────────────────────────
-// Observed: redirects to artistvip.store (external Shopify)
+// Observed: redirects to artistvip.store (external store)
 // The /vip page itself is a per-show list, each with "vip upgrades" btn
 // No package descriptions on the main site — that's on the external store
 export const VIPItemSchema = z.object({
@@ -263,8 +263,8 @@ export const VIPSchema = z.object({
 })
 
 // ─── Shop ─────────────────────────────────────────────────
-// Observed: redirects to store.artist.com (external Shopify)
-// Featured items shown: name + price, product image, no cart on-site
+// Observed: redirects to store.artist.com (external store)
+// Featured items shown: name + price, product image, external Buy URL
 // Shop has its own nav: "home / music / merch"
 export const ShopItemSchema = z.object({
     id: z.string(),
@@ -283,10 +283,10 @@ export const ShopItemSchema = z.object({
 export const ShopSchema = z.object({
     externalStoreUrl: UrlString, // e.g. store.artist.com
     headline: z.string().optional(),
-    // Featured Items to display on the /shop page before redirecting
+    // Featured items to display on the /shop page in Item links mode.
     featuredItems: z.array(ShopItemSchema).optional(),
-    // If true, /shop just redirects to externalStoreUrl immediately
-    redirectOnly: z.boolean().default(false),
+    // If true, /shop just redirects to externalStoreUrl immediately.
+    redirectOnly: z.boolean().default(true),
 })
 
 // ─── About ────────────────────────────────────────────────
