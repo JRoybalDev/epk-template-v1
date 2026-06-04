@@ -22,6 +22,8 @@ The site can include:
 
 The public site reads from one approved content record. The dashboard lets an authorized admin update that content without touching the source code.
 
+On first launch, before any content has been saved, the public site shows a setup state. The dashboard still opens with a starter draft so the team can begin filling in sections immediately. Saving that starter draft creates the first live EPK record. Teams that already have a complete EPK JSON file can import it instead.
+
 ## Roles
 
 ### Client Or Artist Team

@@ -13,24 +13,25 @@ Use this checklist before handing off or deploying a finished single-artist EPK.
 ## Database
 
 - Run the server migrations against the production database.
-- Confirm `GET /api/epk` returns `404` before import or the expected EPK after import.
+- Confirm `GET /api/epk` returns `404` before the first save/import or the expected EPK after content is saved.
 
 ## Content
 
-- Validate the artist JSON locally:
+- If using a prepared JSON file, validate it locally:
 
 ```bash
 bun run validate:epk examples/demo-epk.example.json
 ```
 
-- Import only after validation passes:
+- Import prepared JSON only after validation passes:
 
 ```bash
 bun run import:epk path/to/artist-epk.json --admin-key "$ADMIN_API_KEY" --confirm
 ```
 
-- Open the dashboard and verify every section loads from the imported content.
-- Save once from the dashboard to confirm the key and write route work.
+- Open the dashboard. If no EPK has been saved yet, confirm the starter draft appears and the editors are available.
+- If importing JSON, verify every section loads from the imported content. If starting from the dashboard starter draft, replace all placeholder content before handoff.
+- Save once from the dashboard to create or update the live EPK record and confirm the admin key and write route work.
 - Use the `JSON` section to export a backup of the final draft.
 - If importing through the dashboard `JSON` section, confirm the imported draft is reviewed and saved.
 - Fill out the `Contact` section with booking, press, management, and sync emails as needed.

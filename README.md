@@ -170,14 +170,17 @@ Main dashboard workflow:
 
 ```txt
 1. Enter the admin key.
-2. Edit EPK sections.
-3. Upload assets if needed and copy returned paths.
-4. Review the public EPK with "View EPK".
-5. Save changes with "Save EPK".
-6. Export a JSON backup from the JSON section.
+2. If no EPK has been saved yet, start from the dashboard's starter draft.
+3. Edit EPK sections or import a complete JSON draft from the JSON section.
+4. Upload assets if needed and copy returned paths.
+5. Review the public EPK with "View EPK".
+6. Save changes with "Save EPK".
+7. Export a JSON backup from the JSON section.
 ```
 
 The dashboard warns before leaving with unsaved changes and shows an `Unsaved` badge when the draft has pending edits. The dashboard navigation is grouped into collapsible sections on desktop and opens as a draggable bottom sheet on mobile.
+
+On a fresh template with no saved EPK record, the public site shows a setup state while the dashboard automatically opens a valid unsaved starter draft. Saving that draft creates the first live EPK record. The terminal import flow is still available when you already have a completed EPK JSON file.
 
 The dashboard has its own light/dark toggle. Public EPK color, font, and texture controls live under `Branding` and `Fonts & Text Styling` and do not change the dashboard theme.
 
@@ -208,7 +211,7 @@ The `Layout` section uses drag-and-drop controls for public navigation order and
 
 The `contact` navigation item is supported, but it renders as a `mailto:` link to the booking email instead of a standalone `/contact` route.
 
-The public site reads from `GET /api/epk`. If no EPK has been imported yet, the public shell shows a setup state.
+The public site reads from `GET /api/epk`. If no EPK has been saved or imported yet, the public shell shows a setup state.
 
 ## API Reference
 

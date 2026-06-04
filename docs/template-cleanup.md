@@ -74,6 +74,7 @@ Recommended share image size:
 
 ## Dashboard Handoff
 
+- On a fresh template with no saved EPK, start from the dashboard's starter draft or import a completed EPK JSON file.
 - Use `JSON` to export a backup before making major edits.
 - Use `JSON` to import a completed EPK file into the dashboard draft.
 - Review the imported draft in each dashboard section.
