@@ -1,4 +1,5 @@
 import type { EPK, VIPItem } from '../../../../../packages/schema'
+import { ConfirmButton } from './ConfirmButton'
 import { RequiredLabel } from './RequiredLabel'
 import type { DashboardEditorProps } from './types'
 import { createEditorId, optionalString, parseCommaList } from './types'
@@ -85,13 +86,11 @@ export function VIPEditor({ draft, updateField }: DashboardEditorProps) {
         </div>
         <div className="editor-actions">
           {draft.vip ? (
-            <button
-              className="editor-button"
-              type="button"
-              onClick={() => updateField('vip', undefined)}
-            >
-              Remove VIP section
-            </button>
+            <ConfirmButton
+              confirmLabel="Confirm remove section?"
+              label="Remove VIP section"
+              onConfirm={() => updateField('vip', undefined)}
+            />
           ) : (
             <button
               className="editor-button editor-button--primary"
@@ -215,18 +214,15 @@ export function VIPEditor({ draft, updateField }: DashboardEditorProps) {
               <article className="editor-item" key={item.id}>
                 <div className="editor-item__header">
                   <h3>{item.name || `VIP package ${index + 1}`}</h3>
-                  <button
-                    className="editor-button"
-                    type="button"
-                    onClick={() =>
+                  <ConfirmButton
+                    label="Remove"
+                    onConfirm={() =>
                       updateVip({
                         ...vip,
                         items: items.filter((entry) => entry.id !== item.id),
                       })
                     }
-                  >
-                    Remove
-                  </button>
+                  />
                 </div>
                 <div className="editor-subsection">
                   <div className="editor-subsection__header">

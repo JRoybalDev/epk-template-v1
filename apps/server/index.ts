@@ -1,15 +1,104 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
-import { serveStatic } from 'hono/bun'
+import { serveStatic, getConnInfo } from 'hono/bun'
+import type { Context } from 'hono'
 import { getEPK, saveEPK, saveAsset } from './db/epk'
 import { validateEPK } from '../../packages/schema'
 import { join } from 'path'
 import { mkdirSync, writeFileSync } from 'fs'
 import { Buffer } from 'buffer'
+import { randomBytes, randomUUID, timingSafeEqual } from 'crypto'
 
 const app = new Hono()
-app.use('*', cors())
-app.use('/uploads/*', serveStatic({ root: './' }))
+
+const getClientIp = (c: Context) => {
+  try {
+    return getConnInfo(c).remote.address ?? 'unknown'
+  } catch {
+    return 'unknown'
+  }
+}
+
+const rateLimitBuckets = new Map<string, number[]>()
+
+const pruneRateLimitBucket = (key: string, windowMs: number) => {
+  const now = Date.now()
+  const timestamps = (rateLimitBuckets.get(key) ?? []).filter(
+    (timestamp) => now - timestamp < windowMs,
+  )
+
+  rateLimitBuckets.set(key, timestamps)
+  return timestamps
+}
+
+const isRateLimited = (key: string, limit: number, windowMs: number) =>
+  pruneRateLimitBucket(key, windowMs).length >= limit
+
+const recordRateLimitHit = (key: string, windowMs: number) => {
+  const timestamps = pruneRateLimitBucket(key, windowMs)
+  timestamps.push(Date.now())
+  rateLimitBuckets.set(key, timestamps)
+}
+
+const generalRateLimitWindowMs = 60_000
+const generalRateLimitMax = 300
+const authFailureWindowMs = 15 * 60_000
+const authFailureMax = 10
+
+const checkGeneralRateLimit = (c: Context) => {
+  const key = `general:${getClientIp(c)}`
+  if (isRateLimited(key, generalRateLimitMax, generalRateLimitWindowMs)) return false
+
+  recordRateLimitHit(key, generalRateLimitWindowMs)
+  return true
+}
+
+const isAuthLockedOut = (c: Context) =>
+  isRateLimited(`auth-fail:${getClientIp(c)}`, authFailureMax, authFailureWindowMs)
+
+const recordFailedAuthAttempt = (c: Context) =>
+  recordRateLimitHit(`auth-fail:${getClientIp(c)}`, authFailureWindowMs)
+
+const timingSafeEqualStrings = (a: string, b: string) => {
+  const bufferA = Buffer.from(a)
+  const bufferB = Buffer.from(b)
+
+  if (bufferA.length !== bufferB.length) {
+    timingSafeEqual(bufferA, Buffer.from(randomBytes(bufferA.length)))
+    return false
+  }
+
+  return timingSafeEqual(bufferA, bufferB)
+}
+
+const extractFileExtension = (originalName: string) => {
+  const extensionMatch = /\.[a-zA-Z0-9]{1,10}$/.exec(originalName)
+  return extensionMatch ? extensionMatch[0].toLowerCase() : ''
+}
+
+const maxUploadBytes = 15 * 1024 * 1024
+
+const allowedUploadExtensions: Record<(typeof assetTypes)[number], Set<string>> = {
+  photos: new Set(['.jpg', '.jpeg', '.png', '.webp', '.gif']),
+  branding: new Set(['.jpg', '.jpeg', '.png', '.webp', '.gif', '.ico']),
+  assets: new Set(['.jpg', '.jpeg', '.png', '.webp', '.gif', '.pdf']),
+  fonts: new Set(['.woff', '.woff2', '.ttf', '.otf']),
+}
+
+const logAdminAction = (
+  c: Context,
+  action: string,
+  details: Record<string, unknown> = {},
+) => {
+  console.log(
+    JSON.stringify({
+      timestamp: new Date().toISOString(),
+      ip: getClientIp(c),
+      action,
+      ...details,
+    }),
+  )
+}
 
 const singleEPKSlug = process.env.EPK_SLUG ?? 'site'
 const adminApiKey = process.env.ADMIN_API_KEY
@@ -18,6 +107,11 @@ const unsafeDefaultKeys = new Set([
   'change-me-to-a-long-random-secret',
   'dev-admin-key-change-me',
 ])
+const minAdminKeyLength = 24
+const allowedOrigins = (process.env.ALLOWED_ORIGIN ?? '')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean)
 const assetTypes = ['photos', 'branding', 'assets', 'fonts'] as const
 const isAssetType = (value: string): value is (typeof assetTypes)[number] =>
   assetTypes.includes(value as (typeof assetTypes)[number])
@@ -163,22 +257,65 @@ const normalizeIncomingEPK = (value: unknown) => {
   return epk
 }
 
-if (isProduction && (!adminApiKey || unsafeDefaultKeys.has(adminApiKey))) {
-  throw new Error('Set a strong ADMIN_API_KEY before running in production.')
+if (
+  isProduction &&
+  (!adminApiKey ||
+    unsafeDefaultKeys.has(adminApiKey) ||
+    adminApiKey.length < minAdminKeyLength)
+) {
+  throw new Error(
+    `Set a strong ADMIN_API_KEY (at least ${minAdminKeyLength} characters) before running in production.`,
+  )
 }
+
+if (isProduction && allowedOrigins.length === 0) {
+  console.warn(
+    'ALLOWED_ORIGIN is not set. The API is allowing requests from any origin.',
+  )
+}
+
+app.use('*', async (c, next) => {
+  await next()
+  c.header('X-Content-Type-Options', 'nosniff')
+  c.header('X-Frame-Options', 'DENY')
+  c.header('Referrer-Policy', 'strict-origin-when-cross-origin')
+})
+
+app.use(
+  '*',
+  cors({
+    origin: allowedOrigins.length > 0 ? allowedOrigins : '*',
+  }),
+)
+app.use('/uploads/*', serveStatic({ root: './' }))
 
 const requireAdminKey = (c: Parameters<Parameters<typeof app.use>[1]>[0]) => {
   if (!adminApiKey) {
     return c.json({ error: 'ADMIN_API_KEY is not configured' }, 500)
   }
 
+  if (isAuthLockedOut(c)) {
+    logAdminAction(c, 'auth.locked_out', { path: c.req.path })
+    return c.json({ error: 'Too many attempts. Try again later.' }, 429)
+  }
+
   const providedKey = c.req.header('x-admin-key')
-  if (providedKey !== adminApiKey) {
+  if (!providedKey || !timingSafeEqualStrings(providedKey, adminApiKey)) {
+    recordFailedAuthAttempt(c)
+    logAdminAction(c, 'auth.failed', { path: c.req.path })
     return c.json({ error: 'Unauthorized' }, 401)
   }
 
   return null
 }
+
+app.use('/api/*', async (c, next) => {
+  if (!checkGeneralRateLimit(c)) {
+    return c.json({ error: 'Too many requests. Try again later.' }, 429)
+  }
+
+  await next()
+})
 
 app.get('/api/epk', async (c) => {
   const epk = await getEPK(singleEPKSlug)
@@ -214,6 +351,7 @@ app.post('/api/epk', async (c) => {
   }
   const savedEPK = { ...parsed.data, slug: singleEPKSlug }
   await saveEPK(singleEPKSlug, savedEPK)
+  logAdminAction(c, 'epk.save')
   return c.json({ ok: true, epk: savedEPK })
 })
 
@@ -232,13 +370,32 @@ app.post('/api/upload/:type', async (c) => {
     return c.json({ error: 'Invalid upload type' }, 400)
   }
 
+  if (file.size > maxUploadBytes) {
+    return c.json(
+      { error: `File is too large. Max size is ${maxUploadBytes / (1024 * 1024)}MB.` },
+      413,
+    )
+  }
+
+  const extension = extractFileExtension(file.name)
+  if (!allowedUploadExtensions[type].has(extension)) {
+    return c.json(
+      {
+        error: `Invalid file type for ${type}. Allowed: ${[...allowedUploadExtensions[type]].join(', ')}`,
+      },
+      400,
+    )
+  }
+
+  const safeFileName = `${randomUUID()}${extension}`
   const uploadDir = join('uploads', singleEPKSlug, type)
   mkdirSync(uploadDir, { recursive: true })
   const bytes = await file.arrayBuffer()
-  writeFileSync(join(uploadDir, file.name), Buffer.from(bytes))
+  writeFileSync(join(uploadDir, safeFileName), Buffer.from(bytes))
 
-  const path = `/uploads/${singleEPKSlug}/${type}/${file.name}`
-  await saveAsset(singleEPKSlug, type, file.name, path)
+  const path = `/uploads/${singleEPKSlug}/${type}/${safeFileName}`
+  await saveAsset(singleEPKSlug, type, safeFileName, path)
+  logAdminAction(c, 'asset.upload', { type, fileName: safeFileName })
 
   return c.json({ path })
 })

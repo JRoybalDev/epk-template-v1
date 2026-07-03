@@ -1,8 +1,10 @@
 import { useState } from 'react'
-import { FiChevronDown } from 'react-icons/fi'
+import { FiChevronDown, FiMove } from 'react-icons/fi'
 import type { Video } from '../../../../../packages/schema'
+import { ConfirmButton } from './ConfirmButton'
 import { DashboardDateInput } from './DashboardDateInput'
 import { RequiredLabel } from './RequiredLabel'
+import { SortableEditorList } from './SortableEditorList'
 import type { DashboardEditorProps } from './types'
 import { createEditorId, optionalString } from './types'
 import { ApiClientError, getYouTubeMetadata } from '../../api/client'
@@ -75,6 +77,13 @@ export function VideoEditor({ draft, updateField }: DashboardEditorProps) {
 
     updateField('videos', [...videos, nextVideo])
     setOpenVideoId(nextVideo.id)
+  }
+
+  const reorderVideos = (nextVideos: Video[]) => {
+    updateField(
+      'videos',
+      nextVideos.map((video, index) => ({ ...video, displayOrder: index + 1 })),
+    )
   }
 
   const addVideoFromUrl = async (value: string) => {
@@ -174,8 +183,11 @@ export function VideoEditor({ draft, updateField }: DashboardEditorProps) {
         </div>
         {videoUrlError && <p className="editor-error">{videoUrlError}</p>}
       </div>
-      <div className="editor-list">
-        {videos.map((video, index) => {
+      <p className="editor-help">Drag a video by its handle to reorder the public grid.</p>
+      <SortableEditorList
+        items={videos}
+        onReorder={reorderVideos}
+        renderItem={(video, index, dragHandle) => {
           const isOpen = openVideoId === video.id
           const videoTitle = video.title || `Video ${index + 1}`
           const videoMeta = [
@@ -193,19 +205,30 @@ export function VideoEditor({ draft, updateField }: DashboardEditorProps) {
               ].filter(Boolean).join(' ')}
               key={video.id}
             >
-              <button
-                aria-controls={`${video.id}-video-settings`}
-                aria-expanded={isOpen}
-                className="editor-collapse__trigger"
-                type="button"
-                onClick={() => toggleVideo(video.id)}
-              >
-                <span>
-                  {videoTitle}
-                  <small>{videoMeta}</small>
-                </span>
-                <FiChevronDown aria-hidden="true" />
-              </button>
+              <div className="editor-collapse__row">
+                <button
+                  aria-label={`Reorder ${videoTitle}`}
+                  className="editor-collapse__handle"
+                  type="button"
+                  {...dragHandle.attributes}
+                  {...dragHandle.listeners}
+                >
+                  <FiMove aria-hidden="true" />
+                </button>
+                <button
+                  aria-controls={`${video.id}-video-settings`}
+                  aria-expanded={isOpen}
+                  className="editor-collapse__trigger"
+                  type="button"
+                  onClick={() => toggleVideo(video.id)}
+                >
+                  <span>
+                    {videoTitle}
+                    <small>{videoMeta}</small>
+                  </span>
+                  <FiChevronDown aria-hidden="true" />
+                </button>
+              </div>
               {isOpen && (
                 <div
                   className="editor-collapse__content"
@@ -213,13 +236,7 @@ export function VideoEditor({ draft, updateField }: DashboardEditorProps) {
                 >
                   <div className="editor-item__header">
                     <h3>{videoTitle}</h3>
-                    <button
-                      className="editor-button"
-                      type="button"
-                      onClick={() => removeVideo(video.id)}
-                    >
-                      Remove
-                    </button>
+                    <ConfirmButton label="Remove" onConfirm={() => removeVideo(video.id)} />
                   </div>
                   <div className="editor-grid">
                     <div className="editor-field editor-field--wide">
@@ -332,8 +349,8 @@ export function VideoEditor({ draft, updateField }: DashboardEditorProps) {
               )}
             </article>
           )
-        })}
-      </div>
+        }}
+      />
       <div className="editor-actions">
         <button
           className="editor-button editor-button--primary"

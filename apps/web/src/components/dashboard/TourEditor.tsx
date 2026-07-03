@@ -6,6 +6,7 @@ import type {
   TourDateVipPackage,
   TourListingMode,
 } from '../../../../../packages/schema'
+import { ConfirmButton } from './ConfirmButton'
 import { DashboardDateInput, getTodayDateKey } from './DashboardDateInput'
 import { RequiredLabel } from './RequiredLabel'
 import type { DashboardEditorProps } from './types'
@@ -466,10 +467,9 @@ export function TourEditor({ draft, updateField }: DashboardEditorProps) {
                   )}
                   <div className="editor-item__header">
                     <h3>{dateTitle}</h3>
-                    <button
-                      className="editor-button"
-                      type="button"
-                      onClick={() => {
+                    <ConfirmButton
+                      label="Remove"
+                      onConfirm={() => {
                         updateField('tour', {
                           ...tour,
                           dates: dates.filter((item) => item.id !== date.id),
@@ -478,9 +478,7 @@ export function TourEditor({ draft, updateField }: DashboardEditorProps) {
                           current === date.id ? null : current,
                         )
                       }}
-                    >
-                      Remove
-                    </button>
+                    />
                   </div>
                   <div className="editor-subsection">
                     <div className="editor-subsection__header">
@@ -624,18 +622,15 @@ export function TourEditor({ draft, updateField }: DashboardEditorProps) {
                                   <article className="editor-item" key={selection.packageId}>
                                     <div className="editor-item__header">
                                       <h4>{packageName}</h4>
-                                      <button
-                                        className="editor-button"
-                                        type="button"
-                                        onClick={() =>
+                                      <ConfirmButton
+                                        label="Remove"
+                                        onConfirm={() =>
                                           removeVipPackageSelection(
                                             date,
                                             selection.packageId,
                                           )
                                         }
-                                      >
-                                        Remove
-                                      </button>
+                                      />
                                     </div>
                                     {isVipExternalMode ? (
                                       <div className="editor-field">

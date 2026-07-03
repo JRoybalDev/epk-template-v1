@@ -1,8 +1,10 @@
 import { useState } from 'react'
-import { FiChevronDown } from 'react-icons/fi'
+import { FiChevronDown, FiMove } from 'react-icons/fi'
 import type { Release } from '../../../../../packages/schema'
+import { ConfirmButton } from './ConfirmButton'
 import { DashboardDateInput } from './DashboardDateInput'
 import { RequiredLabel } from './RequiredLabel'
+import { SortableEditorList } from './SortableEditorList'
 import type { DashboardEditorProps } from './types'
 import { createEditorId, optionalString } from './types'
 import './DashboardEditors.css'
@@ -70,6 +72,16 @@ export function MusicEditor({ draft, updateField }: DashboardEditorProps) {
     setOpenReleaseId(nextRelease.id)
   }
 
+  const reorderReleases = (nextReleases: Release[]) => {
+    updateField('music', {
+      ...draft.music,
+      releases: nextReleases.map((release, index) => ({
+        ...release,
+        displayOrder: index + 1,
+      })),
+    })
+  }
+
   return (
     <div className="editor-form">
       <p className="editor-note">
@@ -94,8 +106,11 @@ export function MusicEditor({ draft, updateField }: DashboardEditorProps) {
           <option value="4">4</option>
         </select>
       </div>
-      <div className="editor-list">
-        {releases.map((release, index) => {
+      <p className="editor-help">Drag a release by its handle to reorder the public grid.</p>
+      <SortableEditorList
+        items={releases}
+        onReorder={reorderReleases}
+        renderItem={(release, index, dragHandle) => {
           const isOpen = openReleaseId === release.id
           const releaseTitle = release.title || `Release ${index + 1}`
           const releaseMeta = [release.type, release.releaseDate].filter(Boolean).join(' · ')
@@ -109,19 +124,30 @@ export function MusicEditor({ draft, updateField }: DashboardEditorProps) {
               ].filter(Boolean).join(' ')}
               key={release.id}
             >
-              <button
-                aria-controls={`${release.id}-release-settings`}
-                aria-expanded={isOpen}
-                className="editor-collapse__trigger"
-                type="button"
-                onClick={() => toggleRelease(release.id)}
-              >
-                <span>
-                  {releaseTitle}
-                  <small>{releaseMeta}</small>
-                </span>
-                <FiChevronDown aria-hidden="true" />
-              </button>
+              <div className="editor-collapse__row">
+                <button
+                  aria-label={`Reorder ${releaseTitle}`}
+                  className="editor-collapse__handle"
+                  type="button"
+                  {...dragHandle.attributes}
+                  {...dragHandle.listeners}
+                >
+                  <FiMove aria-hidden="true" />
+                </button>
+                <button
+                  aria-controls={`${release.id}-release-settings`}
+                  aria-expanded={isOpen}
+                  className="editor-collapse__trigger"
+                  type="button"
+                  onClick={() => toggleRelease(release.id)}
+                >
+                  <span>
+                    {releaseTitle}
+                    <small>{releaseMeta}</small>
+                  </span>
+                  <FiChevronDown aria-hidden="true" />
+                </button>
+              </div>
               {isOpen && (
                 <div
                   className="editor-collapse__content"
@@ -129,13 +155,7 @@ export function MusicEditor({ draft, updateField }: DashboardEditorProps) {
                 >
                   <div className="editor-item__header">
                     <h3>{releaseTitle}</h3>
-                    <button
-                      className="editor-button"
-                      type="button"
-                      onClick={() => removeRelease(release.id)}
-                    >
-                      Remove
-                    </button>
+                    <ConfirmButton label="Remove" onConfirm={() => removeRelease(release.id)} />
                   </div>
                   <div className="editor-grid">
                     <div className="editor-field editor-field--wide">
@@ -278,8 +298,8 @@ export function MusicEditor({ draft, updateField }: DashboardEditorProps) {
               )}
             </article>
           )
-        })}
-      </div>
+        }}
+      />
       <div className="editor-actions">
         <button
           className="editor-button editor-button--primary"

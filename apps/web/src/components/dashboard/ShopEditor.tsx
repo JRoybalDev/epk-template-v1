@@ -4,6 +4,7 @@ import type {
   ShopItem,
   ShopItemCategory,
 } from '../../../../../packages/schema'
+import { ConfirmButton } from './ConfirmButton'
 import { RequiredLabel } from './RequiredLabel'
 import type { DashboardEditorProps } from './types'
 import { createEditorId, optionalString } from './types'
@@ -78,13 +79,11 @@ export function ShopEditor({ draft, updateField }: DashboardEditorProps) {
         </div>
         <div className="editor-actions">
           {draft.shop ? (
-            <button
-              className="editor-button"
-              type="button"
-              onClick={() => updateField('shop', undefined)}
-            >
-              Remove shop section
-            </button>
+            <ConfirmButton
+              confirmLabel="Confirm remove section?"
+              label="Remove shop section"
+              onConfirm={() => updateField('shop', undefined)}
+            />
           ) : (
             <button
               className="editor-button editor-button--primary"
@@ -170,18 +169,15 @@ export function ShopEditor({ draft, updateField }: DashboardEditorProps) {
               <article className="editor-item" key={item.id}>
                 <div className="editor-item__header">
                   <h3>{item.name || `Shop item ${index + 1}`}</h3>
-                  <button
-                    className="editor-button"
-                    type="button"
-                    onClick={() =>
+                  <ConfirmButton
+                    label="Remove"
+                    onConfirm={() =>
                       updateShop({
                         ...shop,
                         featuredItems: items.filter((entry) => entry.id !== item.id),
                       })
                     }
-                  >
-                    Remove
-                  </button>
+                  />
                 </div>
                 <div className="editor-subsection">
                   <div className="editor-subsection__header">

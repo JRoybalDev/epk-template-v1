@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { EPK } from '../../../../../packages/schema'
+import { ConfirmButton } from './ConfirmButton'
 import { DashboardDateInput } from './DashboardDateInput'
 import { RequiredLabel } from './RequiredLabel'
 import type { DashboardEditorProps } from './types'
@@ -203,18 +204,15 @@ export function AboutEditor({ draft, updateField }: DashboardEditorProps) {
             <article className="editor-item" key={`${award.name}-${index}`}>
               <div className="editor-item__header">
                 <h4>{award.name || `Award ${index + 1}`}</h4>
-                <button
-                  className="editor-button"
-                  type="button"
-                  onClick={() =>
+                <ConfirmButton
+                  label="Remove"
+                  onConfirm={() =>
                     updateField('about', {
                       ...about,
                       awards: about.awards.filter((_, awardIndex) => awardIndex !== index),
                     })
                   }
-                >
-                  Remove
-                </button>
+                />
               </div>
               <div className="editor-grid">
                 <div className="editor-field">
@@ -288,18 +286,15 @@ export function AboutEditor({ draft, updateField }: DashboardEditorProps) {
             <article className="editor-item" key={quote.id}>
               <div className="editor-item__header">
                 <h4>{quote.publication || `Quote ${index + 1}`}</h4>
-                <button
-                  className="editor-button"
-                  type="button"
-                  onClick={() =>
+                <ConfirmButton
+                  label="Remove"
+                  onConfirm={() =>
                     updateField('about', {
                       ...about,
                       pressQuotes: about.pressQuotes.filter((item) => item.id !== quote.id),
                     })
                   }
-                >
-                  Remove
-                </button>
+                />
               </div>
               <div className="editor-grid">
                 <div className="editor-field editor-field--wide">
@@ -407,18 +402,15 @@ export function AboutEditor({ draft, updateField }: DashboardEditorProps) {
             <article className="editor-item" key={photo.id}>
               <div className="editor-item__header">
                 <h4>{photo.path || `Photo ${index + 1}`}</h4>
-                <button
-                  className="editor-button"
-                  type="button"
-                  onClick={() =>
+                <ConfirmButton
+                  label="Remove"
+                  onConfirm={() =>
                     updateField('about', {
                       ...about,
                       pressPhotos: about.pressPhotos.filter((item) => item.id !== photo.id),
                     })
                   }
-                >
-                  Remove
-                </button>
+                />
               </div>
               <div className="editor-grid">
                 <div className="editor-field editor-field--wide">

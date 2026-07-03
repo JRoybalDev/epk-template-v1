@@ -343,12 +343,31 @@
   min-height: 2.1rem;
   width: 100%;
   align-items: center;
+  gap: var(--space-2);
   border: 1px solid transparent;
   border-radius: var(--radius-md);
   color: var(--color-text-muted);
   font-size: 0.84rem;
   font-weight: 700;
   padding: 0 var(--space-3);
+}
+
+.dashboard-nav__issue-dot {
+  display: inline-block;
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 999px;
+  background: var(--color-danger);
+}
+
+.dashboard-nav__group-trigger span:first-child {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.dashboard-nav__link--issue {
+  color: color-mix(in srgb, var(--color-danger) 78%, var(--color-text));
 }
 
 .dashboard-nav__link:hover {

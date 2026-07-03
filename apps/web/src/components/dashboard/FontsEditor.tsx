@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { FiChevronDown } from 'react-icons/fi'
 import type { EPK } from '../../../../../packages/schema'
+import { ConfirmButton } from './ConfirmButton'
 import { RequiredLabel } from './RequiredLabel'
 import type { DashboardEditorProps } from './types'
 import { optionalString } from './types'
@@ -170,18 +171,15 @@ export function FontsEditor({ draft, updateField }: DashboardEditorProps) {
             <article className="editor-item" key={`${font.family}-${index}`}>
               <div className="editor-item__header">
                 <h4>{font.family || `Google font ${index + 1}`}</h4>
-                <button
-                  className="editor-button"
-                  type="button"
-                  onClick={() =>
+                <ConfirmButton
+                  label="Remove"
+                  onConfirm={() =>
                     updateFonts({
                       ...fonts,
                       googleFonts: googleFonts.filter((_, itemIndex) => itemIndex !== index),
                     })
                   }
-                >
-                  Remove
-                </button>
+                />
               </div>
               <div className="editor-grid">
                 <div className="editor-field">
@@ -243,18 +241,15 @@ export function FontsEditor({ draft, updateField }: DashboardEditorProps) {
             <article className="editor-item" key={`${font.family}-${index}`}>
               <div className="editor-item__header">
                 <h4>{font.family || `Uploaded font ${index + 1}`}</h4>
-                <button
-                  className="editor-button"
-                  type="button"
-                  onClick={() =>
+                <ConfirmButton
+                  label="Remove"
+                  onConfirm={() =>
                     updateFonts({
                       ...fonts,
                       uploadedFonts: uploadedFonts.filter((_, itemIndex) => itemIndex !== index),
                     })
                   }
-                >
-                  Remove
-                </button>
+                />
               </div>
               <div className="editor-grid">
                 <div className="editor-field">

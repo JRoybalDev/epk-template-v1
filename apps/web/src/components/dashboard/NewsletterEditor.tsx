@@ -1,4 +1,5 @@
 import type { EPK, NewsletterField } from '../../../../../packages/schema'
+import { ConfirmButton } from './ConfirmButton'
 import type { DashboardEditorProps } from './types'
 import { optionalString } from './types'
 import './DashboardEditors.css'
@@ -73,13 +74,11 @@ export function NewsletterEditor({ draft, updateField }: DashboardEditorProps) {
       </p>
       <div className="editor-actions">
         {draft.newsletter ? (
-          <button
-            className="editor-button"
-            type="button"
-            onClick={() => updateField('newsletter', undefined)}
-          >
-            Remove newsletter section
-          </button>
+          <ConfirmButton
+            confirmLabel="Confirm remove section?"
+            label="Remove newsletter section"
+            onConfirm={() => updateField('newsletter', undefined)}
+          />
         ) : (
           <button
             className="editor-button editor-button--primary"

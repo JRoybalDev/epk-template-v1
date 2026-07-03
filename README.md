@@ -109,7 +109,9 @@ ADMIN_API_KEY=change-me-to-a-long-random-secret
 
 `EPK_SLUG` is internal and should normally stay `site`. Public routes stay clean single-artist routes like `/`, `/music`, and `/tour`.
 
-`ADMIN_API_KEY` is required for dashboard saves and uploads. The dashboard key gate stores the entered key in `localStorage`, but the server still protects writes with the `X-Admin-Key` header.
+`ADMIN_API_KEY` is required for dashboard saves and uploads. The dashboard key gate stores the entered key in `localStorage`, but the server still protects writes with the `X-Admin-Key` header. In production the server refuses to start with a missing, default, or under-24-character key.
+
+`ALLOWED_ORIGIN` is an optional, comma-separated list of frontend origins allowed by CORS. See [apps/server/README.md](apps/server/README.md) and [docs/production-checklist.md](docs/production-checklist.md) for full server hardening notes (rate limiting, upload restrictions, audit logging).
 
 ## Create An EPK
 

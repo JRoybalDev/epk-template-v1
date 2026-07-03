@@ -131,6 +131,36 @@ const navEase = [0.22, 1, 0.36, 1] as const
 const isMissingEPKError = (error: unknown) =>
   error instanceof ApiClientError && error.status === 404
 
+const sectionIdForTopLevelKey: Partial<Record<string, DashboardSectionId>> = {
+  nav: 'nav',
+  branding: 'branding',
+  metadata: 'metadata',
+  home: 'home',
+  music: 'music',
+  videos: 'videos',
+  tour: 'tour',
+  vip: 'vip',
+  shop: 'shop',
+  about: 'about',
+  newsletter: 'newsletter',
+  footer: 'footer',
+  contact: 'contact',
+}
+
+type DashboardValidationIssue = {
+  message: string
+  path: string
+  sectionId: DashboardSectionId | null
+}
+
+const getIssueSectionId = (path: string): DashboardSectionId | null => {
+  const [topKey, secondKey] = path.split('.')
+
+  if (topKey === 'branding' && secondKey === 'fonts') return 'fonts'
+
+  return sectionIdForTopLevelKey[topKey] ?? null
+}
+
 const normalizeEPKForSave = (epk: EPK): EPK => ({
   ...epk,
   tour: {
@@ -159,7 +189,16 @@ export function DashboardPage() {
   )
   const [adminKey, setAdminKey] = useState('')
   const [saveMessage, setSaveMessage] = useState('')
-  const [validationIssues, setValidationIssues] = useState<string[]>([])
+  const [validationIssues, setValidationIssues] = useState<DashboardValidationIssue[]>([])
+  const sectionIdsWithIssues = useMemo(
+    () =>
+      new Set(
+        validationIssues
+          .map((issue) => issue.sectionId)
+          .filter((sectionId): sectionId is DashboardSectionId => sectionId !== null),
+      ),
+    [validationIssues],
+  )
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false)
   const [dashboardTheme, setDashboardTheme] = useState<DashboardTheme>(() =>
     window.localStorage.getItem(dashboardThemeStorageKey) === 'dark'
@@ -393,9 +432,11 @@ export function DashboardPage() {
     if (!validation.success) {
       setSaveMessage('')
       setValidationIssues(
-        validation.issues.map(
-          (issue) => `${issue.path || 'root'}: ${issue.message}`,
-        ),
+        validation.issues.map((issue) => ({
+          message: issue.message,
+          path: issue.path || 'root',
+          sectionId: issue.path ? getIssueSectionId(issue.path) : null,
+        })),
       )
       return
     }
@@ -411,6 +452,9 @@ export function DashboardPage() {
         {dashboardNavGroups.map((group) => {
           const isOpen = openNavGroup === group.id
           const isActiveGroup = group.id === activeNavGroup.id
+          const groupHasIssue = group.sections.some((item) =>
+            sectionIdsWithIssues.has(item.id),
+          )
 
           return (
             <motion.section
@@ -435,7 +479,12 @@ export function DashboardPage() {
                   )
                 }
               >
-                <span>{group.label}</span>
+                <span>
+                  {group.label}
+                  {groupHasIssue && (
+                    <span className="dashboard-nav__issue-dot" aria-hidden="true" />
+                  )}
+                </span>
                 <motion.span
                   animate={{ rotate: isOpen ? 180 : 0 }}
                   aria-hidden="true"
@@ -480,9 +529,15 @@ export function DashboardPage() {
                         >
                           <NavLink
                             className={({ isActive }) =>
-                              isActive || (!section && item.id === activeSection.id)
-                                ? 'dashboard-nav__link dashboard-nav__link--active'
-                                : 'dashboard-nav__link'
+                              [
+                                'dashboard-nav__link',
+                                isActive || (!section && item.id === activeSection.id)
+                                  ? 'dashboard-nav__link--active'
+                                  : '',
+                                sectionIdsWithIssues.has(item.id)
+                                  ? 'dashboard-nav__link--issue'
+                                  : '',
+                              ].filter(Boolean).join(' ')
                             }
                             onClick={(event) =>
                               handleDashboardNavClick(event, shouldCloseMobileNav)
@@ -490,6 +545,9 @@ export function DashboardPage() {
                             to={`/dashboard/${item.id}`}
                           >
                             {item.label}
+                            {sectionIdsWithIssues.has(item.id) && (
+                              <span className="dashboard-nav__issue-dot" aria-hidden="true" />
+                            )}
                           </NavLink>
                         </motion.div>
                       ))}
@@ -740,7 +798,17 @@ export function DashboardPage() {
               <strong>Fix these validation issues before saving:</strong>
               <ul>
                 {validationIssues.map((issue) => (
-                  <li key={issue}>{issue}</li>
+                  <li key={issue.path}>
+                    {issue.sectionId ? (
+                      <Link to={`/dashboard/${issue.sectionId}`}>
+                        {issue.path}: {issue.message}
+                      </Link>
+                    ) : (
+                      <span>
+                        {issue.path}: {issue.message}
+                      </span>
+                    )}
+                  </li>
                 ))}
               </ul>
             </div>

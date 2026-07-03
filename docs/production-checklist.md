@@ -6,9 +6,21 @@ Use this checklist before handing off or deploying a finished single-artist EPK.
 
 - Set `DATABASE_URL` to the production Postgres connection string.
 - Set `EPK_SLUG=site` unless you intentionally changed the single-record slug.
-- Set `ADMIN_API_KEY` to a long random secret.
+- Set `ADMIN_API_KEY` to a long random secret, at least 24 characters. The server refuses to start in production with a shorter or placeholder key.
 - Confirm `ADMIN_API_KEY` is not a local placeholder such as `change-me-to-a-long-random-secret`.
 - Set `NODE_ENV=production` for the server runtime.
+- Set `ALLOWED_ORIGIN` to your deployed frontend origin(s), comma-separated. If left unset, the API accepts requests from any origin.
+- Serve the API and the dashboard over HTTPS only. The admin key is sent as a plain header on every write, so it is interceptable over plain HTTP.
+
+## Security Headers
+
+- The API server (`apps/server`) already sets `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, and `Referrer-Policy: strict-origin-when-cross-origin` on every response, including uploaded files under `/uploads`.
+- These headers do **not** cover the dashboard itself, since `apps/web` is typically deployed separately as a static site. Configure your static host (Vercel, Netlify, etc.) to send `X-Frame-Options: DENY` (or a CSP `frame-ancestors 'none'`) for the `/dashboard` route, so the unlock/save UI cannot be embedded in a hostile iframe for clickjacking.
+- If you rely on the `newsletter.embedCode` or `tour.seatedEmbedCode` fields, know that whoever holds the admin key can inject arbitrary JavaScript that runs on the public EPK page for every visitor. Treat a leaked admin key as a full site compromise, not just "edit access."
+
+## Monitoring
+
+- Server writes (`epk.save`, `asset.upload`) and auth failures (`auth.failed`, `auth.locked_out`) are logged to stdout as structured JSON lines with timestamp, IP, and action. Forward these logs to your hosting platform's log viewer or a log aggregator so a leaked or brute-forced key is detectable after the fact.
 
 ## Database
 

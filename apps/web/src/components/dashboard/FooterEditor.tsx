@@ -1,4 +1,5 @@
 import type { EPK } from '../../../../../packages/schema'
+import { ConfirmButton } from './ConfirmButton'
 import { RequiredLabel } from './RequiredLabel'
 import type { DashboardEditorProps } from './types'
 import { optionalString } from './types'
@@ -128,18 +129,15 @@ export function FooterEditor({ draft, updateField }: DashboardEditorProps) {
             <article className="editor-item" key={index}>
               <div className="editor-item__header">
                 <h4>{link.label || `Legal link ${index + 1}`}</h4>
-                <button
-                  className="editor-button"
-                  type="button"
-                  onClick={() =>
+                <ConfirmButton
+                  label="Remove"
+                  onConfirm={() =>
                     updateField('footer', {
                       ...footer,
                       legalLinks: legalLinks.filter((_, linkIndex) => linkIndex !== index),
                     })
                   }
-                >
-                  Remove
-                </button>
+                />
               </div>
               <div className="editor-grid">
                 <div className="editor-field">

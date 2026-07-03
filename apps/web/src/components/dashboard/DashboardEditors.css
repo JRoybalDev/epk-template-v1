@@ -534,6 +534,17 @@
   opacity: 0.45;
 }
 
+.confirm-button--armed {
+  border-color: var(--color-danger);
+  background: color-mix(in srgb, var(--color-danger) 16%, var(--surface));
+  color: var(--color-danger);
+}
+
+.confirm-button--armed:hover {
+  border-color: var(--color-danger);
+  background: color-mix(in srgb, var(--color-danger) 26%, var(--surface));
+}
+
 .editor-list {
   display: grid;
   gap: var(--space-4);
@@ -671,6 +682,47 @@
   gap: 0;
   padding: 0;
   overflow: hidden;
+}
+
+.editor-sortable-wrapper--dragging {
+  position: relative;
+  z-index: 2;
+}
+
+.editor-collapse__row {
+  display: flex;
+  align-items: stretch;
+}
+
+.editor-collapse__handle {
+  display: inline-flex;
+  width: 2.75rem;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-right: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: grab;
+}
+
+.editor-collapse__handle:active {
+  cursor: grabbing;
+}
+
+.editor-collapse__handle:hover {
+  color: var(--color-text);
+  background: color-mix(in srgb, var(--accent-soft) 12%, transparent);
+}
+
+.editor-collapse__handle svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.editor-collapse__row .editor-collapse__trigger {
+  flex: 1 1 auto;
 }
 
 .editor-collapse__trigger {
