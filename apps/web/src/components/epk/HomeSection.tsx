@@ -93,27 +93,31 @@ export function HomeSection() {
 
   return (
     <section data-section="home">
-      <div data-field="featuredRelease">
+      <div data-section="hero" data-field="featuredRelease">
         <header>
-          <h1>{release.title}</h1>
-          <p>{release.subtitle}</p>
-          {release.smartLinkUrl && <a href={release.smartLinkUrl}>Listen now</a>}
+          <h1 data-field="title">{release.title}</h1>
+          <p data-field="subtitle">{release.subtitle}</p>
+          {release.smartLinkUrl && (
+            <a data-field="smartLinkUrl" href={release.smartLinkUrl}>Listen now</a>
+          )}
           {canLinkToMusic && <Link to="/music">Music</Link>}
         </header>
         {release.coverImage && (
-          <FallbackImage
-            alt={`${release.title} cover`}
-            fallbackLabel="Release art"
-            src={release.coverImage}
-          />
+          <div data-field="coverImage">
+            <FallbackImage
+              alt={`${release.title} cover`}
+              fallbackLabel="Release art"
+              src={release.coverImage}
+            />
+          </div>
         )}
       </div>
       {epk.home.announcement && (
-        <section data-section="home-announcement">
-          <p>{epk.home.announcement.text}</p>
+        <section data-section="announce">
+          <p data-field="text">{epk.home.announcement.text}</p>
           {epk.home.announcement.linkUrl && (
-            <a href={epk.home.announcement.linkUrl}>
-              {epk.home.announcement.linkLabel || 'Learn more'}
+            <a data-field="linkUrl" href={epk.home.announcement.linkUrl}>
+              <span data-field="linkLabel">{epk.home.announcement.linkLabel || 'Learn more'}</span>
             </a>
           )}
         </section>

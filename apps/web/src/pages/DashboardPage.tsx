@@ -1,10 +1,33 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { FormEvent, MouseEvent as ReactMouseEvent } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { AnimatePresence, LayoutGroup, motion, useReducedMotion } from 'framer-motion'
-import type { PanInfo, Transition } from 'framer-motion'
-import { Link, NavLink, useParams } from 'react-router-dom'
-import { FiChevronDown, FiMenu, FiMoon, FiSun, FiX } from 'react-icons/fi'
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
+import type { PanInfo } from 'framer-motion'
+import { Link, NavLink, useLocation, useNavigate, useParams } from 'react-router-dom'
+import {
+  FiDroplet,
+  FiEdit2,
+  FiEdit3,
+  FiFlag,
+  FiGrid,
+  FiHelpCircle,
+  FiHexagon,
+  FiImage,
+  FiLayout,
+  FiMail,
+  FiMenu,
+  FiMinus,
+  FiMoon,
+  FiMusic,
+  FiPlay,
+  FiRepeat,
+  FiShare2,
+  FiStar,
+  FiSun,
+  FiType,
+  FiX,
+} from 'react-icons/fi'
+import type { IconType } from 'react-icons'
 import { validateEPK, type EPK } from '../../../../packages/schema'
 import { AboutEditor } from '../components/dashboard/AboutEditor'
 import { AssetUploader } from '../components/dashboard/AssetUploader'
@@ -20,6 +43,9 @@ import { MetadataEditor } from '../components/dashboard/MetadataEditor'
 import { MusicEditor } from '../components/dashboard/MusicEditor'
 import { NavEditor } from '../components/dashboard/NavEditor'
 import { NewsletterEditor } from '../components/dashboard/NewsletterEditor'
+import { LiveCanvas } from '../components/dashboard/LiveCanvas'
+import { OverviewScreen } from '../components/dashboard/OverviewScreen'
+import { RequiredLegend } from '../components/dashboard/RequiredLegend'
 import { ShopEditor } from '../components/dashboard/ShopEditor'
 import { TourEditor } from '../components/dashboard/TourEditor'
 import { VIPEditor } from '../components/dashboard/VIPEditor'
@@ -39,6 +65,7 @@ import {
 } from '../hooks/useEPKMeta'
 import { useEPKStore } from '../hooks/useEPKStore'
 import { downloadEPKJson } from '../utils/exportEPK'
+import { getEPKCompleteness, type CompletenessSectionId } from '../utils/epkCompleteness'
 import { createStarterEPK } from '../utils/starterEPK'
 import './DashboardPage.css'
 
@@ -46,28 +73,36 @@ const adminKeyStorageKey = 'epk-admin-key'
 const dashboardThemeStorageKey = 'epk-dashboard-theme'
 type DashboardTheme = 'light' | 'dark'
 type DashboardSectionId =
-  | 'nav'
-  | 'layout'
-  | 'branding'
-  | 'fonts'
-  | 'metadata'
+  | 'overview'
   | 'home'
   | 'music'
   | 'videos'
   | 'tour'
   | 'vip'
-  | 'shop'
   | 'about'
-  | 'newsletter'
   | 'contact'
+  | 'shop'
+  | 'newsletter'
+  | 'branding'
+  | 'fonts'
+  | 'nav'
+  | 'layout'
+  | 'metadata'
+  | 'footer'
   | 'json'
   | 'assets'
-  | 'footer'
   | 'help'
-type DashboardNavGroupId = 'setup' | 'content' | 'commerce' | 'tools' | 'help'
+type DashboardNavGroupId =
+  | 'musicVideo'
+  | 'shows'
+  | 'yourStory'
+  | 'storeFans'
+  | 'lookFeel'
+  | 'publishTools'
 type DashboardSection = {
   id: DashboardSectionId
   label: string
+  icon: IconType
 }
 type DashboardNavGroup = {
   id: DashboardNavGroupId
@@ -75,61 +110,83 @@ type DashboardNavGroup = {
   sections: DashboardSection[]
 }
 
+const overviewSection: DashboardSection = { id: 'overview', label: 'Overview', icon: FiHexagon }
+const helpSection: DashboardSection = { id: 'help', label: 'Setup Guide', icon: FiHelpCircle }
+
+// Exact section catalog + grouping from the shared design source (order/meta in
+// EPK Dashboard Redesign.dc.html) — keep group membership and copy in sync with that file.
 const dashboardNavGroups: DashboardNavGroup[] = [
   {
-    id: 'setup',
-    label: 'Site setup',
+    id: 'musicVideo',
+    label: 'Music & Video',
     sections: [
-      { id: 'nav', label: 'Navigation' },
-      { id: 'layout', label: 'Layout' },
-      { id: 'branding', label: 'Branding' },
-      { id: 'fonts', label: 'Fonts & Text Styling' },
-      { id: 'metadata', label: 'Metadata' },
+      { id: 'home', label: 'Spotlight', icon: FiSun },
+      { id: 'music', label: 'Releases', icon: FiMusic },
+      { id: 'videos', label: 'Videos', icon: FiPlay },
     ],
   },
   {
-    id: 'content',
-    label: 'Core content',
+    id: 'shows',
+    label: 'Shows',
     sections: [
-      { id: 'home', label: 'Home' },
-      { id: 'music', label: 'Music' },
-      { id: 'videos', label: 'Videos' },
-      { id: 'tour', label: 'Tour' },
-      { id: 'about', label: 'About' },
-      { id: 'contact', label: 'Contact' },
-      { id: 'footer', label: 'Footer' },
+      { id: 'tour', label: 'Tour dates', icon: FiFlag },
+      { id: 'vip', label: 'VIP upgrades', icon: FiStar },
     ],
   },
   {
-    id: 'commerce',
-    label: 'Extras',
+    id: 'yourStory',
+    label: 'Your Story',
     sections: [
-      { id: 'vip', label: 'VIP' },
-      { id: 'shop', label: 'Shop' },
-      { id: 'newsletter', label: 'Newsletter' },
+      { id: 'about', label: 'About & bio', icon: FiEdit2 },
+      { id: 'contact', label: 'Contact', icon: FiMail },
     ],
   },
   {
-    id: 'tools',
-    label: 'Tools',
+    id: 'storeFans',
+    label: 'Store & Fans',
     sections: [
-      { id: 'json', label: 'JSON' },
-      { id: 'assets', label: 'Assets' },
+      { id: 'shop', label: 'Shop', icon: FiGrid },
+      { id: 'newsletter', label: 'Newsletter', icon: FiEdit3 },
     ],
   },
   {
-    id: 'help',
-    label: 'Help',
+    id: 'lookFeel',
+    label: 'Look & Feel',
     sections: [
-      { id: 'help', label: 'Setup Guide' },
+      { id: 'branding', label: 'Branding', icon: FiDroplet },
+      { id: 'fonts', label: 'Fonts & text', icon: FiType },
+      { id: 'layout', label: 'Page layout', icon: FiLayout },
+      { id: 'nav', label: 'Menu', icon: FiMenu },
+    ],
+  },
+  {
+    id: 'publishTools',
+    label: 'Publish & Tools',
+    sections: [
+      { id: 'metadata', label: 'Share preview', icon: FiShare2 },
+      { id: 'assets', label: 'Media library', icon: FiImage },
+      { id: 'footer', label: 'Footer', icon: FiMinus },
+      { id: 'json', label: 'Import / Export', icon: FiRepeat },
     ],
   },
 ]
 
-const dashboardSections = dashboardNavGroups.flatMap((group) => group.sections)
+const dashboardSections = [
+  overviewSection,
+  ...dashboardNavGroups.flatMap((group) => group.sections),
+  helpSection,
+]
 const navEase = [0.22, 1, 0.36, 1] as const
 const isMissingEPKError = (error: unknown) =>
   error instanceof ApiClientError && error.status === 404
+const sectionsWithoutRequiredLegend = new Set<DashboardSectionId>([
+  'overview',
+  'json',
+  'assets',
+  'help',
+])
+const showRequiredLegendFor = (sectionId: DashboardSectionId) =>
+  !sectionsWithoutRequiredLegend.has(sectionId)
 
 const sectionIdForTopLevelKey: Partial<Record<string, DashboardSectionId>> = {
   nav: 'nav',
@@ -173,7 +230,10 @@ const normalizeEPKForSave = (epk: EPK): EPK => ({
 })
 
 export function DashboardPage() {
-  const { section } = useParams()
+  const { section, page: canvasPage } = useParams<{ section?: string; page?: string }>()
+  const location = useLocation()
+  const navigate = useNavigate()
+  const isCanvasMode = location.pathname.startsWith('/dashboard/canvas')
   const queryClient = useQueryClient()
   const epkQuery = useEPK({ retry: false })
   const loadedDraftAtRef = useRef(0)
@@ -198,6 +258,10 @@ export function DashboardPage() {
           .filter((sectionId): sectionId is DashboardSectionId => sectionId !== null),
       ),
     [validationIssues],
+  )
+  const completeness = useMemo(
+    () => (draft ? getEPKCompleteness(draft) : null),
+    [draft],
   )
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false)
   const [dashboardTheme, setDashboardTheme] = useState<DashboardTheme>(() =>
@@ -240,45 +304,6 @@ export function DashboardPage() {
       dashboardSections[0],
     [section],
   )
-  const activeNavGroup = useMemo(
-    () =>
-      dashboardNavGroups.find((group) =>
-        group.sections.some((item) => item.id === activeSection.id),
-      ) ?? dashboardNavGroups[0],
-    [activeSection.id],
-  )
-  const [openNavGroup, setOpenNavGroup] = useState<DashboardNavGroupId | null>(
-    activeNavGroup.id,
-  )
-  const navLayoutTransition: Transition = prefersReducedMotion
-    ? { duration: 0 }
-    : {
-        duration: 0.28,
-        ease: navEase,
-      }
-  const navPanelTransition: Transition = prefersReducedMotion
-    ? { duration: 0 }
-    : {
-        height: { duration: 0.32, ease: navEase },
-        opacity: { duration: 0.18, ease: 'easeOut' },
-        y: { duration: 0.24, ease: navEase },
-      }
-  const navItemsTransition: Transition = prefersReducedMotion
-    ? { duration: 0 }
-    : {
-        delayChildren: 0.04,
-        staggerChildren: 0.035,
-      }
-  const navItemTransition: Transition = prefersReducedMotion
-    ? { duration: 0 }
-    : {
-        duration: 0.18,
-        ease: navEase,
-      }
-
-  useEffect(() => {
-    setOpenNavGroup(activeNavGroup.id)
-  }, [activeNavGroup.id])
 
   useEffect(() => {
     const title = `${dashboardArtistName} | Dashboard`
@@ -389,6 +414,29 @@ export function DashboardPage() {
     }
   }
 
+  const modeToggle = (
+    <div className="dashboard-mode-toggle" role="tablist" aria-label="Dashboard mode">
+      <Link
+        aria-selected={!isCanvasMode}
+        className={`dashboard-mode-toggle__tab${!isCanvasMode ? ' dashboard-mode-toggle__tab--active' : ''}`}
+        onClick={guardUnsavedChanges}
+        role="tab"
+        to={section ? `/dashboard/${section}` : '/dashboard'}
+      >
+        Guided Studio
+      </Link>
+      <Link
+        aria-selected={isCanvasMode}
+        className={`dashboard-mode-toggle__tab${isCanvasMode ? ' dashboard-mode-toggle__tab--active' : ''}`}
+        onClick={guardUnsavedChanges}
+        role="tab"
+        to="/dashboard/canvas"
+      >
+        Live Canvas
+      </Link>
+    </div>
+  )
+
   const handleDashboardNavClick = (
     event: ReactMouseEvent<HTMLAnchorElement>,
     shouldCloseMobileNav = false,
@@ -446,128 +494,87 @@ export function DashboardPage() {
     saveMutation.mutate(normalizedDraft)
   }
 
-  const renderDashboardNav = (shouldCloseMobileNav = false, idPrefix = 'desktop') => (
-    <nav className="dashboard-nav" aria-label="Dashboard sections">
-      <LayoutGroup>
-        {dashboardNavGroups.map((group) => {
-          const isOpen = openNavGroup === group.id
-          const isActiveGroup = group.id === activeNavGroup.id
-          const groupHasIssue = group.sections.some((item) =>
-            sectionIdsWithIssues.has(item.id),
-          )
+  const alwaysReadySections = new Set<DashboardSectionId>(['nav', 'layout', 'json', 'assets'])
 
-          return (
-            <motion.section
-              className={[
-                'dashboard-nav__group',
-                'collapse',
-                isOpen ? 'collapse-open' : 'collapse-close',
-                isActiveGroup ? 'dashboard-nav__group--active' : '',
-              ].filter(Boolean).join(' ')}
-              key={group.id}
-              layout="position"
-              transition={navLayoutTransition}
-            >
-              <button
-                aria-controls={`dashboard-nav-${idPrefix}-${group.id}`}
-                aria-expanded={isOpen}
-                className="dashboard-nav__group-trigger collapse-title"
-                type="button"
-                onClick={() =>
-                  setOpenNavGroup((current) =>
-                    current === group.id ? null : group.id,
-                  )
-                }
-              >
-                <span>
-                  {group.label}
-                  {groupHasIssue && (
-                    <span className="dashboard-nav__issue-dot" aria-hidden="true" />
-                  )}
-                </span>
-                <motion.span
-                  animate={{ rotate: isOpen ? 180 : 0 }}
-                  aria-hidden="true"
-                  className="dashboard-nav__group-icon"
-                  transition={navLayoutTransition}
-                >
-                  <FiChevronDown />
-                </motion.span>
-              </button>
-              <AnimatePresence initial={false} mode="popLayout">
-                {isOpen && (
-                  <motion.div
-                    animate={{ height: 'auto', opacity: 1, y: 0 }}
-                    className="dashboard-nav__group-content collapse-content"
-                    exit={{ height: 0, opacity: 0, y: -4 }}
-                    id={`dashboard-nav-${idPrefix}-${group.id}`}
-                    initial={{ height: 0, opacity: 0, y: -4 }}
-                    transition={navPanelTransition}
-                  >
-                    <motion.div
-                      animate="open"
-                      className="dashboard-nav__group-content-inner"
-                      initial="closed"
-                      variants={{
-                        closed: {},
-                        open: {
-                          transition: navItemsTransition,
-                        },
-                      }}
-                    >
-                      {group.sections.map((item) => (
-                        <motion.div
-                          key={item.id}
-                          variants={{
-                            closed: { opacity: 0, x: -4 },
-                            open: {
-                              opacity: 1,
-                              transition: navItemTransition,
-                              x: 0,
-                            },
-                          }}
-                        >
-                          <NavLink
-                            className={({ isActive }) =>
-                              [
-                                'dashboard-nav__link',
-                                isActive || (!section && item.id === activeSection.id)
-                                  ? 'dashboard-nav__link--active'
-                                  : '',
-                                sectionIdsWithIssues.has(item.id)
-                                  ? 'dashboard-nav__link--issue'
-                                  : '',
-                              ].filter(Boolean).join(' ')
-                            }
-                            onClick={(event) =>
-                              handleDashboardNavClick(event, shouldCloseMobileNav)
-                            }
-                            to={`/dashboard/${item.id}`}
-                          >
-                            {item.label}
-                            {sectionIdsWithIssues.has(item.id) && (
-                              <span className="dashboard-nav__issue-dot" aria-hidden="true" />
-                            )}
-                          </NavLink>
-                        </motion.div>
-                      ))}
-                    </motion.div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </motion.section>
-          )
-        })}
-      </LayoutGroup>
+  const statusDotClass = (sectionId: DashboardSectionId) => {
+    if (sectionIdsWithIssues.has(sectionId)) return 'dashboard-nav__status-dot--issue'
+
+    const status = completeness?.statuses[sectionId as CompletenessSectionId]
+    if (status === 'ready') return 'dashboard-nav__status-dot--ready'
+    if (status === 'attention') return 'dashboard-nav__status-dot--attention'
+    if (status === 'empty') return 'dashboard-nav__status-dot--empty'
+    if (alwaysReadySections.has(sectionId)) return 'dashboard-nav__status-dot--ready'
+    return null
+  }
+
+  const renderNavLink = (item: DashboardSection, shouldCloseMobileNav: boolean) => (
+    <NavLink
+      className={({ isActive }) =>
+        [
+          'dashboard-nav__link',
+          isActive || (!section && item.id === activeSection.id)
+            ? 'dashboard-nav__link--active'
+            : '',
+          sectionIdsWithIssues.has(item.id) ? 'dashboard-nav__link--issue' : '',
+        ].filter(Boolean).join(' ')
+      }
+      key={item.id}
+      onClick={(event) => handleDashboardNavClick(event, shouldCloseMobileNav)}
+      to={`/dashboard/${item.id}`}
+    >
+      <span className="dashboard-nav__link-icon" aria-hidden="true">
+        <item.icon />
+      </span>
+      <span className="dashboard-nav__link-label">{item.label}</span>
+      {statusDotClass(item.id) && (
+        <span
+          className={`dashboard-nav__status-dot ${statusDotClass(item.id)}`}
+          aria-hidden="true"
+        />
+      )}
+    </NavLink>
+  )
+
+  const renderDashboardNav = (shouldCloseMobileNav = false) => (
+    <nav className="dashboard-nav" aria-label="Dashboard sections">
+      <NavLink
+        className={({ isActive }) =>
+          [
+            'dashboard-nav__link',
+            'dashboard-nav__link--overview',
+            isActive || (!section && activeSection.id === 'overview')
+              ? 'dashboard-nav__link--active'
+              : '',
+          ].filter(Boolean).join(' ')
+        }
+        onClick={(event) => handleDashboardNavClick(event, shouldCloseMobileNav)}
+        to="/dashboard"
+      >
+        <span className="dashboard-nav__link-icon" aria-hidden="true">
+          <overviewSection.icon />
+        </span>
+        <span>{overviewSection.label}</span>
+      </NavLink>
+      {dashboardNavGroups.map((group) => (
+        <section className="dashboard-nav__group" key={group.id}>
+          <p className="dashboard-nav__group-label">{group.label}</p>
+          {group.sections.map((item) => renderNavLink(item, shouldCloseMobileNav))}
+        </section>
+      ))}
+      <div className="dashboard-nav__utility">
+        {renderNavLink(helpSection, shouldCloseMobileNav)}
+      </div>
     </nav>
   )
 
   const renderEditor = (sectionId: DashboardSectionId) => {
-    if (!draft) return null
+    if (!draft || !completeness) return null
 
     const editorProps = { draft, updateField: updateDraftField }
 
     switch (sectionId) {
+      case 'overview':
+        return <OverviewScreen artistName={dashboardArtistName} completeness={completeness} />
       case 'branding':
         return <BrandingEditor {...editorProps} />
       case 'fonts':
@@ -644,6 +651,56 @@ export function DashboardPage() {
 
   return (
     <main className={`dashboard-shell ${dashboardThemeClass} site-shell`}>
+      <header className="dashboard-topbar">
+        <div className="dashboard-topbar__brand">
+          <div className="dashboard-topbar__mark" aria-hidden="true">DA</div>
+          <div className="dashboard-topbar__title">
+            <span className="dashboard-topbar__product">EPK Studio</span>
+            <span className="dashboard-topbar__artist">{dashboardArtistName}</span>
+          </div>
+        </div>
+        <div className="dashboard-topbar__center">{modeToggle}</div>
+        <div className="dashboard-topbar__actions">
+          {themeToggle}
+          <Link
+            className="dashboard-topbar__button"
+            onClick={guardUnsavedChanges}
+            rel="noreferrer"
+            target="_blank"
+            to="/"
+          >
+            View site
+          </Link>
+          <button
+            className="dashboard-topbar__button dashboard-topbar__button--primary"
+            disabled={!draft || !isDirty || saveMutation.isPending}
+            type="button"
+            onClick={saveDraft}
+          >
+            {saveMutation.isPending ? 'Saving...' : 'Publish'}
+          </button>
+        </div>
+      </header>
+      {isCanvasMode ? (
+        <div className="dashboard-canvas-body">
+          {draft ? (
+            <LiveCanvas
+              draft={draft}
+              page={canvasPage ?? 'home'}
+              updateField={updateDraftField}
+              onPageChange={(nextPage) =>
+                navigate(nextPage === 'home' ? '/dashboard/canvas' : `/dashboard/canvas/${nextPage}`)
+              }
+            />
+          ) : (
+            <div className="dashboard-canvas-placeholder">
+              <p className="dashboard-canvas-placeholder__eyebrow">Live Canvas</p>
+              <h2>Loading&hellip;</h2>
+            </div>
+          )}
+        </div>
+      ) : (
+      <div className="dashboard-body">
       <div className="dashboard-mobile-bar">
         <div>
           <p className="dashboard-sidebar__eyebrow">{dashboardArtistName}</p>
@@ -663,7 +720,7 @@ export function DashboardPage() {
           <p className="dashboard-sidebar__eyebrow">{dashboardArtistName}</p>
           <h1>Dashboard</h1>
         </div>
-        {renderDashboardNav(false, 'desktop')}
+        {renderDashboardNav(false)}
         <button className="dashboard-sidebar__clear" type="button" onClick={clearKey}>
           Sign out
         </button>
@@ -716,7 +773,7 @@ export function DashboardPage() {
                   <FiX aria-hidden="true" />
                 </button>
               </div>
-              {renderDashboardNav(true, 'mobile')}
+              {renderDashboardNav(true)}
               <button className="dashboard-sidebar__clear" type="button" onClick={clearKey}>
                 Sign out
               </button>
@@ -734,17 +791,7 @@ export function DashboardPage() {
             </div>
           </div>
           <div className="dashboard-workspace__action-stack">
-            {themeToggle}
             <div className="dashboard-workspace__actions">
-              <Link
-                className="dashboard-action dashboard-action--link"
-                onClick={guardUnsavedChanges}
-                rel="noreferrer"
-                target="_blank"
-                to="/"
-              >
-                View EPK
-              </Link>
               <button
                 className="dashboard-action"
                 disabled={!draft}
@@ -762,14 +809,6 @@ export function DashboardPage() {
                 onClick={resetDashboardDraft}
               >
                 Reset
-              </button>
-              <button
-                className="dashboard-action dashboard-action--primary"
-                disabled={!draft || !isDirty || saveMutation.isPending}
-                type="button"
-                onClick={saveDraft}
-              >
-                {saveMutation.isPending ? 'Saving...' : 'Save EPK'}
               </button>
             </div>
           </div>
@@ -792,6 +831,7 @@ export function DashboardPage() {
               <code>bun run import:epk examples/demo-epk.example.json --admin-key "$ADMIN_API_KEY" --confirm</code>
             </div>
           )}
+          {draft && showRequiredLegendFor(activeSection.id) && <RequiredLegend />}
           {draft && renderEditor(activeSection.id)}
           {validationIssues.length > 0 && (
             <div className="dashboard-message dashboard-message--error">
@@ -823,6 +863,8 @@ export function DashboardPage() {
           )}
         </div>
       </section>
+      </div>
+      )}
     </main>
   )
 }

@@ -1,6 +1,6 @@
 # EPK Server
 
-Hono API for the single-artist EPK template. It stores one EPK JSON record in Postgres and serves uploaded files from local disk during development.
+Hono API for the single-artist EPK template. It stores one EPK JSON record in Postgres and serves uploaded files from local disk during development, or from Vercel Blob when deployed to Vercel. The app itself (`index.ts`) is runtime-agnostic — no `hono/bun` or other Bun-only APIs — so the exact same code runs under `bun run index.ts` locally and as a Vercel Node.js serverless function (see `apps/web/api/[[...route]].ts`).
 
 ## Environment
 
@@ -17,11 +17,16 @@ DATABASE_URL=postgresql://postgres:password@localhost:5432/epk_db
 EPK_SLUG=site
 ADMIN_API_KEY=change-me-to-a-long-random-secret
 ALLOWED_ORIGIN=
+BLOB_READ_WRITE_TOKEN=
 ```
 
 `EPK_SLUG` is the internal database key for the single EPK.
 
 `ALLOWED_ORIGIN` is an optional comma-separated list of frontend origins allowed by CORS. Leave it unset locally. In production, an unset value allows requests from any origin.
+
+`BLOB_READ_WRITE_TOKEN` is only needed in production. Leave it unset locally — uploads fall back to local disk automatically. On Vercel, enabling Blob storage on the project sets this variable for you; once it's present, the upload route switches to writing through `@vercel/blob` and storing the returned public URL instead of a local path.
+
+When `DATABASE_URL` points at a pooled/serverless Postgres endpoint (Neon, Supabase — anything using pgbouncer-style transaction pooling), the client (`db/client.ts`) already accounts for it: `prepare: false` avoids prepared statements the pooler can't hold across connections, and `max` is capped to 1 connection per invocation when `process.env.VERCEL` is set (a normal local Postgres keeps the larger `max: 10` pool).
 
 ## Database
 
@@ -126,11 +131,11 @@ When YouTube does not expose a publish date, the API falls back to the current l
 
 ## Production Notes
 
-The local server writes uploads to `apps/server/uploads` and serves them from `/uploads/*`. That is useful for local development, but production deployments should use durable object storage such as S3, R2, Vercel Blob, or Cloudinary.
+The local server writes uploads to `apps/server/uploads` and serves them from `/uploads/*`. On Vercel, set `BLOB_READ_WRITE_TOKEN` (see Environment above) and uploads go to Vercel Blob instead — no code changes needed.
 
 Do not use the example `ADMIN_API_KEY` in production. The server refuses production startup when the key is missing, shorter than 24 characters, or set to a known local default.
 
-All `/api/*` routes are rate limited to 300 requests per minute per IP. `X-Admin-Key` failures are tracked separately: after 10 failed attempts from the same IP within 15 minutes, that IP is locked out of protected routes (including with the correct key) for the remainder of the window.
+All `/api/*` routes are rate limited to 300 requests per minute per IP. `X-Admin-Key` failures are tracked separately: after 10 failed attempts from the same IP within 15 minutes, that IP is locked out of protected routes (including with the correct key) for the remainder of the window. **This tracking is an in-memory `Map`**, so under Vercel it is scoped to a single warm serverless instance — it is a best-effort deterrent, not a guaranteed global lockout, since concurrent requests can land on different instances that don't share this state. A real cross-instance guarantee would need an external store (e.g. Upstash Redis) and is out of scope here.
 
 Every save, upload, and auth failure is logged to stdout as a structured JSON line (`{"timestamp", "ip", "action", ...}`) for basic audit visibility. Forward these logs to your hosting platform's log viewer if you want to retain them.
 

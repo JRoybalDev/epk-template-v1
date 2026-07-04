@@ -1,22 +1,28 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
-import { serveStatic, getConnInfo } from 'hono/bun'
 import type { Context } from 'hono'
+import { put } from '@vercel/blob'
 import { getEPK, saveEPK, saveAsset } from './db/epk'
 import { validateEPK } from '../../packages/schema'
 import { join } from 'path'
-import { mkdirSync, writeFileSync } from 'fs'
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs'
 import { Buffer } from 'buffer'
 import { randomBytes, randomUUID, timingSafeEqual } from 'crypto'
 
-const app = new Hono()
+export const app = new Hono()
 
+// Vercel deployments have BLOB_READ_WRITE_TOKEN set automatically once Blob is enabled
+// on the project. Local dev without that token keeps writing to apps/server/uploads.
+const useVercelBlob = Boolean(process.env.BLOB_READ_WRITE_TOKEN)
+
+// hono/bun's getConnInfo only works under the Bun runtime. Reading the standard
+// forwarded-for headers instead works identically for local Bun dev and for a
+// Vercel Node.js serverless function (which sets these headers itself).
 const getClientIp = (c: Context) => {
-  try {
-    return getConnInfo(c).remote.address ?? 'unknown'
-  } catch {
-    return 'unknown'
-  }
+  const forwardedFor = c.req.header('x-forwarded-for')
+  if (forwardedFor) return forwardedFor.split(',')[0]?.trim() || 'unknown'
+
+  return c.req.header('x-real-ip') ?? 'unknown'
 }
 
 const rateLimitBuckets = new Map<string, number[]>()
@@ -84,6 +90,23 @@ const allowedUploadExtensions: Record<(typeof assetTypes)[number], Set<string>> 
   assets: new Set(['.jpg', '.jpeg', '.png', '.webp', '.gif', '.pdf']),
   fonts: new Set(['.woff', '.woff2', '.ttf', '.otf']),
 }
+
+const mimeTypesByExtension: Record<string, string> = {
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.png': 'image/png',
+  '.webp': 'image/webp',
+  '.gif': 'image/gif',
+  '.ico': 'image/x-icon',
+  '.pdf': 'application/pdf',
+  '.woff': 'font/woff',
+  '.woff2': 'font/woff2',
+  '.ttf': 'font/ttf',
+  '.otf': 'font/otf',
+}
+
+const mimeTypeForExtension = (extension: string) =>
+  mimeTypesByExtension[extension] ?? 'application/octet-stream'
 
 const logAdminAction = (
   c: Context,
@@ -287,7 +310,27 @@ app.use(
     origin: allowedOrigins.length > 0 ? allowedOrigins : '*',
   }),
 )
-app.use('/uploads/*', serveStatic({ root: './' }))
+// Only serves files previously written to local disk (see the upload route below).
+// In production behind Vercel Blob, uploaded files are served directly from Blob's own
+// CDN URL and this route is never hit — it exists purely for local dev without a Blob token.
+const isSafePathSegment = (segment: string) => !segment.includes('/') && segment !== '..'
+
+app.get('/uploads/:slug/:type/:filename', (c) => {
+  const { slug, type, filename } = c.req.param()
+  if (![slug, type, filename].every(isSafePathSegment)) {
+    return c.json({ error: 'Not found' }, 404)
+  }
+
+  const filePath = join('uploads', slug, type, filename)
+  if (!existsSync(filePath)) {
+    return c.json({ error: 'Not found' }, 404)
+  }
+
+  const bytes = readFileSync(filePath)
+  return new Response(new Uint8Array(bytes), {
+    headers: { 'Content-Type': mimeTypeForExtension(extractFileExtension(filename)) },
+  })
+})
 
 const requireAdminKey = (c: Parameters<Parameters<typeof app.use>[1]>[0]) => {
   if (!adminApiKey) {
@@ -388,12 +431,22 @@ app.post('/api/upload/:type', async (c) => {
   }
 
   const safeFileName = `${randomUUID()}${extension}`
-  const uploadDir = join('uploads', singleEPKSlug, type)
-  mkdirSync(uploadDir, { recursive: true })
   const bytes = await file.arrayBuffer()
-  writeFileSync(join(uploadDir, safeFileName), Buffer.from(bytes))
 
-  const path = `/uploads/${singleEPKSlug}/${type}/${safeFileName}`
+  let path: string
+  if (useVercelBlob) {
+    const blob = await put(`${singleEPKSlug}/${type}/${safeFileName}`, Buffer.from(bytes), {
+      access: 'public',
+      contentType: mimeTypeForExtension(extension),
+    })
+    path = blob.url
+  } else {
+    const uploadDir = join('uploads', singleEPKSlug, type)
+    mkdirSync(uploadDir, { recursive: true })
+    writeFileSync(join(uploadDir, safeFileName), Buffer.from(bytes))
+    path = `/uploads/${singleEPKSlug}/${type}/${safeFileName}`
+  }
+
   await saveAsset(singleEPKSlug, type, safeFileName, path)
   logAdminAction(c, 'asset.upload', { type, fileName: safeFileName })
 

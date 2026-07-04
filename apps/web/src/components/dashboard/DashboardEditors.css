@@ -788,6 +788,44 @@
   padding: var(--space-3);
 }
 
+.required-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  align-items: center;
+  padding-bottom: var(--space-4);
+  margin-bottom: var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.required-legend__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--color-text-muted);
+  font-size: 0.72rem;
+}
+
+.required-legend__badge {
+  display: inline-grid;
+  width: 1rem;
+  height: 1rem;
+  place-items: center;
+  border-radius: 5px;
+  font-size: 0.6rem;
+  font-weight: 800;
+}
+
+.required-legend__badge--required {
+  background: color-mix(in srgb, var(--accent-soft) 45%, transparent);
+  color: var(--accent-strong);
+}
+
+.required-legend__badge--optional {
+  border: 1px solid var(--color-border-strong);
+  color: var(--color-text-muted);
+}
+
 .editor-empty {
   margin: 0;
   border-left: 3px solid var(--accent-strong);

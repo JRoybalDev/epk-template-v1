@@ -32,6 +32,8 @@ function App() {
             <Route path="newsletter" element={<NewsletterSection />} />
           </Route>
           <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/dashboard/canvas" element={<DashboardPage />} />
+          <Route path="/dashboard/canvas/:page" element={<DashboardPage />} />
           <Route path="/dashboard/:section" element={<DashboardPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>

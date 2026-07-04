@@ -1,3 +1,98 @@
+/*
+  Dashboard-scoped design tokens (Guided Studio / Live Canvas redesign).
+  Scoped to .dashboard-theme-light / .dashboard-theme-dark rather than :root so the
+  public site's unstyled fallback (docs/frontend-handoff.md) is never affected.
+*/
+.dashboard-theme-light,
+.dashboard-theme-dark {
+  --radius-sm: 10px;
+  --font-head: 'Bricolage Grotesque', ui-sans-serif, system-ui, sans-serif;
+  --font-body: 'Hanken Grotesk', ui-sans-serif, system-ui, sans-serif;
+}
+
+.dashboard-theme-light {
+  color-scheme: light;
+  --bg: #f4e9db;
+  --bg-2: #ece0cf;
+  --surface: #fffdf9;
+  --surface-2: #f8f1e6;
+  --surface-3: #f1e6d6;
+  --text: #241d17;
+  --muted: #7a5c40;
+  --muted-2: #a58a6b;
+  --accent: #8c6844;
+  --accent-strong: #b07d4e;
+  --accent-soft: #e6cba9;
+  --accent-wash: #f3e6d3;
+  --line: rgba(36, 29, 23, 0.1);
+  --line-2: rgba(36, 29, 23, 0.17);
+  --ok: #4f7d4a;
+  --ok-soft: #e3efdd;
+  --warn: #c0842a;
+  --warn-soft: #f6ead2;
+  --danger: #b0503f;
+  --radius: 16px;
+  --shadow: 0 18px 44px rgba(78, 52, 26, 0.12);
+  --shadow-sm: 0 4px 14px rgba(78, 52, 26, 0.08);
+}
+
+.dashboard-theme-dark {
+  color-scheme: dark;
+  --bg: #191310;
+  --bg-2: #120d0a;
+  --surface: #241a14;
+  --surface-2: #2c211a;
+  --surface-3: #33261d;
+  --text: #f2e6d7;
+  --muted: #c7ab90;
+  --muted-2: #8f745a;
+  --accent: #cb9c6d;
+  --accent-strong: #e2b686;
+  --accent-soft: #5a4632;
+  --accent-wash: #2e231b;
+  --line: rgba(255, 240, 222, 0.12);
+  --line-2: rgba(255, 240, 222, 0.2);
+  --ok: #7fb374;
+  --ok-soft: #26301f;
+  --warn: #dca954;
+  --warn-soft: #33271a;
+  --danger: #e08a78;
+  --radius: 16px;
+  --shadow: 0 22px 54px rgba(0, 0, 0, 0.45);
+  --shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.35);
+}
+
+/*
+  Compatibility bridge: existing dashboard CSS (this file + DashboardEditors.css)
+  references the previous token names. Rather than a risky mass rename across ~1500
+  lines, alias the old names onto the new source-of-truth tokens above. New dashboard
+  UI should reference the new names directly; this bridge exists for the pre-redesign rules only.
+*/
+.dashboard-theme-light,
+.dashboard-theme-dark {
+  --bg-alt: var(--bg-2);
+  --surface-strong: var(--surface-2);
+  --border: var(--line);
+  --card-border: var(--line);
+  --color-surface: var(--surface);
+  --color-text: var(--text);
+  --color-text-muted: var(--muted);
+  --color-border: var(--line);
+  --color-border-strong: var(--line-2);
+  --color-danger: var(--danger);
+  --color-success: var(--ok);
+  --color-accent-contrast: #fffdf9;
+  --color-focus: color-mix(in srgb, var(--accent-strong) 30%, transparent);
+  --font-heading: var(--font-head);
+  --input-bg: var(--surface-2);
+  --input-border: var(--line-2);
+  --switch-bg: var(--surface-3);
+  --radius-md: var(--radius-sm);
+  --radius-lg: var(--radius);
+  --shadow-soft: var(--shadow);
+  --shadow-tight: var(--shadow-sm);
+}
+
 .dashboard-gate {
   position: relative;
   display: grid;
@@ -166,13 +261,187 @@
 }
 
 .dashboard-shell {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   height: 100vh;
-  grid-template-columns: minmax(14rem, 18rem) minmax(0, 1fr);
   background:
     radial-gradient(circle at 82% 0%, color-mix(in srgb, var(--accent-soft) 22%, transparent), transparent 28rem),
-    linear-gradient(135deg, var(--bg), var(--bg-alt));
+    linear-gradient(135deg, var(--bg), var(--bg-2));
   overflow: hidden;
+}
+
+.dashboard-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-5);
+  height: 64px;
+  padding: 0 var(--space-5);
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--line);
+}
+
+.dashboard-topbar__brand {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 0.7rem;
+  min-width: 13rem;
+}
+
+.dashboard-topbar__mark {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  flex: none;
+  place-items: center;
+  border-radius: 10px;
+  background: linear-gradient(140deg, var(--accent), var(--accent-strong));
+  color: #fffdf9;
+  font-family: var(--font-head);
+  font-weight: 800;
+  font-size: 0.94rem;
+  letter-spacing: -0.02em;
+}
+
+.dashboard-topbar__title {
+  display: grid;
+  line-height: 1.1;
+}
+
+.dashboard-topbar__product {
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 0.9rem;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+
+.dashboard-topbar__artist {
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
+.dashboard-topbar__center {
+  display: flex;
+  flex: 1;
+  justify-content: center;
+  min-width: 0;
+}
+
+.dashboard-mode-toggle {
+  display: flex;
+  gap: 3px;
+  padding: 4px;
+  border-radius: 12px;
+  background: var(--surface-3);
+  border: 1px solid var(--line);
+}
+
+.dashboard-mode-toggle__tab {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.1rem;
+  padding: 0 var(--space-4);
+  border-radius: 9px;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.dashboard-mode-toggle__tab--active {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow-sm);
+}
+
+.dashboard-topbar__actions {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 13rem;
+  justify-content: flex-end;
+}
+
+.dashboard-topbar__button {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.375rem;
+  padding: 0 var(--space-4);
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 600;
+  font-size: 0.82rem;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.dashboard-topbar__button--primary {
+  border-color: transparent;
+  background: linear-gradient(140deg, var(--accent), var(--accent-strong));
+  color: #fffdf9;
+  font-weight: 700;
+  box-shadow: var(--shadow-sm);
+}
+
+.dashboard-topbar__button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.dashboard-body {
+  display: grid;
+  flex: 1;
+  min-height: 0;
+  grid-template-columns: minmax(14rem, 18rem) minmax(0, 1fr);
+  overflow: hidden;
+}
+
+.dashboard-canvas-body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.dashboard-canvas-placeholder {
+  display: grid;
+  flex: 1;
+  place-content: center;
+  justify-items: center;
+  gap: var(--space-2);
+  padding: var(--space-10);
+  text-align: center;
+  color: var(--muted);
+}
+
+.dashboard-canvas-placeholder__eyebrow {
+  margin: 0;
+  color: var(--muted-2);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.dashboard-canvas-placeholder h2 {
+  margin: 0;
+  color: var(--text);
+  font-family: var(--font-head);
+  font-size: 1.6rem;
+}
+
+.dashboard-canvas-placeholder p {
+  max-width: 32rem;
 }
 
 .dashboard-mobile-bar {
@@ -246,96 +515,25 @@
 }
 
 .dashboard-nav__group {
-  overflow: hidden;
-  border: 1px solid color-mix(in srgb, var(--color-border) 74%, transparent);
-  border-radius: var(--radius-md);
-  background: color-mix(in srgb, var(--surface-strong) 46%, transparent);
-  will-change: transform;
+  display: grid;
+  gap: 0.15rem;
+  margin-bottom: 0.6rem;
 }
 
-.dashboard-nav__group.collapse {
-  display: block;
-  grid-template-rows: none;
-  visibility: visible;
-}
-
-.dashboard-nav__group--active {
-  border-color: color-mix(in srgb, var(--accent-strong) 36%, var(--border));
-}
-
-.dashboard-nav__group.collapse-open {
-  background: color-mix(in srgb, var(--surface-strong) 66%, transparent);
-}
-
-.dashboard-nav__group.collapse-open .dashboard-nav__group-trigger {
-  color: color-mix(in srgb, var(--color-text) 92%, #000);
-}
-
-.dashboard-nav__group.collapse-open .dashboard-nav__group-icon {
-  color: color-mix(in srgb, var(--color-text) 84%, #000);
-}
-
-.dashboard-nav__group.collapse-open .dashboard-nav__link {
-  color: color-mix(in srgb, var(--color-text) 84%, #000);
-}
-
-.dashboard-nav__group-trigger {
-  display: flex;
-  min-height: 2.55rem;
-  width: 100%;
-  align-items: center;
-  justify-content: space-between;
-  border: 0;
-  border-radius: var(--radius-md);
-  background: transparent;
-  color: var(--color-text);
-  font-size: 0.78rem;
-  font-weight: 900;
-  letter-spacing: 0;
-  padding: 0 var(--space-3);
-  text-align: left;
+.dashboard-nav__group-label {
+  margin: 0;
+  padding: 0.15rem var(--space-3) 0.4rem;
+  color: var(--muted-2);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
   text-transform: uppercase;
 }
 
-.dashboard-nav__group .collapse-title {
-  min-height: 2.55rem;
-  padding: 0 var(--space-3);
-}
-
-.dashboard-nav__group-trigger:hover {
-  background: color-mix(in srgb, var(--accent-soft) 12%, transparent);
-}
-
-.dashboard-nav__group-trigger:focus-visible {
-  box-shadow: inset 0 0 0 2px var(--color-focus);
-  outline: 0;
-}
-
-.dashboard-nav__group-icon {
-  display: inline-grid;
-  width: 1rem;
-  height: 1rem;
-  place-items: center;
-  color: var(--color-text-muted);
-  transform-origin: center;
-}
-
-.dashboard-nav__group-icon svg {
-  width: 1rem;
-  height: 1rem;
-}
-
-.dashboard-nav__group-content.collapse-content {
-  overflow: hidden;
-  padding: 0;
-  visibility: visible;
-  will-change: height, opacity, transform;
-}
-
-.dashboard-nav__group-content-inner {
-  display: grid;
-  gap: 0.25rem;
-  padding: 0 var(--space-2) var(--space-2);
+.dashboard-nav__utility {
+  margin-top: var(--space-2);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--color-border);
 }
 
 .dashboard-nav__link {
@@ -350,20 +548,58 @@
   font-size: 0.84rem;
   font-weight: 700;
   padding: 0 var(--space-3);
+  text-decoration: none;
 }
 
-.dashboard-nav__issue-dot {
+.dashboard-nav__link--overview {
+  margin-bottom: var(--space-3);
+  font-weight: 800;
+}
+
+.dashboard-nav__link-icon {
+  display: inline-grid;
+  width: 1.3rem;
+  height: 1.3rem;
+  flex: none;
+  place-items: center;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--accent-soft) 30%, transparent);
+  color: var(--accent-strong);
+  font-size: 0.72rem;
+}
+
+.dashboard-nav__link-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dashboard-nav__issue-dot,
+.dashboard-nav__status-dot {
   display: inline-block;
   width: 0.4rem;
   height: 0.4rem;
+  flex: none;
   border-radius: 999px;
   background: var(--color-danger);
 }
 
-.dashboard-nav__group-trigger span:first-child {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
+.dashboard-nav__status-dot--ready {
+  background: var(--ok);
+}
+
+.dashboard-nav__status-dot--attention {
+  background: var(--warn);
+}
+
+.dashboard-nav__status-dot--empty {
+  background: var(--muted-2);
+}
+
+.dashboard-nav__status-dot--issue {
+  background: var(--danger);
 }
 
 .dashboard-nav__link--issue {
@@ -548,6 +784,37 @@
 @media (max-width: 1023px) {
   .dashboard-shell {
     height: auto;
+    overflow: visible;
+  }
+
+  .dashboard-topbar {
+    gap: var(--space-3);
+    padding: 0 var(--site-gutter);
+  }
+
+  .dashboard-topbar__center {
+    display: none;
+  }
+
+  .dashboard-topbar__brand {
+    min-width: 0;
+  }
+
+  .dashboard-topbar__title {
+    display: none;
+  }
+
+  .dashboard-topbar__actions {
+    min-width: 0;
+    gap: var(--space-1);
+  }
+
+  .dashboard-topbar__button {
+    padding: 0 var(--space-3);
+    font-size: 0.76rem;
+  }
+
+  .dashboard-body {
     grid-template-columns: 1fr;
     overflow: visible;
   }

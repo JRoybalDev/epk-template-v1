@@ -57,7 +57,7 @@ If the artist uses uploaded fonts, confirm the font licenses allow web use and t
 
 ## Social Sharing
 
-Use the dashboard `Metadata` section for:
+Use the dashboard `Share preview` section for:
 
 - Browser title
 - Meta description
@@ -75,17 +75,17 @@ Recommended share image size:
 ## Dashboard Handoff
 
 - On a fresh template with no saved EPK, start from the dashboard's starter draft or import a completed EPK JSON file.
-- Use `JSON` to export a backup before making major edits.
-- Use `JSON` to import a completed EPK file into the dashboard draft.
+- Use `Import / Export` to export a backup before making major edits.
+- Use `Import / Export` to import a completed EPK file into the dashboard draft.
 - Review the imported draft in each dashboard section.
-- Use the `Layout` section to drag public navigation into the right order and choose which reusable sections appear on the home page.
-- Use `Branding` and `Fonts & Text Styling` to confirm public EPK colors, full-page background texture, Google fonts, uploaded fonts, and per-element text settings.
+- Use the `Page layout` section to drag public navigation into the right order and choose which reusable sections appear on the home page.
+- Use `Branding` and `Fonts & text` to confirm public EPK colors, full-page background texture, Google fonts, uploaded fonts, and per-element text settings.
 - Use the video URL importer in `Videos` when adding YouTube videos from links.
-- Confirm whether `Tour` should use manual date listings or a Seated widget/embed.
+- Confirm whether `Tour dates` should use manual date listings or a Seated widget/embed.
 - If VIP mode is External, set the main VIP store URL and confirm tour date VIP packages use that Default External URL.
-- If VIP mode is Manual, create reusable VIP packages in `VIP`, select the relevant packages on each manual tour date, and use date-specific VIP package URLs only when a selected package has its own venue or date purchase page.
+- If VIP mode is Manual, create reusable VIP packages in `VIP upgrades`, select the relevant packages on each manual tour date, and use date-specific VIP package URLs only when a selected package has its own venue or date purchase page.
 - Configure `Shop` as either External mode with one default store URL or Item links mode with featured items and per-item store URLs.
-- Click `Save EPK` only after the draft validates and looks correct.
+- Click `Publish` only after the draft validates and looks correct.
 - Use `Sign out` after editing on shared machines.
 
 ## Production Settings

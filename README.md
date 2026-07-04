@@ -24,13 +24,10 @@ If Bun is installed but not on your shell `PATH`, use `~/.bun/bin/bun` in place 
 
 ## Quick Start
 
-Install dependencies:
+This repo is a Bun workspace (`apps/*`, `packages/*`) — install once from the root:
 
 ```bash
 bun install
-cd apps/server && bun install
-cd ../web && bun install
-cd ../../packages/schema && bun install
 ```
 
 Create the server env file:
@@ -148,7 +145,7 @@ bun run import:epk examples/demo-epk.example.json \
 
 The import utility is a safe local tool. It is dry-run by default and only writes when `--confirm` is provided.
 
-The dashboard `JSON` section can also export the current draft as a JSON backup or import a complete EPK JSON file into the dashboard draft. Dashboard imports are local draft changes until `Save EPK` is clicked.
+The dashboard `Import / Export` section can also export the current draft as a JSON backup or import a complete EPK JSON file into the dashboard draft. Dashboard imports are local draft changes until `Publish` is clicked.
 
 ## Dashboard
 
@@ -157,34 +154,42 @@ Dashboard route:
 ```txt
 /dashboard
 /dashboard/:section
+/dashboard/canvas
+/dashboard/canvas/:page
 ```
 
-Dashboard sections:
+The dashboard has two modes, switched from the top bar:
 
-```txt
-Site setup: Navigation, Layout, Branding, Fonts & Text Styling, Metadata
-Core content: Home, Music, Videos, Tour, About, Contact, Footer
-Extras: VIP, Shop, Newsletter
-Tools: JSON, Assets
-```
+- **Guided Studio** — an overview screen plus one form editor per section, grouped in the sidebar as:
+
+  ```txt
+  Music & Video: Spotlight, Releases, Videos
+  Shows: Tour dates, VIP upgrades
+  Your Story: About & bio, Contact
+  Store & Fans: Shop, Newsletter
+  Look & Feel: Branding, Fonts & text, Page layout, Menu
+  Publish & Tools: Share preview, Media library, Footer, Import / Export
+  ```
+
+- **Live Canvas** — an in-dashboard preview of the real public site (rendered from the actual frontend components, not a mockup) with click-to-select editing of sections, list items, and fields directly on the page.
 
 Main dashboard workflow:
 
 ```txt
 1. Enter the admin key.
 2. If no EPK has been saved yet, start from the dashboard's starter draft.
-3. Edit EPK sections or import a complete JSON draft from the JSON section.
-4. Upload assets if needed and copy returned paths.
-5. Review the public EPK with "View EPK".
-6. Save changes with "Save EPK".
-7. Export a JSON backup from the JSON section.
+3. Edit sections in Guided Studio, or edit directly on the page in Live Canvas.
+4. Upload assets if needed and copy returned paths (or upload inline from Live Canvas).
+5. Review the public site with "View site".
+6. Publish changes with the "Publish" button in the top bar.
+7. Export a JSON backup from Import / Export.
 ```
 
-The dashboard warns before leaving with unsaved changes and shows an `Unsaved` badge when the draft has pending edits. The dashboard navigation is grouped into collapsible sections on desktop and opens as a draggable bottom sheet on mobile.
+The dashboard warns before leaving with unsaved changes and shows an `Unsaved` badge when the draft has pending edits.
 
-On a fresh template with no saved EPK record, the public site shows a setup state while the dashboard automatically opens a valid unsaved starter draft. Saving that draft creates the first live EPK record. The terminal import flow is still available when you already have a completed EPK JSON file.
+On a fresh template with no saved EPK record, the public site shows a setup state while the dashboard automatically opens a valid unsaved starter draft. Publishing that draft creates the first live EPK record. The terminal import flow is still available when you already have a completed EPK JSON file.
 
-The dashboard has its own light/dark toggle. Public EPK color, font, and texture controls live under `Branding` and `Fonts & Text Styling` and do not change the dashboard theme.
+The dashboard has its own light/dark toggle. Public EPK color, font, and texture controls live under `Branding` and `Fonts & text` and do not change the dashboard theme.
 
 List-heavy editors use collapsible rows:
 
@@ -195,7 +200,7 @@ Tour dates
 Font element settings
 ```
 
-The `Layout` section uses drag-and-drop controls for public navigation order and for the order of full sections embedded on the home page. The `VIP` section can send visitors directly to the artist's main VIP site or show reusable VIP packages on-site. When VIP mode is External, tour date VIP packages use the Default External URL from the VIP section; when VIP mode is Manual, the `Tour` section can select VIP packages from a dropdown per date and optionally add date-specific URLs. The `Shop` section supports an external store link or curated item cards where each item has its own external store URL. The `Videos` section can import a YouTube URL or video ID and ask the API to fill title, channel name, publish date, video ID, and an inferred type.
+The `Page layout` section uses drag-and-drop controls for public navigation order and for the order of full sections embedded on the home page. The `VIP upgrades` section can send visitors directly to the artist's main VIP site or show reusable VIP packages on-site. When VIP mode is External, tour date VIP packages use the Default External URL from the VIP upgrades section; when VIP mode is Manual, the `Tour dates` section can select VIP packages from a dropdown per date and optionally add date-specific URLs. The `Shop` section supports an external store link or curated item cards where each item has its own external store URL. The `Videos` section can import a YouTube URL or video ID and ask the API to fill title, channel name, publish date, video ID, and an inferred type.
 
 ## Public Routes
 
@@ -374,7 +379,7 @@ If this route returns `404` during local development, restart `bun run dev` so t
 
 ## Metadata And Social Preview
 
-Use the dashboard `Metadata` section to control the browser title, description, Open Graph image, favicon, theme color, and canonical site URL. The section also shows a share preview card so you can check the social preview before saving.
+Use the dashboard `Share preview` section to control the browser title, description, Open Graph image, favicon, theme color, and canonical site URL. The section also shows a share preview card so you can check the social preview before saving.
 
 Recommended Open Graph image size:
 
@@ -382,7 +387,7 @@ Recommended Open Graph image size:
 1200 x 630 pixels
 ```
 
-Upload share images through the dashboard `Assets` section, then copy the returned path into the metadata image field. Local uploaded paths look like:
+Upload share images through the dashboard `Media library` section, then copy the returned path into the metadata image field. Local uploaded paths look like:
 
 ```txt
 /uploads/site/assets/social-share.jpg
@@ -424,7 +429,7 @@ cd apps/server && bun x tsc --noEmit
 
 ## Production Notes
 
-Local uploads are served from `apps/server/uploads` during development. For production, move uploaded media to durable object storage such as S3, R2, Vercel Blob, or Cloudinary, then store the returned public URLs in the EPK JSON.
+Local uploads are served from `apps/server/uploads` during development. In production, uploads automatically switch to Vercel Blob once `BLOB_READ_WRITE_TOKEN` is set (see "Deploying to Vercel" below) — no code changes needed either way.
 
 Do not deploy with the example admin key. In production, `ADMIN_API_KEY` must be set to a strong secret and must not be one of the default local values.
 
@@ -435,6 +440,20 @@ When replacing demo content for a real artist, follow [docs/template-cleanup.md]
 For client-facing intake, content planning, optional fields, and a plain-language explanation of how EPK data is handled, use [docs/client-marketing-content-kit.md](docs/client-marketing-content-kit.md).
 
 For frontend implementation notes, use [docs/frontend-handoff.md](docs/frontend-handoff.md). The public web app is intentionally a data-ready scaffold rather than a finished visual frontend.
+
+## Deploying to Vercel
+
+The web app and API deploy together as one Vercel project — the root [vercel.json](vercel.json) tells Vercel how to build `apps/web` as the static frontend, and the root `api/[[...route]].ts` runs the same Hono API (from `apps/server`) as a serverless function. Because that config lives in the repo, you don't need to set a "Root Directory" or any build settings by hand in the Vercel dashboard — just import the repo as-is. A few things still need your account/dashboard:
+
+1. **Create the Vercel project** from this repo. No Root Directory or build command overrides needed — `vercel.json` already specifies them.
+2. **Provision a serverless-friendly Postgres.** A normal long-lived connection (like local Docker Postgres) doesn't survive serverless cold starts. Use [Neon](https://neon.tech) or [Supabase](https://supabase.com) and copy their **pooled** connection string (Neon's has `-pooler` in the hostname) into `DATABASE_URL`.
+3. **Run migrations once against that database** before the first deploy: `DATABASE_URL="<pooled-url>" bunx drizzle-kit migrate` from `apps/server`.
+4. **Enable Vercel Blob** on the project (Storage tab) and copy `BLOB_READ_WRITE_TOKEN` into the project's environment variables — this is what switches uploads from local disk to Blob automatically (see `apps/server/index.ts`).
+5. **Set the remaining environment variables** on the Vercel project: `ADMIN_API_KEY` (strong secret, not a local placeholder), `EPK_SLUG` (usually `site`).
+
+Local dev is unaffected by any of this — without `BLOB_READ_WRITE_TOKEN` set, uploads keep writing to `apps/server/uploads` exactly as before, and `bun run dev` still points at your local Postgres.
+
+The in-memory rate limiting added for the admin API (`apps/server/index.ts`) is best-effort per warm serverless instance under Vercel, not a global guarantee across instances — see [docs/production-checklist.md](docs/production-checklist.md) for details.
 
 ## Verify
 

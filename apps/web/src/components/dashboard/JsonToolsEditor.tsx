@@ -59,7 +59,7 @@ export function JsonToolsEditor({
       <p className="editor-note">
         Export the current dashboard draft for backup or paste/upload a validated EPK
         JSON file to replace the draft. Importing here does not save to the API until
-        you click <strong>Save EPK</strong>.
+        you click <strong>Publish</strong>.
       </p>
 
       <section className="editor-item" aria-labelledby="export-json-title">
