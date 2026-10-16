@@ -1,6 +1,6 @@
 # EPK Template v1
 
-A single-artist EPK (electronic press kit) website template, structured as a Bun workspaces monorepo. The frontend is a static site driven by one JSON content file. A small Hono API sits alongside it as the place to add third-party integrations.
+A single-artist EPK (electronic press kit) website template, structured as a Bun workspaces monorepo. The frontend is a static site driven by one typed TypeScript content file. A small Hono API sits alongside it as the place to add third-party integrations.
 
 ## Stack
 
@@ -23,9 +23,9 @@ apps/
     public/media/           # images, logos, fonts referenced from content
     src/
       content/
-        epk.json            # ALL site content: edit this
-        schema.ts           # Zod schema + types for epk.json
-        index.ts            # validates epk.json and exports the typed `epk`
+        epk.ts            # ALL site content: edit this
+        schema.ts           # Zod schema + types for epk.ts
+        index.ts            # validates epk.ts and exports the typed `epk`
         README.md           # field-by-field content reference
       components/epk/       # public section components
       pages/                # EPK layout shell + 404
@@ -59,7 +59,7 @@ bun run dev               # web (http://localhost:5173) + API (http://localhost:
 bun run dev:web           # web only
 bun run dev:api           # API only
 bun run build             # production build to apps/web/dist/
-bun run validate:content  # check apps/web/src/content/epk.json against the schema
+bun run validate:content  # check apps/web/src/content/epk.ts against the schema
 bun run lint
 ```
 
@@ -69,7 +69,7 @@ The API needs no env to run. To change defaults, copy `apps/api/.env.example` to
 
 ## Editing content
 
-Everything the public site shows comes from [apps/web/src/content/epk.json](apps/web/src/content/epk.json): artist name, branding, navigation, releases, videos, tour dates, shop, VIP, about, newsletter, footer, and contact. The demo file is complete, so start by replacing its values.
+Everything the public site shows comes from [apps/web/src/content/epk.ts](apps/web/src/content/epk.ts): artist name, branding, navigation, releases, videos, tour dates, shop, VIP, about, newsletter, footer, and contact. The demo file is complete, so start by replacing its values.
 
 - Field reference: [apps/web/src/content/README.md](apps/web/src/content/README.md)
 - Media: drop files in `apps/web/public/media/` and reference them as `/media/<file>`.

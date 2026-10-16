@@ -12,7 +12,7 @@ From the repo root, `bun run dev` starts the web app and the API together. API r
 
 ## Content
 
-All content comes from `src/content/epk.json`, validated against `src/content/schema.ts` on startup. Import it anywhere:
+All content comes from `src/content/epk.ts`, validated against `src/content/schema.ts` on startup. Import it anywhere:
 
 ```ts
 import { epk } from './content'
@@ -41,7 +41,7 @@ The `contact` nav value renders as a `mailto:` link to `contact.bookingEmail` ra
 
 - `src/index.css`: Tailwind + daisyUI import, root resets, page positioning
 - `src/App.css`: theme tokens, color system, shared utility classes
-- `src/utils/brandingTheme.ts`: artist-specific CSS variables, font imports, font assignments, and background texture, driven by `branding` in `epk.json`
+- `src/utils/brandingTheme.ts`: artist-specific CSS variables, font imports, font assignments, and background texture, driven by `branding` in `epk.ts`
 
 Document title, description, Open Graph tags, favicon, and theme color are set per route by `src/hooks/useEPKMeta.ts`.
 

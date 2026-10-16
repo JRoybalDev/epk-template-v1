@@ -462,3 +462,6 @@ export type VIP = z.infer<typeof VIPSchema>
 export type Shop = z.infer<typeof ShopSchema>
 
 export type About = z.infer<typeof AboutSchema>
+
+// The shape you write in epk.ts, before schema defaults are applied.
+export type EPKInput = z.input<typeof EPKSchema>

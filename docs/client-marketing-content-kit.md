@@ -652,7 +652,7 @@ Production guidance:
 
 The finished EPK content is stored as one structured file published with the website. That file contains the artist text, links, settings, and media paths.
 
-In technical terms, it is a JSON file validated against the EPK schema. Clients do not need to edit it directly.
+In technical terms, it is a typed content file validated against the EPK schema. Clients do not need to edit it directly.
 
 ### How Public Visitors See The EPK
 

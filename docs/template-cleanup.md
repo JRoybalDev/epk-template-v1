@@ -29,7 +29,7 @@ Use this when turning the demo template into a real artist EPK.
 
 ## Demo URLs To Remove
 
-Search `apps/web/src/content/epk.json` for these before launch:
+Search `apps/web/src/content/epk.ts` for these before launch:
 
 ```txt
 example.com
@@ -42,7 +42,7 @@ Demo Artist
 
 ## Media Paths
 
-Media lives in `apps/web/public/media/` and is referenced from `epk.json` as `/media/<file>`. The demo content points at placeholder files that don't exist. Replace each one with a real file, or use full URLs for media hosted on a CDN.
+Media lives in `apps/web/public/media/` and is referenced from `epk.ts` as `/media/<file>`. The demo content points at placeholder files that don't exist. Replace each one with a real file, or use full URLs for media hosted on a CDN.
 
 If the artist uses custom font files, confirm the font licenses allow web use.
 

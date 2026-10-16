@@ -6,7 +6,7 @@ The web app is intentionally set up as a data-ready frontend scaffold, not a fin
 
 - Public routes exist for home, music, videos, tour, VIP, shop, about, and newsletter.
 - `contact` can appear in public navigation, but it renders as a `mailto:` link to the booking email rather than a routed page.
-- Site content is loaded from `src/content/epk.json` and validated against `src/content/schema.ts` at startup.
+- Site content is loaded from `src/content/epk.ts` and validated against `src/content/schema.ts` at startup.
 - Public route components read typed EPK data through `useEPKOutlet()`.
 - Metadata is populated from EPK data through `useEPKMeta()`.
 - Navigation is driven by the EPK `nav` array.
@@ -43,7 +43,7 @@ The current markup includes `data-section`, `data-list`, `data-item`, and `data-
 
 ## Content And API Contract
 
-- Artist content lives in `apps/web/src/content/epk.json`. Components should not hardcode artist content.
-- If a design needs a new field, add it to `src/content/schema.ts` first, then to `epk.json`.
+- Artist content lives in `apps/web/src/content/epk.ts`. Components should not hardcode artist content.
+- If a design needs a new field, add it to `src/content/schema.ts` first, then to `epk.ts`.
 - Media lives in `apps/web/public/media/` and is referenced as `/media/<file>`.
 - Anything that needs a server or secret keys (third-party APIs, form handlers) goes in `apps/api/src/integrations/` and is called from the frontend at `/api/integrations/<name>`.

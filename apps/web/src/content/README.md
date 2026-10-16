@@ -1,22 +1,26 @@
 # EPK Schema Reference
 
-All public site content lives in one JSON file, validated against a Zod schema:
+All public site content lives in one TypeScript file, typed and validated against a Zod schema:
 
 ```txt
-src/content/epk.json     the content — edit this
+src/content/epk.ts       the content — edit this
 src/content/schema.ts    the schema (EPKSchema, validateEPK, and TypeScript types)
-src/content/index.ts     loads epk.json, validates it, and exports the typed `epk`
+src/content/index.ts     validates epk.ts and exports the typed `epk` with defaults applied
 ```
 
-The demo `epk.json` is intentionally complete. It shows every major section that can be included in the single-artist EPK. Replace demo text, URLs, emails, and media paths with the real artist's content.
+The demo `epk.ts` is intentionally complete. It shows every major section that can be included in the single-artist EPK. Replace demo text, URLs, emails, and media paths with the real artist's content.
 
-Validate it without starting the app (from the repo root):
+`epk.ts` is checked against the schema's input type (`satisfies EPKInput`), so your editor autocompletes field names and enum values and flags misspelled keys, wrong types, and missing required fields as you type. Fields with schema defaults (such as `isFeatured`) can be left out.
+
+Types can't check formats, so URL and email fields are validated at runtime. Validate without starting the app (from the repo root):
 
 ```bash
 bun run validate:content
 ```
 
-The app also validates on startup, so an invalid file fails loudly in the browser console and the build instead of rendering a broken page.
+The app also validates on startup, so an invalid file fails loudly instead of rendering a broken page.
+
+The section examples below are written as JSON for readability. In `epk.ts` the same shapes are plain object literals.
 
 ## Root Shape
 

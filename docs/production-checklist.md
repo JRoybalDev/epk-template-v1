@@ -19,7 +19,7 @@ Only applies if deploying the web app + API together as one Vercel project (see 
 ## Security
 
 - The API sets `X-Content-Type-Options: nosniff` and `Referrer-Policy: strict-origin-when-cross-origin` on every response.
-- Keep third-party secrets in API env vars only. Never put them in `epk.json` or frontend code, since both ship to every visitor.
+- Keep third-party secrets in API env vars only. Never put them in `epk.ts` or frontend code, since both ship to every visitor.
 - `newsletter.embedCode` and `tour.seatedEmbedCode` are rendered as raw HTML. Only paste embed code from trusted providers.
 - Before launch, add input validation and rate limiting to integrations that use paid or credentialed third-party APIs.
 
@@ -39,7 +39,7 @@ bun run validate:content
 
 ## Media
 
-- Put final images, PDFs, logos, and fonts in `apps/web/public/media/` (or a CDN) and reference them from `epk.json`.
+- Put final images, PDFs, logos, and fonts in `apps/web/public/media/` (or a CDN) and reference them from `epk.ts`.
 - Replace every demo `/media/...` path with a real file. Missing images fall back gracefully but should not ship.
 - Check press photo, release art, newsletter background, logo, favicon, and downloadable asset links.
 - Check background texture and font paths if the artist branding uses them.
@@ -65,5 +65,5 @@ bun run validate:content
 
 ## Final Hand-Off
 
-- Remove demo-only text, links, and placeholder images from `epk.json`.
+- Remove demo-only text, links, and placeholder images from `epk.ts`.
 - Store integration API keys in a secure password manager for the artist/team.

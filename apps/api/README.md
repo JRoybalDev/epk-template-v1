@@ -1,6 +1,6 @@
 # EPK API
 
-A small Hono API that sits alongside the EPK frontend. It doesn't serve site content (that's static, in `apps/web/src/content/epk.json`). It exists so you can add server-side work that can't run in the browser, such as third-party APIs that need secret keys, form handlers, webhooks, and cached feeds.
+A small Hono API that sits alongside the EPK frontend. It doesn't serve site content (that's static, in `apps/web/src/content/epk.ts`). It exists so you can add server-side work that can't run in the browser, such as third-party APIs that need secret keys, form handlers, webhooks, and cached feeds.
 
 The app (`src/index.ts`) uses no Bun-only APIs, so the same code runs locally under Bun and on Vercel as a serverless function (see the root `api/[[...route]].ts`).
 
