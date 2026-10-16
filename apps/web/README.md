@@ -22,6 +22,11 @@ The EPK layout (`src/pages/EPKPage.tsx`) also passes it to routed sections throu
 
 See [src/content/README.md](src/content/README.md) for the field reference. Put media in `public/media/` and reference it as `/media/<file>`.
 
+## Components
+
+- `src/components/epk/`: section components that read EPK content. Specific to this template.
+- `src/components/shared/`: portable components that only depend on React and take everything through props, so they can be copied into other projects as-is. Lint enforces the import rules. See [src/components/shared/README.md](src/components/shared/README.md) for the rules and inventory.
+
 ## Public Routes
 
 ```txt

@@ -19,4 +19,23 @@ export default defineConfig([
       globals: globals.browser,
     },
   },
+  {
+    // Shared components must stay copy-paste portable between projects.
+    // See src/components/shared/README.md.
+    files: ['src/components/shared/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['../*', '@/*'],
+              message:
+                'Shared components may only import react and sibling ./ files so they can be copied between projects.',
+            },
+          ],
+        },
+      ],
+    },
+  },
 ])

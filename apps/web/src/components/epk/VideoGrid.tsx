@@ -1,5 +1,5 @@
 import { useEPKOutlet } from '../../hooks/useEPKOutlet'
-import { YouTubeEmbed } from './YouTubeEmbed'
+import { YouTubeEmbed } from '../shared/YouTubeEmbed'
 
 export function VideoGrid() {
   const { epk } = useEPKOutlet()

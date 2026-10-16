@@ -1,5 +1,5 @@
 import { useEPKOutlet } from '../../hooks/useEPKOutlet'
-import { FallbackImage } from './FallbackImage'
+import { FallbackImage } from '../shared/FallbackImage'
 
 export function VIPPage() {
   const { epk } = useEPKOutlet()

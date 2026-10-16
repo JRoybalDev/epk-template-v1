@@ -12,7 +12,7 @@ The web app is intentionally set up as a data-ready frontend scaffold, not a fin
 - Navigation is driven by the EPK `nav` array.
 - Home can render selected full sections through `home.sectionsOnHome`.
 - Links, sorting, conditional sections, image fallbacks, and empty states are in place.
-- Videos render YouTube iframes through `YouTubeEmbed`.
+- Videos render YouTube iframes through the shared `YouTubeEmbed` component, and images fall back to a placeholder through the shared `FallbackImage` component. Both live in `components/shared/`, which holds copy-paste portable components (see its README).
 - Tour dates keep ISO dates in data and render with `tour.dateDisplayFormat`; the Tour page can render either manual listings or Seated embed/widget content.
 - Public branding applies color variables, font imports, font assignments, and full-page background texture through `getEPKBrandingStyle()`.
 

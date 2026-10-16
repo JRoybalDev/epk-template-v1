@@ -1,14 +1,15 @@
 import { Link } from 'react-router-dom'
 import { useEPKOutlet } from '../../hooks/useEPKOutlet'
 import { AboutSection } from './AboutSection'
-import { FallbackImage } from './FallbackImage'
+import { FallbackImage } from '../shared/FallbackImage'
 import { MusicGrid } from './MusicGrid'
 import { NewsletterSection } from './NewsletterSection'
 import { ShopGrid } from './ShopGrid'
 import { TourList } from './TourList'
 import { VIPPage } from './VIPPage'
 import { VideoGrid } from './VideoGrid'
-import { getYouTubeVideoId, YouTubeEmbed } from './YouTubeEmbed'
+import { YouTubeEmbed } from '../shared/YouTubeEmbed'
+import { getYouTubeVideoId } from '../shared/youtube'
 
 type HomeSectionKey =
   | 'music'

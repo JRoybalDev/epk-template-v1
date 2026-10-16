@@ -27,7 +27,9 @@ apps/
         schema.ts           # Zod schema + types for epk.ts
         index.ts            # validates epk.ts and exports the typed `epk`
         README.md           # field-by-field content reference
-      components/epk/       # public section components
+      components/
+        epk/                # public section components (read EPK content)
+        shared/             # copy-paste portable components, reusable across projects
       pages/                # EPK layout shell + 404
       hooks/ utils/         # meta tags, branding theme, date formatting
     vite.config.ts          # proxies /api to the API in dev
@@ -135,3 +137,4 @@ Before launch, follow [docs/production-checklist.md](docs/production-checklist.m
 | [apps/web/src/content/README.md](apps/web/src/content/README.md) | Developers and technical content editors | Field-by-field content reference. |
 | [apps/api/README.md](apps/api/README.md) | Backend developers | API structure, integrations, optional database. |
 | [apps/web/README.md](apps/web/README.md) | Frontend developers | Vite app, routes, styling. |
+| [apps/web/src/components/shared/README.md](apps/web/src/components/shared/README.md) | Frontend developers | Rules and inventory for copy-paste portable components. |
