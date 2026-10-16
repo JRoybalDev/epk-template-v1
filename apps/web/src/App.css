@@ -71,49 +71,6 @@
   --site-gutter: var(--page-gutter);
 }
 
-.dashboard-theme-dark {
-  color-scheme: dark;
-
-  --bg: #1b1411;
-  --bg-alt: #3b2c24;
-  --surface: rgba(35, 24, 20, 0.9);
-  --surface-strong: rgba(43, 30, 24, 0.96);
-  --text: #f3e6d8;
-  --muted: #d4b69f;
-  --muted-soft: rgba(243, 230, 216, 0.7);
-  --accent: #c4976e;
-  --accent-strong: #e8c09d;
-  --accent-soft: #b78b5d;
-  --border: rgba(255, 255, 255, 0.14);
-  --card-border: rgba(255, 255, 255, 0.08);
-  --shadow: 0 28px 60px rgba(0, 0, 0, 0.35);
-  --focus: rgba(255, 235, 214, 0.24);
-  --switch-bg: rgba(255, 255, 255, 0.12);
-  --input-bg: rgba(255, 255, 255, 0.08);
-  --input-border: rgba(255, 255, 255, 0.1);
-  --selection: rgba(243, 230, 216, 0.3);
-  --foam: #1b1411;
-
-  --color-accent-contrast: #1b1411;
-  --color-page: var(--bg);
-  --color-surface: var(--surface);
-  --color-surface-muted: var(--bg-alt);
-  --color-surface-strong: var(--surface-strong);
-  --color-text: var(--text);
-  --color-text-muted: var(--muted);
-  --color-text-inverse: var(--text);
-  --color-border: var(--border);
-  --color-border-strong: var(--accent-soft);
-  --color-accent: var(--accent);
-  --color-accent-hover: var(--accent-strong);
-  --color-focus: var(--focus);
-  --color-selection-bg: var(--selection);
-  --color-selection-text: var(--text);
-  --color-danger: #f09a8d;
-  --color-success: #93d7a4;
-  --shadow-soft: var(--shadow);
-}
-
 .site-shell {
   min-height: 100vh;
 }

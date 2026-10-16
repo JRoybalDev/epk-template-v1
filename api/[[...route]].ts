@@ -1,8 +1,8 @@
 import { handle } from 'hono/vercel'
-import { app } from '../apps/server/index'
+import { app } from '../apps/api/src/index'
 
 // Vercel treats any file under api/ as a serverless function. This catch-all route
-// forwards every /api/* request to the same Hono app used for local dev (apps/server),
+// forwards every /api/* request to the same Hono app used for local dev (apps/api),
 // so the request-handling logic only lives in one place. A single default export using
 // the Fetch API Request/Response signature is Vercel's general (non-Next.js) convention —
 // handle() already returns exactly that shape.

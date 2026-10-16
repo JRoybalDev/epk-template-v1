@@ -1,5 +1,5 @@
 import { useOutletContext } from 'react-router-dom'
-import type { EPK } from '../../../../packages/schema'
+import type { EPK } from '../content/schema'
 
 export type EPKOutletContext = {
   epk: EPK

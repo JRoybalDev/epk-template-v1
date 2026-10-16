@@ -1,9 +1,9 @@
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { SiteFooter } from '../components/epk/SiteFooter'
-import { useEPK } from '../hooks/useEPK'
+import { epk } from '../content'
 import { useEPKMeta } from '../hooks/useEPKMeta'
 import { getEPKBrandingStyle } from '../utils/brandingTheme'
-import type { EPK } from '../../../../packages/schema'
+import type { EPK } from '../content/schema'
 
 const navLabels = {
   home: 'Home',
@@ -70,45 +70,13 @@ export function EPKPage() {
   const pageLabel =
     pageLabelsByPath[location.pathname as keyof typeof pageLabelsByPath] ??
     'Page'
-  const epkQuery = useEPK()
-  useEPKMeta(epkQuery.data, pageLabel)
+  useEPKMeta(epk, pageLabel)
 
-  if (epkQuery.isLoading) {
-    return (
-      <main data-template="epk-public-shell" data-state="loading">
-        <p>Loading EPK...</p>
-      </main>
-    )
-  }
-
-  if (epkQuery.isError) {
-    return (
-      <main data-template="epk-public-shell" data-state="error">
-        <h1>EPK unavailable</h1>
-        <p>{epkQuery.error.message}</p>
-      </main>
-    )
-  }
-
-  const epk = epkQuery.data
-  const brandingStyle = epk ? getEPKBrandingStyle(epk.branding) : null
-
-  if (!epk) {
-    return (
-      <main data-template="epk-public-shell" data-state="empty">
-        <section>
-          <p>Setup needed</p>
-          <h1>No EPK content yet</h1>
-          <p>Import a validated EPK JSON file, then refresh this page to render the public site.</p>
-          <code>bun run import:epk examples/demo-epk.example.json --admin-key "$ADMIN_API_KEY" --confirm</code>
-        </section>
-      </main>
-    )
-  }
+  const brandingStyle = getEPKBrandingStyle(epk.branding)
 
   return (
-    <main data-template="epk-public-shell" style={brandingStyle?.variables}>
-      {brandingStyle?.css && <style>{brandingStyle.css}</style>}
+    <main data-template="epk-public-shell" style={brandingStyle.variables}>
+      {brandingStyle.css && <style>{brandingStyle.css}</style>}
       <header data-section="site-header">
         <div data-field="branding">
           <NavLink to="/" aria-label={`${epk.artistName} home`}>

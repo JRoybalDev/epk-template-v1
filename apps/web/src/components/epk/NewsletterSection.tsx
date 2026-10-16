@@ -1,5 +1,5 @@
 import { useEPKOutlet } from '../../hooks/useEPKOutlet'
-import type { NewsletterField } from '../../../../../packages/schema'
+import type { NewsletterField } from '../../content/schema'
 
 const newsletterFieldLabels: Record<NewsletterField, string> = {
   email: 'Email address',

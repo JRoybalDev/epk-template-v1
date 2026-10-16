@@ -6,7 +6,7 @@ import type {
   TourDate,
   TourDateVipPackage,
   VIPItem,
-} from '../../../../../packages/schema'
+} from '../../content/schema'
 
 const formatTourLocation = (
   city: string,

@@ -6,17 +6,15 @@ The web app is intentionally set up as a data-ready frontend scaffold, not a fin
 
 - Public routes exist for home, music, videos, tour, VIP, shop, about, and newsletter.
 - `contact` can appear in public navigation, but it renders as a `mailto:` link to the booking email rather than a routed page.
-- The public shell fetches the current EPK from `GET /api/epk`.
+- Site content is loaded from `src/content/epk.json` and validated against `src/content/schema.ts` at startup.
 - Public route components read typed EPK data through `useEPKOutlet()`.
 - Metadata is populated from EPK data through `useEPKMeta()`.
-- Document title and favicon values are cached in local storage while fresh EPK data loads.
 - Navigation is driven by the EPK `nav` array.
 - Home can render selected full sections through `home.sectionsOnHome`.
 - Links, sorting, conditional sections, image fallbacks, and empty states are in place.
 - Videos render YouTube iframes through `YouTubeEmbed`.
 - Tour dates keep ISO dates in data and render with `tour.dateDisplayFormat`; the Tour page can render either manual listings or Seated embed/widget content.
 - Public branding applies color variables, font imports, font assignments, and full-page background texture through `getEPKBrandingStyle()`.
-- The dashboard can load, edit, validate, save, import/export JSON, upload assets/fonts, reorder layout sections with drag-and-drop, and import YouTube metadata.
 
 ## What Is Intentionally Not Finished
 
@@ -41,16 +39,11 @@ Use the existing public components as logical data boundaries:
 - `NewsletterSection.tsx` handles optional newsletter data.
 - `SiteFooter.tsx` handles socials, legal links, and powered-by links.
 
-The current markup includes `data-section`, `data-list`, `data-item`, and `data-field` attributes so future frontend work can target stable content areas without changing the data-fetching contract first.
+The current markup includes `data-section`, `data-list`, `data-item`, and `data-field` attributes so future frontend work can target stable content areas without changing the content contract first.
 
-## Backend Contract
+## Content And API Contract
 
-The frontend should continue to treat the backend as the source of truth:
-
-- Read public EPK content from `GET /api/epk`.
-- Save dashboard edits through `POST /api/epk`.
-- Upload assets through `POST /api/upload/:type`.
-- Fetch YouTube metadata for dashboard imports through `GET /api/youtube-metadata` with a YouTube URL or video ID.
-- Validate EPK payloads with the shared schema in `packages/schema`.
-
-The frontend should not hardcode artist content. Artist-specific content belongs in the EPK JSON/database record.
+- Artist content lives in `apps/web/src/content/epk.json`. Components should not hardcode artist content.
+- If a design needs a new field, add it to `src/content/schema.ts` first, then to `epk.json`.
+- Media lives in `apps/web/public/media/` and is referenced as `/media/<file>`.
+- Anything that needs a server or secret keys (third-party APIs, form handlers) goes in `apps/api/src/integrations/` and is called from the frontend at `/api/integrations/<name>`.

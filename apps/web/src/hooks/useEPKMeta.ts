@@ -1,17 +1,5 @@
 import { useEffect } from 'react'
-import type { EPK } from '../../../../packages/schema'
-
-const epkMetaCacheKey = 'epk-document-meta-cache'
-
-type CachedDocumentMeta = {
-  faviconPath?: string
-  title?: string
-}
-
-type CachedDocumentMetaStore = {
-  byPath?: Record<string, CachedDocumentMeta>
-  fallback?: CachedDocumentMeta
-}
+import type { EPK } from '../content/schema'
 
 const upsertMeta = (selector: string, attributes: Record<string, string>) => {
   let element = document.head.querySelector<HTMLMetaElement>(selector)
@@ -26,7 +14,7 @@ const upsertMeta = (selector: string, attributes: Record<string, string>) => {
   })
 }
 
-export const upsertFavicon = (href: string) => {
+const upsertFavicon = (href: string) => {
   let element = document.head.querySelector<HTMLLinkElement>('link[rel="icon"]')
 
   if (!element) {
@@ -38,69 +26,11 @@ export const upsertFavicon = (href: string) => {
   element.href = href
 }
 
-export const getEPKFaviconPath = (epk: EPK) =>
+const getEPKFaviconPath = (epk: EPK) =>
   epk.metadata?.faviconPath || epk.branding.faviconPath
 
-const readCachedDocumentMeta = (): CachedDocumentMetaStore => {
-  try {
-    return JSON.parse(window.localStorage.getItem(epkMetaCacheKey) ?? '{}')
-  } catch {
-    return {}
-  }
-}
-
-export const applyDocumentMeta = ({ faviconPath, title }: CachedDocumentMeta) => {
-  if (title) {
-    document.title = title
-  }
-
-  if (faviconPath) {
-    upsertFavicon(faviconPath)
-  }
-}
-
-export const cacheDocumentMeta = (
-  meta: CachedDocumentMeta,
-  path = window.location.pathname,
-) => {
-  const current = readCachedDocumentMeta()
-  const currentPathMeta = current.byPath?.[path] ?? {}
-  const currentFallbackMeta = current.fallback ?? {}
-  const nextPathMeta = {
-    ...currentPathMeta,
-    ...meta,
-  }
-  const nextFallbackMeta = {
-    ...currentFallbackMeta,
-    faviconPath: meta.faviconPath ?? currentFallbackMeta.faviconPath,
-    title: meta.title ?? currentFallbackMeta.title,
-  }
-
-  window.localStorage.setItem(
-    epkMetaCacheKey,
-    JSON.stringify({
-      byPath: {
-        ...(current.byPath ?? {}),
-        [path]: nextPathMeta,
-      },
-      fallback: nextFallbackMeta,
-    }),
-  )
-}
-
-export const applyCachedDocumentMeta = (path = window.location.pathname) => {
-  const cache = readCachedDocumentMeta()
-  const meta = cache.byPath?.[path] ?? cache.fallback
-
-  if (meta) {
-    applyDocumentMeta(meta)
-  }
-}
-
-export const useEPKMeta = (epk?: EPK, pageLabel = 'Home') => {
+export const useEPKMeta = (epk: EPK, pageLabel = 'Home') => {
   useEffect(() => {
-    if (!epk) return
-
     const title = `${epk.artistName} | ${pageLabel}`
     const description =
       epk.metadata?.description ||
@@ -114,8 +44,8 @@ export const useEPKMeta = (epk?: EPK, pageLabel = 'Home') => {
       epk.branding.accentColor
     const faviconPath = getEPKFaviconPath(epk)
 
-    applyDocumentMeta({ faviconPath, title })
-    cacheDocumentMeta({ faviconPath, title })
+    document.title = title
+    if (faviconPath) upsertFavicon(faviconPath)
     upsertMeta('meta[name="description"]', {
       name: 'description',
       content: description,

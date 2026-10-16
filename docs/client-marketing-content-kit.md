@@ -2,7 +2,7 @@
 
 This kit explains the EPK template in plain language for artist teams, managers, labels, marketing teams, and clients who do not want to work directly inside the code.
 
-Use it as a step-by-step intake guide, content checklist, and handoff reference. The technical team can still use the dashboard, import tools, and JSON schema behind the scenes, but clients only need to understand what content is needed, which items are optional, and how the data is stored and shown on the public site.
+Use it as a step-by-step intake guide, content checklist, and handoff reference. The technical team enters the content into the site's content file behind the scenes, but clients only need to understand what content is needed, which items are optional, and how the data is stored and shown on the public site.
 
 ## What This EPK Is
 
@@ -20,9 +20,7 @@ The site can include:
 - Footer social links and legal links.
 - Private team contact information used for handoff and booking workflows.
 
-The public site reads from one approved content record. The dashboard lets an authorized admin update that content without touching the source code.
-
-On first launch, before any content has been saved, the public site shows a setup state. The dashboard still opens with a starter draft so the team can begin filling in sections immediately. Saving that starter draft creates the first live EPK record. Teams that already have a complete EPK JSON file can import it instead.
+The public site reads from one approved content file. The developer or site admin updates that file with the content your team provides, checks it, and publishes the site.
 
 ## Roles
 
@@ -40,7 +38,7 @@ Provides logos, colors, textures, favicon, social share image, release art, pres
 
 ### Developer Or Site Admin
 
-Uploads content, validates the EPK, saves dashboard changes, manages hosting, protects the admin key, and confirms the site works before launch.
+Enters content into the site, adds media files, validates the EPK, manages hosting and any third-party integrations, and confirms the site works before launch.
 
 ## Step-By-Step Workflow
 
@@ -119,7 +117,6 @@ How this appears:
 - Logo image is preferred when provided.
 - Logo text appears when no logo image is available.
 - Favicon appears in browser tabs.
-- Public EPK theme and font settings do not change the dashboard's separate light/dark mode.
 
 ### Step 4: Choose Navigation Sections
 
@@ -260,11 +257,9 @@ Optional for each video:
 - Featured status.
 - Display order.
 
-Dashboard shortcut:
+Shortcut:
 
-- Paste a YouTube URL or video ID into the Videos tab to create a new video automatically.
-- The system attempts to fill the title, YouTube video ID, channel name, publish date, and video type.
-- The team can still edit those fields after import.
+- A YouTube link is enough. The site admin can look up the title, channel name, and publish date automatically.
 
 Allowed video types:
 
@@ -501,7 +496,7 @@ Recommended client decisions:
 - Use embed code when the provider form should appear directly on the page.
 - Use external signup URL when the provider handles the form on its own page.
 - Use native form fields when the frontend should show a simple on-site form instead of a provider embed.
-- Use the dashboard signup method toggle to choose which option appears publicly.
+- The site admin sets which option appears publicly.
 - Email address is always included and required.
 - Optional native fields include first name, postal code, and country.
 - Keep the copy short and benefit-led.
@@ -576,9 +571,9 @@ Data visibility note:
 
 Treat contact information as sensitive business information. Depending on how the front end is configured, some contact details may be used publicly or for team workflows. Do not add private personal addresses unless they are approved for the EPK.
 
-## Media Upload Guide
+## Media Guide
 
-The dashboard supports four media categories:
+Send media files grouped into four categories:
 
 - Photos.
 - Branding.
@@ -610,22 +605,12 @@ Use assets for:
 
 Use fonts for:
 
-- Uploaded `.woff`, `.woff2`, `.ttf`, or other web font files approved for the site.
-
-Local upload paths look like:
-
-- `/uploads/site/photos/press-landscape.jpg`
-- `/uploads/site/branding/logo.png`
-- `/uploads/site/branding/favicon.ico`
-- `/uploads/site/assets/social-share.jpg`
-- `/uploads/site/assets/release-cover.jpg`
-- `/uploads/site/fonts/artist-display.woff2`
+- `.woff`, `.woff2`, `.ttf`, or other web font files approved for the site.
 
 Production guidance:
 
-- Local uploads are fine during development.
-- Production media should live in durable storage such as S3, R2, Vercel Blob, Cloudinary, or another approved media host.
-- The EPK stores the final public URL or path, not the image file itself inside the main content record.
+- Media files are published with the site, or hosted on a media service such as S3, R2, Cloudinary, or another approved host.
+- The EPK content stores the file's path or URL, not the file itself.
 
 ## Required Versus Optional Summary
 
@@ -665,75 +650,28 @@ Production guidance:
 
 ### Where Content Lives
 
-The finished EPK content is saved as one structured record in the database. That record contains the artist text, links, settings, and media paths.
+The finished EPK content is stored as one structured file published with the website. That file contains the artist text, links, settings, and media paths.
 
-In technical terms, the server stores the EPK content as validated JSON in the `epks` table. Clients do not need to edit that JSON directly.
+In technical terms, it is a JSON file validated against the EPK schema. Clients do not need to edit it directly.
 
 ### How Public Visitors See The EPK
 
-When someone visits the public site:
+When someone visits the public site, the pages (home, music, tour, about, newsletter, and so on) are rendered from that content file. No login or database is involved in viewing the EPK.
 
-1. The web app asks the server for the current EPK.
-2. The server returns the approved EPK content.
-3. The web app renders pages such as home, music, tour, about, and newsletter from that content.
+### How Updates Work
 
-Public visitors do not need an admin key to view the EPK.
+1. Your team sends approved content or changes.
+2. The site admin updates the content file.
+3. The content is validated. If anything is wrong, the check lists the exact fields that need attention.
+4. The site admin reviews the site and publishes the update.
 
-### How Admin Updates Work
+### How Video Lookups Work
 
-When an authorized admin saves changes:
+When the site admin has a YouTube link, the site's server can look up the public title, channel name, and publish date from YouTube. This is a convenience feature. The values can be edited afterward.
 
-1. The dashboard keeps edits as an unsaved draft.
-2. The admin clicks save.
-3. The dashboard sends the full EPK draft to the server.
-4. The request must include the admin key.
-5. The server validates the content.
-6. If validation passes, the database record is updated.
-7. The public site reads the updated content.
+### Third-Party Integrations
 
-If validation fails, the server returns a list of fields that need attention.
-
-### How Media Uploads Work
-
-When an authorized admin uploads a file:
-
-1. The file is sent to the upload endpoint.
-2. The request must include the admin key.
-3. The server saves the file under the selected category.
-4. The server returns a path.
-5. The returned path is pasted into the relevant image, asset, logo, or download field.
-
-The EPK content stores the file path or URL. It does not duplicate the file inside every section.
-
-### How Video Metadata Import Works
-
-When an admin pastes a YouTube URL in the Videos tab:
-
-1. The dashboard extracts the YouTube video ID.
-2. The dashboard asks the server for public YouTube metadata.
-3. The server returns the title, channel name, publish date when available, video ID, and an inferred video type.
-4. The dashboard creates a new editable video row.
-
-This metadata lookup is a convenience feature. The admin can edit the imported values before saving.
-
-### How Access Is Protected
-
-Public reading:
-
-- Visitors can read the public EPK without an admin key.
-
-Protected writing:
-
-- Saving EPK changes requires the admin key.
-- Uploading files requires the admin key.
-- The dashboard stores the entered admin key in the browser's local storage for convenience.
-- The server still checks every protected write request.
-
-Production rule:
-
-- Never launch with a placeholder admin key.
-- Store the real admin key in a password manager.
-- Share it only with people approved to edit the EPK.
+The site includes a small server for connecting to outside services, such as streaming platforms, ticketing, newsletter providers, or stores. Any account keys for those services are kept on the server and are never shown to visitors. Tell the technical team which services you want connected.
 
 ### What Is Validated
 
@@ -805,8 +743,7 @@ Use this checklist before content entry begins.
 - Browser title, favicon, and social preview metadata are correct.
 - Mobile layout has been reviewed.
 - Desktop layout has been reviewed.
-- Admin key is not a placeholder.
-- A final JSON backup has been exported from the dashboard.
+- Any third-party integration keys are stored securely.
 
 ## Plain-English Field Glossary
 
@@ -820,7 +757,7 @@ A full web address. Use `https://` at the beginning.
 
 ### Path
 
-The location of an uploaded file or hosted asset. It may look like `/uploads/site/assets/file.jpg` locally or like a full media URL in production.
+The location of an uploaded file or hosted asset. It may look like `/media/file.jpg` or like a full media URL.
 
 ### Featured
 
@@ -864,4 +801,4 @@ Clients can deliver content in any clean format, but this structure works well:
 12. Footer socials and legal links.
 13. Contact emails.
 
-The developer or site admin can then enter the packet into the dashboard, validate it, save it, review the public site, and export a final backup.
+The developer or site admin can then enter the packet into the site, validate it, review the public site, and publish it.

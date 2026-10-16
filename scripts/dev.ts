@@ -4,27 +4,20 @@ type DevCommand = {
   name: string
   cwd: string
   cmd: string[]
-  env: Record<string, string>
 }
 
+// Runs the API and web app together. Use `bun run dev:web` or `bun run dev:api`
+// to run either one on its own.
 const commands: DevCommand[] = [
   {
-    name: 'server',
-    cwd: 'apps/server',
-    cmd: [bun, 'run', 'index.ts'],
-    env: {
-      DATABASE_URL:
-        process.env.DATABASE_URL ??
-        'postgresql://postgres:password@localhost:5432/epk_db',
-      EPK_SLUG: process.env.EPK_SLUG ?? 'site',
-      ADMIN_API_KEY: process.env.ADMIN_API_KEY ?? 'dev-admin-key-change-me',
-    },
+    name: 'api',
+    cwd: 'apps/api',
+    cmd: [bun, 'run', 'dev'],
   },
   {
     name: 'web',
     cwd: 'apps/web',
     cmd: [bun, 'run', 'dev', '--host', '0.0.0.0'],
-    env: {},
   },
 ]
 
@@ -71,10 +64,6 @@ process.on('SIGTERM', () => {
 for (const command of commands) {
   const child = Bun.spawn(command.cmd, {
     cwd: command.cwd,
-    env: {
-      ...process.env,
-      ...command.env,
-    },
     stdout: 'pipe',
     stderr: 'pipe',
   })

@@ -1,208 +1,81 @@
 # EPK Template v1
 
-A single-artist EPK template built with Bun, Hono, React, Vite, TailwindCSS, Drizzle, Postgres, TanStack Query, and Zustand.
+A single-artist EPK (electronic press kit) website template, structured as a Bun workspaces monorepo. The frontend is a static site driven by one JSON content file. A small Hono API sits alongside it as the place to add third-party integrations.
 
-This project is intentionally set up for one EPK per deployed site. Public pages read from one JSON-backed EPK record, while dashboard saves and uploads require an admin key.
+## Stack
 
-## Project Layout
+**Frontend (`apps/web`)**
+- **[Vite](https://vite.dev/)** + **[React 19](https://react.dev/)** + **TypeScript**
+- **[React Router](https://reactrouter.com/)**: public routes (`/`, `/music`, `/tour`, ...)
+- **[Tailwind CSS v4](https://tailwindcss.com/)** + **[daisyUI](https://daisyui.com/)** via `@tailwindcss/vite`
+- **[Zod](https://zod.dev/)**: validates site content against the EPK schema
+- **[framer-motion](https://motion.dev/)**, **[react-icons](https://react-icons.github.io/react-icons/)**
 
-```txt
-apps/web          React + Vite public site and dashboard
-apps/server       Hono API, uploads, Postgres persistence
-packages/schema   Shared Zod EPK schema and TypeScript types
-examples          Example EPK JSON payloads
-scripts           Local dev and import utilities
-docs              Production and cleanup handoff docs
+**Backend (`apps/api`)**
+- **[Hono](https://hono.dev/)** on **[Bun](https://bun.sh/)**: health route plus an `integrations/` folder for third-party APIs
+- **[Drizzle ORM](https://orm.drizzle.team/)** + **PostgreSQL**: optional, scaffolded but unused until an integration needs storage
+
+## Project structure
+
+```
+apps/
+  web/                      # frontend
+    public/media/           # images, logos, fonts referenced from content
+    src/
+      content/
+        epk.json            # ALL site content: edit this
+        schema.ts           # Zod schema + types for epk.json
+        index.ts            # validates epk.json and exports the typed `epk`
+        README.md           # field-by-field content reference
+      components/epk/       # public section components
+      pages/                # EPK layout shell + 404
+      hooks/ utils/         # meta tags, branding theme, date formatting
+    vite.config.ts          # proxies /api to the API in dev
+  api/                      # backend
+    src/
+      index.ts              # Hono app: CORS, /api/health, mounts integrations
+      integrations/
+        index.ts            # registers each integration under /api/integrations/<name>
+        youtube.ts          # example integration (YouTube metadata lookup)
+      db/                   # optional Drizzle client + schema
+    drizzle.config.ts
+    .env.example
+api/[[...route]].ts         # Vercel serverless entry: forwards /api/* to apps/api
+scripts/                    # dev runner, content validator
+docs/                       # handoff and launch docs
+vercel.json
 ```
 
-## Requirements
+## Getting started
 
-- Bun
-- Docker, for local Postgres
-
-If Bun is installed but not on your shell `PATH`, use `~/.bun/bin/bun` in place of `bun`.
-
-## Quick Start
-
-This repo is a Bun workspace (`apps/*`, `packages/*`) — install once from the root:
+Install once from the repo root:
 
 ```bash
 bun install
 ```
 
-Create the server env file:
-
 ```bash
-cp apps/server/.env.example apps/server/.env
+bun run dev               # web (http://localhost:5173) + API (http://localhost:3001)
+bun run dev:web           # web only
+bun run dev:api           # API only
+bun run build             # production build to apps/web/dist/
+bun run validate:content  # check apps/web/src/content/epk.json against the schema
+bun run lint
 ```
 
-You can also start from the root env reference:
+In dev, Vite proxies `/api/*` to `http://localhost:3001`, so the frontend can call `fetch('/api/...')` with no CORS setup.
 
-```bash
-cp .env.example apps/server/.env
-```
+The API needs no env to run. To change defaults, copy `apps/api/.env.example` to `apps/api/.env`.
 
-Start local Postgres:
+## Editing content
 
-```bash
-docker run -d --name epk-postgres \
-  -e POSTGRES_PASSWORD=password \
-  -e POSTGRES_DB=epk_db \
-  -p 5432:5432 \
-  postgres:16-alpine
-```
+Everything the public site shows comes from [apps/web/src/content/epk.json](apps/web/src/content/epk.json): artist name, branding, navigation, releases, videos, tour dates, shop, VIP, about, newsletter, footer, and contact. The demo file is complete, so start by replacing its values.
 
-If the container already exists:
+- Field reference: [apps/web/src/content/README.md](apps/web/src/content/README.md)
+- Media: drop files in `apps/web/public/media/` and reference them as `/media/<file>`.
+- The content is validated at startup and by `bun run validate:content`. Invalid content fails loudly instead of rendering a broken page.
 
-```bash
-docker start epk-postgres
-```
-
-List local Docker containers:
-
-```bash
-docker ps -a
-```
-
-List databases in the local Postgres container:
-
-```bash
-docker exec -it epk-postgres psql -U postgres -l
-```
-
-If the app logs `password authentication failed for user "postgres"`, make sure `DATABASE_URL` uses the same password the Docker container was created with. Container passwords are set at creation time.
-
-Run migrations:
-
-```bash
-cd apps/server
-bunx drizzle-kit migrate
-cd ../..
-```
-
-Start the API and web app together:
-
-```bash
-bun run dev
-```
-
-Local URLs:
-
-```txt
-Web: http://localhost:5173
-API: http://localhost:3001
-Dashboard: http://localhost:5173/dashboard
-```
-
-## Environment
-
-Local defaults:
-
-```txt
-DATABASE_URL=postgresql://postgres:password@localhost:5432/epk_db
-EPK_SLUG=site
-ADMIN_API_KEY=change-me-to-a-long-random-secret
-```
-
-`EPK_SLUG` is internal and should normally stay `site`. Public routes stay clean single-artist routes like `/`, `/music`, and `/tour`.
-
-`ADMIN_API_KEY` is required for dashboard saves and uploads. The dashboard key gate stores the entered key in `localStorage`, but the server still protects writes with the `X-Admin-Key` header. In production the server refuses to start with a missing, default, or under-24-character key.
-
-`ALLOWED_ORIGIN` is an optional, comma-separated list of frontend origins allowed by CORS. See [apps/server/README.md](apps/server/README.md) and [docs/production-checklist.md](docs/production-checklist.md) for full server hardening notes (rate limiting, upload restrictions, audit logging).
-
-## Create An EPK
-
-Use [examples/demo-epk.example.json](examples/demo-epk.example.json) as the expected shape.
-
-## Documentation Guide
-
-Use these docs for different audiences:
-
-| Document | Intended recipient | Purpose |
-| --- | --- | --- |
-| [docs/client-marketing-content-kit.md](docs/client-marketing-content-kit.md) | Clients, artist teams, managers, labels, and marketing teams | Plain-language content intake guide explaining what each field means, what is optional, and how EPK data is handled. |
-| [docs/frontend-handoff.md](docs/frontend-handoff.md) | Frontend developers and designers | Explains the data-ready frontend scaffold, routed public components, logic boundaries, and what visual/frontend work is intentionally unfinished. |
-| [docs/production-checklist.md](docs/production-checklist.md) | Developers, launch managers, and deployment owners | Pre-launch checklist for environment variables, database migrations, media storage, dashboard access, routes, metadata, and final handoff. |
-| [docs/template-cleanup.md](docs/template-cleanup.md) | Developers or content admins preparing a real artist site | Checklist for replacing demo content, removing placeholder URLs, confirming media paths, and preparing the final EPK. |
-| [packages/schema/README.md](packages/schema/README.md) | Developers and technical content admins | Field-by-field schema reference for EPK JSON, including required and optional fields. |
-| [examples/README.md](examples/README.md) | Developers and technical content admins | Notes for validating and importing example EPK JSON files. |
-| [apps/server/README.md](apps/server/README.md) | Backend developers and deployment owners | API, Postgres, migration, upload, and YouTube metadata endpoint notes. |
-| [apps/web/README.md](apps/web/README.md) | Frontend developers | Vite app, dashboard, public route, styling, and editor notes. |
-
-Validate only:
-
-```bash
-bun run validate:epk examples/demo-epk.example.json
-```
-
-Import into the running local API:
-
-```bash
-bun run import:epk examples/demo-epk.example.json \
-  --admin-key "$ADMIN_API_KEY" \
-  --confirm
-```
-
-The import utility is a safe local tool. It is dry-run by default and only writes when `--confirm` is provided.
-
-The dashboard `Import / Export` section can also export the current draft as a JSON backup or import a complete EPK JSON file into the dashboard draft. Dashboard imports are local draft changes until `Publish` is clicked.
-
-## Dashboard
-
-Dashboard route:
-
-```txt
-/dashboard
-/dashboard/:section
-/dashboard/canvas
-/dashboard/canvas/:page
-```
-
-The dashboard has two modes, switched from the top bar:
-
-- **Guided Studio** — an overview screen plus one form editor per section, grouped in the sidebar as:
-
-  ```txt
-  Music & Video: Spotlight, Releases, Videos
-  Shows: Tour dates, VIP upgrades
-  Your Story: About & bio, Contact
-  Store & Fans: Shop, Newsletter
-  Look & Feel: Branding, Fonts & text, Page layout, Menu
-  Publish & Tools: Share preview, Media library, Footer, Import / Export
-  ```
-
-- **Live Canvas** — an in-dashboard preview of the real public site (rendered from the actual frontend components, not a mockup) with click-to-select editing of sections, list items, and fields directly on the page.
-
-Main dashboard workflow:
-
-```txt
-1. Enter the admin key.
-2. If no EPK has been saved yet, start from the dashboard's starter draft.
-3. Edit sections in Guided Studio, or edit directly on the page in Live Canvas.
-4. Upload assets if needed and copy returned paths (or upload inline from Live Canvas).
-5. Review the public site with "View site".
-6. Publish changes with the "Publish" button in the top bar.
-7. Export a JSON backup from Import / Export.
-```
-
-The dashboard warns before leaving with unsaved changes and shows an `Unsaved` badge when the draft has pending edits.
-
-On a fresh template with no saved EPK record, the public site shows a setup state while the dashboard automatically opens a valid unsaved starter draft. Publishing that draft creates the first live EPK record. The terminal import flow is still available when you already have a completed EPK JSON file.
-
-The dashboard has its own light/dark toggle. Public EPK color, font, and texture controls live under `Branding` and `Fonts & text` and do not change the dashboard theme.
-
-List-heavy editors use collapsible rows:
-
-```txt
-Music releases
-Videos
-Tour dates
-Font element settings
-```
-
-The `Page layout` section uses drag-and-drop controls for public navigation order and for the order of full sections embedded on the home page. The `VIP upgrades` section can send visitors directly to the artist's main VIP site or show reusable VIP packages on-site. When VIP mode is External, tour date VIP packages use the Default External URL from the VIP upgrades section; when VIP mode is Manual, the `Tour dates` section can select VIP packages from a dropdown per date and optionally add date-specific URLs. The `Shop` section supports an external store link or curated item cards where each item has its own external store URL. The `Videos` section can import a YouTube URL or video ID and ask the API to fill title, channel name, publish date, video ID, and an inferred type.
-
-## Public Routes
+## Public routes
 
 ```txt
 /             Home
@@ -216,251 +89,48 @@ The `Page layout` section uses drag-and-drop controls for public navigation orde
 /*            Not found page
 ```
 
-The `contact` navigation item is supported, but it renders as a `mailto:` link to the booking email instead of a standalone `/contact` route.
+The `contact` nav item renders as a `mailto:` link to `contact.bookingEmail` rather than a route.
 
-The public site reads from `GET /api/epk`. If no EPK has been saved or imported yet, the public shell shows a setup state.
-
-## API Reference
-
-Base local API URL:
+## API
 
 ```txt
-http://localhost:3001
+GET /api/health                                   { "status": "ok", "timestamp": "..." }
+GET /api/integrations/youtube?url=<url-or-id>     YouTube title, channel, publish date
 ```
 
-### `GET /api/epk`
+### Adding a third-party integration
 
-Returns the current single EPK JSON.
+1. Create `apps/api/src/integrations/<name>.ts` that exports a Hono router. Use `youtube.ts` as the pattern.
+2. Read secrets from `process.env` and list them in `apps/api/.env.example`. Never expose them to the frontend.
+3. Mount it in `apps/api/src/integrations/index.ts`: `integrations.route('/<name>', <name>)`.
+4. Call it from the frontend at `/api/integrations/<name>/...`.
 
-Success:
-
-```json
-{
-  "slug": "site",
-  "artistName": "Demo Artist"
-}
-```
-
-Missing EPK:
-
-```json
-{
-  "error": "EPK not found"
-}
-```
-
-### `POST /api/epk`
-
-Saves the single EPK record. Requires `X-Admin-Key`.
-
-Headers:
-
-```txt
-Content-Type: application/json
-X-Admin-Key: <ADMIN_API_KEY>
-```
-
-Body:
-
-```txt
-Complete EPK JSON matching packages/schema/index.ts
-```
-
-Success:
-
-```json
-{
-  "ok": true,
-  "epk": {
-    "slug": "site",
-    "artistName": "Demo Artist"
-  }
-}
-```
-
-Validation error:
-
-```json
-{
-  "error": "EPK validation failed",
-  "issues": [
-    {
-      "path": "artistName",
-      "message": "Invalid input: expected string"
-    }
-  ]
-}
-```
-
-Unauthorized:
-
-```json
-{
-  "error": "Unauthorized"
-}
-```
-
-### `POST /api/upload/:type`
-
-Uploads a local file and returns a path for EPK JSON fields. Requires `X-Admin-Key`.
-
-Valid upload types:
-
-```txt
-photos
-branding
-assets
-fonts
-```
-
-Headers:
-
-```txt
-X-Admin-Key: <ADMIN_API_KEY>
-```
-
-Body:
-
-```txt
-multipart/form-data with a file field named "file"
-```
-
-Success:
-
-```json
-{
-  "path": "/uploads/site/assets/file.jpg"
-}
-```
-
-Invalid type:
-
-```json
-{
-  "error": "Invalid upload type"
-}
-```
-
-### Static Upload Routes
-
-Local uploads are served from:
-
-```txt
-GET /uploads/site/assets/<file>
-GET /uploads/site/photos/<file>
-GET /uploads/site/branding/<file>
-GET /uploads/site/fonts/<file>
-```
-
-### `GET /api/youtube-metadata`
-
-Fetches metadata for a YouTube URL or video ID. The dashboard uses this when importing videos.
-
-Query:
-
-```txt
-url=<youtube-url-or-id>
-id=<youtube-video-id>
-```
-
-Success:
-
-```json
-{
-  "youtubeVideoId": "dQw4w9WgXcQ",
-  "title": "Example Video",
-  "channelName": "Example Channel",
-  "publishedDate": "2026-05-01",
-  "type": "video"
-}
-```
-
-If this route returns `404` during local development, restart `bun run dev` so the server process picks up the route.
-
-## Metadata And Social Preview
-
-Use the dashboard `Share preview` section to control the browser title, description, Open Graph image, favicon, theme color, and canonical site URL. The section also shows a share preview card so you can check the social preview before saving.
-
-Recommended Open Graph image size:
-
-```txt
-1200 x 630 pixels
-```
-
-Upload share images through the dashboard `Media library` section, then copy the returned path into the metadata image field. Local uploaded paths look like:
-
-```txt
-/uploads/site/assets/social-share.jpg
-/uploads/site/branding/favicon.ico
-```
-
-Metadata currently falls back in this order:
-
-```txt
-Browser and social title: "<artistName> | <page>"
-Description: metadata.description -> about.shortBio -> home announcement -> generated artist fallback
-Image: metadata.socialImage -> home featured release cover
-Theme color: metadata.themeColor -> branding.accentColor
-Favicon: metadata.faviconPath -> branding.faviconPath
-```
-
-`metadata.title` and `pageTitle` are stored in the EPK data and shown in the dashboard metadata preview, but the routed public pages currently set document and Open Graph titles from the artist name and page label.
-
-Public branding supports:
-
-```txt
-Color theme tokens
-Google font imports
-Uploaded fonts
-Per-element font settings
-Full-page background texture
-Logo and favicon paths
-```
-
-## Useful Commands
+If an integration needs to persist data (signups, cached feeds, tokens), define tables in `apps/api/src/db/schema.ts`, set `DATABASE_URL`, then:
 
 ```bash
-bun run dev
-bun run validate:epk examples/demo-epk.example.json
-bun run import:epk examples/demo-epk.example.json --admin-key "$ADMIN_API_KEY" --confirm
-cd apps/web && bun run build
-cd apps/server && bun x tsc --noEmit
+cd apps/api
+bun run db:generate
+bun run db:migrate
 ```
 
-## Production Notes
-
-Local uploads are served from `apps/server/uploads` during development. In production, uploads automatically switch to Vercel Blob once `BLOB_READ_WRITE_TOKEN` is set (see "Deploying to Vercel" below) — no code changes needed either way.
-
-Do not deploy with the example admin key. In production, `ADMIN_API_KEY` must be set to a strong secret and must not be one of the default local values.
-
-Before launch, follow [docs/production-checklist.md](docs/production-checklist.md).
-
-When replacing demo content for a real artist, follow [docs/template-cleanup.md](docs/template-cleanup.md).
-
-For client-facing intake, content planning, optional fields, and a plain-language explanation of how EPK data is handled, use [docs/client-marketing-content-kit.md](docs/client-marketing-content-kit.md).
-
-For frontend implementation notes, use [docs/frontend-handoff.md](docs/frontend-handoff.md). The public web app is intentionally a data-ready scaffold rather than a finished visual frontend.
+See [apps/api/README.md](apps/api/README.md) for details.
 
 ## Deploying to Vercel
 
-The web app and API deploy together as one Vercel project — the root [vercel.json](vercel.json) tells Vercel how to build `apps/web` as the static frontend, and the root `api/[[...route]].ts` runs the same Hono API (from `apps/server`) as a serverless function. Because that config lives in the repo, you don't need to set a "Root Directory" or any build settings by hand in the Vercel dashboard — just import the repo as-is. A few things still need your account/dashboard:
+The web app and API deploy together as one Vercel project. [vercel.json](vercel.json) builds `apps/web` as the static frontend, and [api/[[...route]].ts](api/[[...route]].ts) runs the Hono app from `apps/api` as a serverless function. Import the repo as-is with no Root Directory or build overrides.
 
-1. **Create the Vercel project** from this repo. No Root Directory or build command overrides needed — `vercel.json` already specifies them.
-2. **Provision a serverless-friendly Postgres.** A normal long-lived connection (like local Docker Postgres) doesn't survive serverless cold starts. Use [Neon](https://neon.tech) or [Supabase](https://supabase.com) and copy their **pooled** connection string (Neon's has `-pooler` in the hostname) into `DATABASE_URL`.
-3. **Run migrations once against that database** before the first deploy: `DATABASE_URL="<pooled-url>" bunx drizzle-kit migrate` from `apps/server`.
-4. **Enable Vercel Blob** on the project (Storage tab) and copy `BLOB_READ_WRITE_TOKEN` into the project's environment variables — this is what switches uploads from local disk to Blob automatically (see `apps/server/index.ts`).
-5. **Set the remaining environment variables** on the Vercel project: `ADMIN_API_KEY` (strong secret, not a local placeholder), `EPK_SLUG` (usually `site`).
+Set any integration env vars (and `DATABASE_URL`, if you use the database) on the Vercel project. For Postgres on Vercel, use a pooled serverless connection string (e.g. Neon or Supabase).
 
-Local dev is unaffected by any of this — without `BLOB_READ_WRITE_TOKEN` set, uploads keep writing to `apps/server/uploads` exactly as before, and `bun run dev` still points at your local Postgres.
+Before launch, follow [docs/production-checklist.md](docs/production-checklist.md).
 
-The in-memory rate limiting added for the admin API (`apps/server/index.ts`) is best-effort per warm serverless instance under Vercel, not a global guarantee across instances — see [docs/production-checklist.md](docs/production-checklist.md) for details.
+## Documentation
 
-## Verify
-
-Useful checks:
-
-```bash
-bun run validate:epk examples/demo-epk.example.json
-cd apps/web && bun run build
-cd apps/server && bun x tsc --noEmit
-```
+| Document | Audience | Purpose |
+| --- | --- | --- |
+| [docs/client-marketing-content-kit.md](docs/client-marketing-content-kit.md) | Clients, artist teams, managers, labels | Plain-language content intake guide. |
+| [docs/frontend-handoff.md](docs/frontend-handoff.md) | Frontend developers and designers | The data-ready frontend scaffold and what visual work is intentionally unfinished. |
+| [docs/production-checklist.md](docs/production-checklist.md) | Developers and deployment owners | Pre-launch checklist. |
+| [docs/template-cleanup.md](docs/template-cleanup.md) | Developers preparing a real artist site | Replacing demo content and placeholder media. |
+| [apps/web/src/content/README.md](apps/web/src/content/README.md) | Developers and technical content editors | Field-by-field content reference. |
+| [apps/api/README.md](apps/api/README.md) | Backend developers | API structure, integrations, optional database. |
+| [apps/web/README.md](apps/web/README.md) | Frontend developers | Vite app, routes, styling. |

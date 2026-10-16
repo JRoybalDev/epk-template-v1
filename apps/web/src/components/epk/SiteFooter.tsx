@@ -1,4 +1,4 @@
-import type { EPK } from '../../../../../packages/schema'
+import type { EPK } from '../../content/schema'
 
 type SiteFooterProps = {
   epk: EPK

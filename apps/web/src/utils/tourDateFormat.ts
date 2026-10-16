@@ -1,4 +1,4 @@
-import type { DateDisplayFormat } from '../../../../packages/schema'
+import type { DateDisplayFormat } from '../content/schema'
 
 const shortMonthLabels = [
   'Jan',
