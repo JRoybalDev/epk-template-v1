@@ -73,7 +73,8 @@ Everything the public site shows comes from [apps/web/src/content/epk.ts](apps/w
 
 - Field reference: [apps/web/src/content/README.md](apps/web/src/content/README.md)
 - Media: drop files in `apps/web/public/media/` and reference them as `/media/<file>`.
-- The content is validated at startup and by `bun run validate:content`. Invalid content fails loudly instead of rendering a broken page.
+- The file is typed against the schema (`satisfies EPKInput`), so your editor autocompletes fields and flags typos, wrong types, and missing required fields as you edit.
+- URL and email formats are validated at startup and by `bun run validate:content`. Invalid content fails loudly instead of rendering a broken page.
 
 ## Public routes
 

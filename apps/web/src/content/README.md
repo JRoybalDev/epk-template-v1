@@ -388,7 +388,7 @@ When `redirectOnly` is `true`, public navigation sends visitors directly to `ext
 
 Shop item `category` must be `clothing`, `music`, or `other`. Clothing items can include `sizes` using `XS`, `S`, `M`, `L`, `XL`, `2XL`, and `3XL`.
 
-Legacy imported values such as `apparel`, `vinyl`, `poster`, and `merch` are normalized during validation so older saved EPK data can still load.
+Legacy values such as `apparel`, `vinyl`, `poster`, and `merch` are also accepted and normalized during validation, so content copied from older EPKs still works.
 
 ### About
 
@@ -569,7 +569,7 @@ Common examples:
 
 ## Validation Notes
 
-The schema requires valid URLs for URL fields and valid emails for email fields.
+TypeScript checks field names, value types, and enum values in `epk.ts` as you edit. URL and email formats can only be checked at runtime: the schema requires valid URLs for URL fields and valid emails for email fields.
 
 These are valid examples:
 

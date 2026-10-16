@@ -71,7 +71,6 @@ These items identify the artist and site.
 Required:
 
 - Artist name.
-- Internal site slug. For this template, this normally stays `site`.
 - Public site title or browser title.
 
 Optional:
@@ -100,7 +99,7 @@ Optional fields:
 - Decorative corner motif image.
 - Favicon path.
 - Public EPK color theme values.
-- Google fonts or uploaded font files.
+- Google fonts or custom font files.
 - Per-element font styling for body text, headings, links, buttons, and navigation.
 
 Recommended assets:
@@ -757,7 +756,7 @@ A full web address. Use `https://` at the beginning.
 
 ### Path
 
-The location of an uploaded file or hosted asset. It may look like `/media/file.jpg` or like a full media URL.
+The location of a media file or hosted asset. It may look like `/media/file.jpg` or like a full media URL.
 
 ### Featured
 
